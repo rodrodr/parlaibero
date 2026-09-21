@@ -1,5 +1,5 @@
 ---
-/** Raíz del sitio: selector de idioma estático. Sin JS funciona como lista de enlaces; con JS, lleva a la lengua del navegador. */
+/** Raíz del sitio: lleva al ESPAÑOL, que es la lengua por defecto. Si la redirección no actúa, queda la lista de lenguas. */
 import '../styles/base.css';
 import '@fontsource-variable/archivo/wdth.css';
 import FundingNotice from '../components/FundingNotice.astro';
@@ -19,11 +19,10 @@ const AVISOS = LANGS.filter((l) => l !== 'es');
     <link rel="canonical" href={new URL(url('es'), Astro.site).href} />
     {LANGS.map((l) => <link rel="alternate" hreflang={HTML_LANG[l]} href={new URL(url(l), Astro.site).href} />)}
     <link rel="icon" type="image/svg+xml" href={recurso('favicon.svg')} />
-    <script is:inline define:vars={{ destinos: Object.fromEntries(LANGS.map((l) => [l, url(l)])) }}>
-      const pref = (navigator.languages || [navigator.language || 'es']).map((x) => x.slice(0, 2).toLowerCase());
-      const l = pref.find((x) => destinos[x]) || 'es';
-      location.replace(destinos[l]);
-    </script>
+    {/* La lengua por defecto es el ESPAÑOL (decisión del investigador, 2026-09-21): la raíz lleva siempre a /es/, no a la
+        lengua del navegador. Quien quiera otra la elige en la cabecera. El `refresh` lo hace también sin JavaScript. */}
+    <meta http-equiv="refresh" content={`0; url=${url('es')}`} />
+    <script is:inline define:vars={{ destino: url('es') }}>location.replace(destino);</script>
   </head>
   <body>
     <main class="contenedor" style="padding-block: 18vh">

@@ -266,6 +266,9 @@ function esperados() {
   const anual = Object.fromEntries(leeJson('src/data/anual.json').map((a) => [a.iso, a]));
   const eventos = Object.fromEntries(leeJson('src/data/eventos.json').map((e) => [`${e.iso}-${e.date}`, e]));
   const columnas = Object.fromEntries(leeJson('src/data/columnas.json').map((c) => [c.nombre, c]));
+  // BORRADOR (rama `portada-rotativa`): las series de la apertura rotativa. Si los ficheros no están, la familia no existe.
+  const SERIES = { terminos: existsSync(join(RAIZ, 'src/data/terminos.json')) ? leeJson('src/data/terminos.json') : null,
+                   estructura: existsSync(join(RAIZ, 'src/data/estructura.json')) ? leeJson('src/data/estructura.json') : null };
   const fFila = join(RAIZ, 'src/data/fila_ejemplo.json');
   // `{ iso, texto_truncado, celdas: [{ columna, valor }] }` → columna → valor.
   const fila = existsSync(fFila) ? Object.fromEntries((leeJson('src/data/fila_ejemplo.json').celdas ?? []).map((c) => [c.columna, c.valor])) : null;
@@ -346,6 +349,28 @@ function esperados() {
           return desde >= d && desde <= hasta && hasta <= d + 9 ? null : `«${texto}» no cabe en la década de ${d}`;
         },
       };
+    }
+    // BORRADOR: `serie.<fuente>.<medida>.<iso>.<periodo>`. Se recalcula aquí desde los datos, con la misma regla que
+    // el componente pero sin compartir su código: un control que importa lo que vigila solo puede darle la razón.
+    if ((m = k.match(/^serie\.(terminos|estructura)\.(\w+)\.([a-z]{2})\.(\d{4}s?)$/))) {
+      const [, fuente, medida, iso, periodo] = m;
+      const raiz = SERIES[fuente];
+      if (!raiz) return null;
+      let v = null;
+      if (fuente === 'terminos') {
+        const a = raiz.paises[iso]?.anual?.[periodo];
+        if (a && a.palabras >= raiz.min_palabras) v = (a[medida] * 1e6) / a.palabras;
+      } else {
+        const a = raiz.paises[iso]?.[/s$/.test(periodo) ? 'decada' : 'anual']?.[periodo];
+        if (a && typeof a[medida] === 'number') v = a[medida];
+      }
+      if (v === null) return null;
+      return { valida(value, texto) {
+        if (Math.abs(Number(value) - v) > 1e-9) return `lleva value="${value}" y el dato es ${v}`;
+        // El texto es el valor redondeado: un entero, o un porcentaje sin decimales.
+        const esperado = v <= 1 && /%/.test(texto) ? String(Math.round(v * 100)) : String(Math.round(v));
+        return digitos(texto) === digitos(esperado) ? null : `el texto «${texto}» no dice ${esperado}`;
+      } };
     }
     // La fecha de la búsqueda de corpus equivalentes la da el investigador: su procedencia es `src/config/enlaces.ts`.
     if (k === 'fecha_busqueda') {
@@ -571,7 +596,7 @@ function main() {
       nDatos++;
       const k = d.attrs['data-k'];
       if (!k) { falla(rel, `<data> sin data-k: «${textoDe(d)}»`); continue; }
-      const familia = k in cifras ? 'cifras.json' : /^pais\./.test(k) ? 'paises.json' : /^anual\./.test(k) ? 'anual.json' : /^evento\./.test(k) ? 'eventos.json' : /^columna\./.test(k) ? 'columnas.json' : 'de componente';
+      const familia = k in cifras ? 'cifras.json' : /^pais\./.test(k) ? 'paises.json' : /^anual\./.test(k) ? 'anual.json' : /^evento\./.test(k) ? 'eventos.json' : /^columna\./.test(k) ? 'columnas.json' : /^serie\./.test(k) ? 'series (borrador)' : 'de componente';
       familias.set(familia, (familias.get(familia) ?? 0) + 1);
       const e = esperado(k), visto = d.attrs.value ?? '', texto = textoDe(d);
       if (!e) { falla(rel, `<data data-k="${k}">: clave sin procedencia conocida («${texto}»)`); continue; }

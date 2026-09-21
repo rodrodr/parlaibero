@@ -1,0 +1,39 @@
+---
+/**
+ * BORRADOR (rama `portada-rotativa`): Inicio con la apertura ROTATIVA, para compararla con la portada publicada.
+ * Es la MISMA página que `/[lang]/`: mismos movimientos, mismos componentes, mismo JSON-LD. Lo único que cambia es
+ * el primer bloque —la pregunta y su figura—, que aquí rota. No se indexa y no se enlaza desde la navegación.
+ * Si el investigador la aprueba, su apertura entra en Inicio y esta página desaparece.
+ */
+import Base from '../../layouts/Base.astro';
+import AperturaRotativa from '../../components/inicio/AperturaRotativa.astro';
+import Tesis from '../../components/inicio/Tesis.astro';
+import Cobertura from '../../components/inicio/Cobertura.astro';
+import Pleno from '../../components/inicio/Pleno.astro';
+import Sesiones from '../../components/inicio/Sesiones.astro';
+import SinDueno from '../../components/inicio/SinDueno.astro';
+import Empezar from '../../components/inicio/Empezar.astro';
+import { plano } from '../../lib/i18n';
+import { PAGINAS } from '../../lib/rutas';
+import { rutasPorIdioma, type Lang } from '../../lib/idiomas';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+---
+<Base lang={lang} ruta={PAGINAS.inicio} titulo={plano(lang, 'inicio.meta.titulo')} descripcion={plano(lang, 'inicio.meta.descripcion')} franjaAEI>
+  <div class="inicio">
+    <AperturaRotativa lang={lang} />
+    <Tesis lang={lang} />
+    <Cobertura lang={lang} />
+    <Pleno lang={lang} />
+    <Sesiones lang={lang} />
+    <SinDueno lang={lang} />
+    <Empezar lang={lang} />
+  </div>
+</Base>
+
+<style is:global>
+  .inicio .reja { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.4vw, 2.5rem); }
+  :where(.inicio .reja) > * { grid-column: 1 / -1; min-width: 0; }
+  .inicio .en-letra data.cifra { font: inherit; letter-spacing: inherit; }
+</style>

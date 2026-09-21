@@ -1,0 +1,154 @@
+---
+/**
+ * BORRADOR (rama `portada-rotativa`). Una serie por cámara, para las aperturas que rotan.
+ *
+ *  · Reutiliza ENTERA la geometría de la figura de la voz (`viz/geom/voz.ts`): eje X de posiciones —los años o las
+ *    décadas de la unión de las dieciséis cámaras—, de modo que un periodo sin dato se queda vacío y NO se une con
+ *    una línea; eje Y compartido por los dieciséis paneles, para que cambiar de panel no cambie la escala.
+ *  · Dos ejes, dos modos de rotular. En la serie ANUAL se rotula el año más alto, que es donde está el relato; sus
+ *    extremos son ruidosos y rotularlos afirmaría más de lo que el dato aguanta. En la serie por DÉCADAS se rotulan
+ *    la primera y la última, como en la figura aprobada.
+ *  · Ninguna cifra sin denominador: cada punto lleva el suyo, y la descripción larga los da uno a uno.
+ */
+import TERMINOS from '../data/terminos.json';
+import ESTRUCTURA from '../data/estructura.json';
+import { PAISES, fmt } from '../lib/cifras';
+import type { Lang } from '../lib/idiomas';
+import { LIENZO, decadas, maximoRedondeado, marcasX, escalaY, serie, enPorcentaje, type SerieEntrada, type PuntoGeom } from '../viz/geom/voz';
+
+export type Formato = 'porMillon' | 'pct' | 'entero';
+export interface Spec {
+  /** `terminos` mide cuántas veces se dice una familia de formas; `estructura`, cómo funciona el pleno. */
+  fuente: 'terminos' | 'estructura';
+  /** La familia (`democracia`) o la medida (`concentracion`). */
+  clave: string;
+  eje: 'anual' | 'decada';
+  formato: Formato;
+  /** Escalón del techo del eje Y: el máximo se sube al siguiente múltiplo. */
+  paso: number;
+}
+interface Props { lang: Lang; spec: Spec; id: string }
+const { lang, spec, id } = Astro.props;
+
+const T = TERMINOS as unknown as { min_palabras: number; familias: Record<string, string>; paises: Record<string, { anual: Record<string, Record<string, number>> }> };
+const E = ESTRUCTURA as unknown as { paises: Record<string, { anual: Record<string, any>; decada: Record<string, any> }> };
+
+/** Un punto por periodo: valor, su `n` y su denominador. `NaN` donde no hay dato: la ausencia no es un cero. */
+function puntos(iso: string): { decada: string; v: number; n: number; den: number }[] {
+  if (spec.fuente === 'terminos') {
+    const anual = T.paises[iso]?.anual ?? {};
+    return Object.entries(anual).map(([p, a]) => ({
+      decada: p,
+      // Un año con poco material no da una tasa: cuatro ocurrencias sobre veinte mil palabras serían un pico inventado.
+      v: a.palabras >= T.min_palabras ? (a[spec.clave] * 1_000_000) / a.palabras : NaN,
+      n: a[spec.clave], den: a.palabras,
+    }));
+  }
+  const serieP = (E.paises[iso] ?? {})[spec.eje] ?? {};
+  return Object.entries(serieP).map(([p, a]: [string, any]) => {
+    const v = a[spec.clave];
+    const den = spec.clave === 'voces_sesion' ? a.voces_den : spec.clave === 'concentracion' ? a.concentracion_den : a.turnos;
+    return { decada: p, v: typeof v === 'number' ? v : NaN, n: a.turnos, den: den ?? 0 };
+  });
+}
+
+const entrada: SerieEntrada[] = PAISES.map((p) => ({ iso: p.iso, puntos: puntos(p.iso) }));
+const PERIODOS = decadas(entrada);
+const TECHO = maximoRedondeado(entrada.flatMap((s) => s.puntos.map((q) => q.v)), spec.paso);
+const GEO = entrada.map((s) => serie(s, PERIODOS, TECHO));
+const L = LIENZO;
+const yBase = escalaY(0, TECHO);
+// En la serie anual, una marca por década: cincuenta ticks serían una trama, no un eje.
+const MARCAS = marcasX(PERIODOS).filter((m) => spec.eje === 'decada' || m.ano % 10 === 0);
+const TICS = MARCAS.map((m) => `M${m.x},${yBase}v3`).join('');
+
+const texto = (v: number) =>
+  spec.formato === 'pct' ? fmt.porcentaje(v, lang, 0) : fmt.entero(Math.round(v), lang);
+const clave = (iso: string, periodo: string) => `serie.${spec.fuente}.${spec.clave}.${iso}.${periodo}`;
+// La marca del eje es un AÑO en la serie anual y una DÉCADA en la otra, y cada una tiene su procedencia.
+const marca = (m: { ano: number; decada: string }) =>
+  fmt.dato(m.ano, String(m.ano), spec.eje === 'anual' ? 'eje.ano' : `decada.${m.decada}`);
+
+/** En la anual, el punto más alto; en la de décadas, la primera y la última que ya coloca la geometría. */
+const paneles = PAISES.map((p, i) => {
+  const g = GEO[i];
+  const alto = g.puntos.reduce<PuntoGeom | null>((a, b) => (a && a.v >= b.v ? a : b), null);
+  const etiquetas = spec.eje === 'anual'
+    ? (alto ? [{ punto: alto, fin: alto.x > L.ancho * 0.62, conPeriodo: true }] : [])
+    : [g.primera, g.ultima].filter(Boolean).map((r) => ({ punto: r!.punto, fin: r!.ancla === 'fin', conPeriodo: false }));
+  return { p, g, etiquetas, alto };
+});
+const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
+---
+<figure class="figserie" id={id} aria-labelledby={ids.titulo}>
+  <figcaption class="se-cabeza">
+    <h2 id={ids.titulo} class="se-titulo"><slot name="titulo" /></h2>
+  </figcaption>
+
+  <div class="se-rejilla" role="img" aria-describedby={ids.largo}>
+    {paneles.map(({ p, g, etiquetas }) => (
+      <div class="se-mini" data-iso={p.iso}>
+        <p class="se-nombre">{p.nombre[lang]}</p>
+        <div class="se-lienzo">
+          <svg class="se-svg" viewBox={`0 0 ${L.ancho} ${L.alto}`} aria-hidden="true" focusable="false">
+            <line class="se-base" x1="0" x2={L.ancho} y1={yBase} y2={yBase} />
+            <path class="se-tic" d={TICS} />
+            {g.ruta && <path class="se-linea" d={g.ruta} />}
+            {g.puntos.length === 1 && <circle class="se-punto" cx={g.puntos[0].x} cy={g.puntos[0].y} r="2.4" />}
+            {etiquetas.map((e) => <circle class="se-punto" cx={e.punto.x} cy={e.punto.y} r="2.4" />)}
+          </svg>
+          {etiquetas.map((e) => (
+            <span
+              class:list={['se-etq', { 'se-fin': e.fin }]}
+              style={`left:${enPorcentaje(e.punto).izq}%;top:${enPorcentaje(e.punto).arriba}%`}
+              set:html={fmt.dato(e.punto.v, texto(e.punto.v), clave(p.iso, e.punto.decada)) + (e.conPeriodo ? ` <span class="se-per">${fmt.dato(Number(e.punto.decada), e.punto.decada, 'eje.ano')}</span>` : '')}
+            />
+          ))}
+        </div>
+        <div class="se-eje">
+          <span set:html={marca(MARCAS[0])} />
+          <span set:html={marca(MARCAS[MARCAS.length - 1])} />
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Descripción larga: una línea por cámara, con su denominador. Oculta a la vista, no al lector de pantalla. */}
+  <div id={ids.largo} class="sr-only">
+    <ul>
+      {paneles.map(({ p, g, alto }) => {
+        const r = spec.eje === 'anual' ? alto : (g.ultima?.punto ?? null);
+        return r ? <li>{p.nombre[lang]}: {texto(r.v)} · {r.decada} · {fmt.entero(r.den, lang)}</li> : null;
+      })}
+    </ul>
+  </div>
+
+  <p class="se-salvedad nota"><slot name="salvedad" /></p>
+</figure>
+
+<style>
+  .figserie { margin: 0; }
+  .se-cabeza { margin-bottom: 1.4rem; }
+  .se-titulo { font-size: var(--fs-h3); max-width: 34rem; }
+  .se-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6rem 1.5rem; }
+  .se-mini { min-width: 0; }
+  .se-nombre { margin: 0 0 .3rem; font: 700 .86rem/1.2 var(--display); font-stretch: 92%; color: var(--ink); }
+  .se-lienzo { position: relative; }
+  .se-svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .se-base, .se-tic { stroke: var(--hair); stroke-width: 1px; fill: none; vector-effect: non-scaling-stroke; }
+  .se-linea { fill: none; stroke: var(--dato); stroke-width: 1.6px; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .se-punto { fill: var(--dato); stroke: var(--bg); stroke-width: 1.4px; vector-effect: non-scaling-stroke; }
+  .se-etq {
+    position: absolute; transform: translate(-.2rem, calc(-100% - .35rem)); white-space: nowrap;
+    font: 600 .68rem/1 var(--mono); color: var(--ink);
+  }
+  .se-etq.se-fin { transform: translate(calc(-100% + .2rem), calc(-100% - .35rem)); }
+  .se-etq :global(data.cifra) { font-size: 1em; }
+  .se-per { color: var(--mute); font-weight: 400; }
+  .se-eje { display: flex; justify-content: space-between; margin-top: .15rem; font: 500 .62rem/1 var(--mono); color: var(--mute); }
+  .se-eje :global(data.cifra) { font-size: 1em; }
+  .se-salvedad { margin: 1.4rem 0 0; max-width: var(--measure); }
+
+  @media (min-width: 48rem) { .se-rejilla { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.8rem; } }
+  @media (min-width: 72rem) { .se-rejilla { gap: 2rem 2.2rem; } }
+</style>

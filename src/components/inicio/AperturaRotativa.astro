@@ -1,0 +1,106 @@
+---
+/**
+ * BORRADOR (rama `portada-rotativa`). La apertura de Inicio, rotando de pregunta en cada visita.
+ * SOLO cambia el primer bloque —la pregunta y su figura—; el resto de Inicio no se toca.
+ *
+ * Cómo rota, y por qué así:
+ *  · La primera apertura (la aprobada, la de la voz de las diputadas) se pinta NORMAL. Las demás viajan dentro de
+ *    un `<template>`, cuyo contenido no está en el documento: así la página sigue teniendo UN solo `h1`, el lector
+ *    de pantalla no oye siete preguntas y nada se carga dos veces.
+ *  · Sin JavaScript se ve la primera, que es exactamente la portada de hoy. Con JavaScript, un script síncrono
+ *    —colocado justo detrás, de modo que se ejecuta antes de pintar— elige una al azar y la sustituye.
+ *  · El botón «Otra pregunta» permite recorrerlas a mano, que es lo que hace falta para compararlas.
+ */
+import Apertura from './Apertura.astro';
+import FigSerie from '../FigSerie.astro';
+import { resuelve } from '../../lib/cifras';
+import { recurso } from '../../lib/rutas';
+import { APERTURAS, OTRA, type Lang3 } from '../../config/portada';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const L = lang as Lang3;
+
+/**
+ * `{corpus}` es la única cifra de estos títulos, y se resuelve como cualquier otra del sitio (envuelta y auditable).
+ * A principio de frase se escribe con mayúscula, como hace `t()` con los números en letra del copy.
+ */
+const conCifras = (s: string) => {
+  const html = resuelve('corpus.n|letra', lang);
+  const inicial = s.startsWith('{corpus}') ? html.replace(/(>|^)(\p{L})/u, (_x, a, b) => a + b.toUpperCase()) : html;
+  return s.replace('{corpus}', inicial);
+};
+const alternativas = APERTURAS.map((a, i) => ({ ...a, i })).filter((a) => a.tipo === 'serie');
+---
+<div class="rotativa" data-rotativa>
+  <div data-actual>
+    <Apertura lang={lang} />
+  </div>
+
+  {alternativas.map((a) => (
+    <template data-giro={a.i}>
+      <section class="apertura" aria-labelledby={`pregunta-${a.i}`}>
+        <div class="contenedor">
+          <h1 id={`pregunta-${a.i}`} class="pregunta">{a.textos![L].pregunta}</h1>
+        </div>
+        <div class="contenedor figura">
+          <FigSerie lang={lang} spec={a.spec!} id={`serie-${a.id}`}>
+            <Fragment slot="titulo" set:html={conCifras(a.textos![L].titulo)} />
+            <Fragment slot="salvedad">{a.textos![L].salvedad}</Fragment>
+          </FigSerie>
+        </div>
+        <div class="contenedor reja lectura">
+          <p class="lede ejemplos">{a.textos![L].hallazgo}</p>
+        </div>
+      </section>
+    </template>
+  ))}
+
+  <p class="control-rotativa contenedor no-imprimir">
+    <button type="button" data-otra>{OTRA[L]}</button>
+    <span class="borrador">borrador</span>
+  </p>
+</div>
+
+<script is:inline>
+  (function () {
+    var caja = document.currentScript.closest('[data-rotativa]') || document.querySelector('[data-rotativa]');
+    if (!caja) return;
+    var hueco = caja.querySelector('[data-actual]');
+    var giros = [].slice.call(caja.querySelectorAll('template[data-giro]'));
+    if (!hueco || !giros.length) return;
+    // La primera no está en un `<template>`: se guarda tal cual para poder volver a ella.
+    var primera = hueco.firstElementChild ? hueco.firstElementChild.cloneNode(true) : null;
+    var total = giros.length + 1;
+    var actual = 0;
+
+    function pon(i) {
+      if (i === actual) return;
+      var nodo = i === 0 ? (primera ? primera.cloneNode(true) : null) : giros[i - 1].content.cloneNode(true);
+      if (!nodo) return;
+      hueco.replaceChildren(nodo);
+      actual = i;
+    }
+    pon(Math.floor(Math.random() * total));
+
+    var boton = caja.querySelector('[data-otra]');
+    if (boton) boton.addEventListener('click', function () {
+      pon((actual + 1) % total);
+      var h = hueco.querySelector('h1');
+      if (h) { h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+    });
+  })();
+</script>
+
+<style>
+  .control-rotativa { display: flex; align-items: baseline; gap: .8rem; margin: 1.6rem auto 0; }
+  .control-rotativa button {
+    font: 700 var(--fs-small)/1.2 var(--display); font-stretch: 92%; color: var(--accent);
+    background: none; border: 0; border-bottom: 1px solid currentColor; padding: 0 0 .1em; cursor: pointer;
+  }
+  .control-rotativa .borrador {
+    font: 500 .68rem/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute);
+    border: 1px solid var(--hair); border-radius: var(--radio); padding: .25em .5em;
+  }
+</style>

@@ -1,0 +1,406 @@
+---
+/**
+ * LA FIGURA DE APERTURA · «dieciséis cámaras, cada una contra sí misma, por década, en palabras».
+ *
+ * Pequeños múltiplos: un panel por cámara, en el ORDEN FIJO de `paises.json` (década de entrada y año de inicio),
+ * nunca por valor; sin selector de país y sin ranking. Los dieciséis comparten eje X (las décadas de la unión de
+ * todas las series: la que no tiene datos se queda vacía, no a cero) y eje Y (0 – techo redondeado, el mismo en las
+ * tres medidas, para que cambiar de medida no cambie la vara de medir).
+ *
+ *  · Las FORMAS van en SVG, con geometría pura de `viz/geom/voz.ts`. Los RÓTULOS van en HTML encima, colgados de su
+ *    punto en porcentaje: así no encogen con el panel en el móvil y cada cifra lleva su `<data>` auditable.
+ *  · Padrón sin auditar (`sexo.auditado === false`): OTRO TRAZO —discontinuo, punto hueco, `--dato-sin-auditar`—,
+ *    nunca solo otro color.
+ *  · Sin JavaScript funciona entera: las pestañas y las tres medidas son radios + `:has()`. La isla solo añade la
+ *    nota emergente y atiende el enlace `[data-voz-medidas]` de la página.
+ *
+ * QUÉ TEXTO PINTA Y CUÁL NO. Pinta lo que es de la figura: su título (`inicio.apertura.figura.titulo`), el control de
+ * medidas, las pestañas, la tabla, la descarga y los textos alternativos. NO pinta por defecto la prosa de la página
+ * (`…figura.ejemplos`, `…figura.salvedad`), que en Inicio ya escribe `inicio/Apertura.astro`: repetirla rompería el
+ * tope de palabras. Quien use la figura SIN esa prosa al lado pasa `salvedad`, y entonces la salvedad hace de leyenda
+ * junto a las dos muestras de trazo. El `slot` por defecto cae bajo el título, para una línea de lectura propia.
+ */
+import Pestanas from './Pestanas.astro';
+import { t, plano, rotulo, existe } from '../lib/i18n';
+import { fmt, resuelve, PAISES, type Contexto, type Pais } from '../lib/cifras';
+import { recurso } from '../lib/rutas';
+import { FIGURAS } from '../lib/figuras';
+import type { Lang } from '../lib/idiomas';
+import {
+  LIENZO, decadas, marcasX, maximoRedondeado, serie, escalaY, enPorcentaje, ventanaDecada, conDato,
+  type MedidaVoz, type RotuloGeom, type SerieGeom,
+} from '../viz/geom/voz';
+
+interface Props {
+  lang: Lang;
+  /** Prefijo de los id de la figura; cámbiese solo si hay dos en la misma página. */
+  id?: string;
+  /** Pinta el título aprobado como pie de figura (por defecto, sí). */
+  titulo?: boolean;
+  /** Pinta la salvedad DENTRO de la figura, como leyenda de los dos trazos (por defecto, no: ver arriba). */
+  salvedad?: boolean;
+}
+const { lang, id = FIGURAS.voz.ancla, titulo = true, salvedad = false } = Astro.props;
+
+// ── datos → geometría ─────────────────────────────────────────────────────────────────────
+// Las medidas y su orden salen del propio dato; la primera (palabras) es la pública y la que manda por defecto.
+const MEDIDAS = Object.keys(Object.values(PAISES[0].voz)[0]) as MedidaVoz[];
+const POR_DEFECTO = MEDIDAS[0];
+const entrada = (m: MedidaVoz) => PAISES.map((p) => ({ iso: p.iso, puntos: Object.entries(p.voz).map(([decada, d]) => ({ decada, ...d[m] })) }));
+
+const DECS = decadas(entrada(POR_DEFECTO));
+const TECHO = maximoRedondeado(PAISES.flatMap((p) => Object.values(p.voz).flatMap((d) => MEDIDAS.map((m) => d[m].v))));
+const MARCAS = marcasX(DECS);
+const TICS = MARCAS.map((mx) => `M${mx.x},${escalaY(0, TECHO)}v3`).join('');
+const GEO = Object.fromEntries(MEDIDAS.map((m) => [m, entrada(m).map((s) => serie(s, DECS, TECHO))])) as Record<MedidaVoz, SerieGeom[]>;
+
+const L = LIENZO;
+/** Radio del punto, en unidades de viewBox. En pantallas anchas lo sube la hoja de estilo (propiedad `r`). */
+const RADIO = 2.8;
+const yBase = escalaY(0, TECHO);
+// La mitad: única raya de referencia. Es una constante del dibujo (la paridad), no una cifra del corpus; su rótulo
+// sale de ella por `fmt`, y `audit-cifras` comprueba que el texto de toda marca de eje dice lo que dice su `value`.
+const MITAD = 0.5;
+const referencia = MITAD < TECHO ? { y: escalaY(MITAD, TECHO), arriba: enPorcentaje({ x: 0, y: escalaY(MITAD, TECHO) }).arriba } : null;
+
+// ── cifras y textos ───────────────────────────────────────────────────────────────────────
+/** Misma convención de procedencia que la ficha de país: `palF` para palabras, `voz.<década>.<medida>` para el resto. */
+const clave = (iso: string, dec: string, m: MedidaVoz, campo: 'pct' | 'n' | 'den') =>
+  m === POR_DEFECTO ? `pais.${iso}.palF.${dec}.${campo}` : `pais.${iso}.voz.${dec}.${m}.${campo}`;
+const pct = (v: number) => fmt.porcentaje(v, lang);
+
+/**
+ * TODO-COPY · el copy aprobado no trae rótulo suelto para cada una de las tres medidas (solo «Ver turnos y oradoras»)
+ * ni cabeceras para `n` y `den`. Mientras no existan las claves, se enseña el IDENTIFICADOR DEL DATO —el valor de la
+ * columna `medida` y los nombres de columna de `voz_por_camara.csv`—. Va marcado con `data-todo-copy` EN LAS TRES
+ * LENGUAS (en español el identificador parece texto bueno, y no lo es): `audit-cifras` lo lista y, en publicación,
+ * falla. Si el copy añade cualquiera de estas claves, se usa sin tocar este archivo.
+ */
+function deCopy(claves: string[], identificador: string, codigo = false): string {
+  const k = claves.find(existe);
+  if (k) return t(lang, k);
+  const id = codigo ? `<code>${identificador}</code>` : identificador;
+  return `<span data-todo-copy="${claves[0]}"${lang === 'es' ? '' : ' lang="es" data-sin-traducir'}>${id}</span>`;
+}
+const nombreMedida = (m: MedidaVoz) => deCopy([`comun.fig.voz.medida.${m}`, `ficha.voz.col.${m}`], m);
+
+/** Nota emergente. La plantilla aprobada habla de PALABRAS; para turnos y oradoras no hay frase (TODO-COPY:
+ *  `comun.fig.voz.hover.<medida>`) y se dan solo las cifras, que no necesitan traducción. */
+function aviso(m: MedidaVoz, d: { v: number; n: number; den: number }): string {
+  const vars = { pct: pct(d.v), n: fmt.entero(d.n, lang), den: fmt.entero(d.den, lang) };
+  const k = m === POR_DEFECTO ? 'comun.fig.voz.hover' : `comun.fig.voz.hover.${m}`;
+  return existe(k) ? plano(lang, k, { vars }) : `${vars.pct} · ${vars.n} / ${vars.den}`;
+}
+
+/**
+ * ⚠ Rodeo de un defecto de los cimientos (declarado en el informe): `t()` escapa el texto ANTES de resolver los
+ * marcadores, así que `{{pais.<iso>.x}}` llega a `resuelve()` como `pais.&lt;iso&gt;.x`, el `replace('<iso>')` no casa
+ * y la clave queda sin resolver. Mientras no se corrija, los campos por país se entregan ya resueltos en `vars`, con
+ * la clave escrita de las dos formas: cuando los cimientos se arreglen, `vars` deja de casar y esto sobra sin romper nada.
+ */
+const dePais = (iso: string, campos: string[]): Contexto => ({
+  iso,
+  vars: Object.fromEntries(campos.flatMap((c) => [`pais.&lt;iso&gt;.${c}`, `pais.<iso>.${c}`].map((k) => [k, resuelve(`pais.${iso}.${c}`, lang)]))),
+});
+const CAMPOS_ALT = ['nombre', 'palF.primera.pct', 'palF.ultima.pct'];
+
+const posicion = (r: RotuloGeom) => { const q = enPorcentaje(r); return `left:${q.izq}%;top:${q.arriba}%`; };
+const valor = (p: Pais, m: MedidaVoz, r: RotuloGeom) => fmt.dato(r.punto.v, pct(r.punto.v), clave(p.iso, r.punto.decada, m, 'pct'));
+
+const paneles = PAISES.map((p, i) => ({
+  p,
+  auditado: p.sexo.auditado,
+  series: MEDIDAS.map((m, k) => ({ m, k, g: GEO[m][i] })),
+}));
+
+// Tabla: una por medida; la década va recortada a la ventana de la cámara, como en su ficha («1985–89»).
+const periodo = (p: Pais, dec: string) => {
+  const [desde, hasta] = ventanaDecada(dec, p.inicio, p.fin);
+  return fmt.dato(desde, desde === hasta ? String(desde) : `${desde}–${String(hasta).slice(-2)}`, `decada.${dec}`);
+};
+
+// El LÉAME lo genera el build por figura y lengua (src/pages/datos/leame-[fig]-[lang].txt.ts): es el que promete `comun.fig.datos.nota`.
+const ARCHIVOS = ['voz_por_camara.csv', 'voz_por_camara.xlsx', `leame-voz_por_camara-${lang}.txt`];
+const ids = { titulo: `${id}-titulo`, largo: `${id}-largo`, medidas: `${id}-medidas` };
+const LEYENDA = ['comun.fig.voz.leyenda.auditado', 'comun.fig.voz.leyenda.sin_auditar'];
+const hayLeyendaCorta = LEYENDA.every(existe);
+// TODO-COPY que no tienen elemento propio donde colgarse (la nota emergente vive en un atributo; los dos rótulos de
+// la leyenda, en ninguna parte): se declaran en el contenedor del gráfico para que la puerta los vea.
+const faltan = [
+  ...MEDIDAS.filter((m) => m !== POR_DEFECTO).map((m) => `comun.fig.voz.hover.${m}`),
+  ...LEYENDA,
+].filter((k) => !existe(k));
+---
+<figure class="figvoz" id={id} data-figura="voz" aria-labelledby={ids.titulo}>
+  <figcaption class="vz-cabeza">
+    <p id={ids.titulo} class:list={['vz-titulo', { 'sr-only': !titulo }]} set:html={t(lang, 'inicio.apertura.figura.titulo')} />
+    <slot />
+  </figcaption>
+
+  <Pestanas lang={lang} id={id} etiquetadoPor={ids.titulo}>
+    <div slot="barra" class="vz-medidas" role="radiogroup" aria-labelledby={ids.medidas}>
+      <span id={ids.medidas} class="vz-medidas-rotulo" set:html={rotulo(lang, 'inicio.apertura.figura.medidas')} />
+      <span class="vz-opciones">
+        {MEDIDAS.map((m, k) => (
+          <span class="vz-opcion">
+            <input type="radio" name={`${id}-medida`} id={`${id}-medida-${m}`} value={m} data-conmuta={String(k)} checked={m === POR_DEFECTO} />
+            <label for={`${id}-medida-${m}`} set:html={nombreMedida(m)} />
+          </span>
+        ))}
+      </span>
+    </div>
+
+    <div slot="grafico">
+      <div class="vz-rejilla" role="img" aria-label={plano(lang, 'comun.alt.voz.corto')} aria-describedby={ids.largo} data-todo-copy={faltan.join(' ') || undefined}>
+        {paneles.map(({ p, auditado, series }) => (
+          <div class="vz-mini entra" data-iso={p.iso} data-auditado={auditado ? 'si' : 'no'}>
+            <p class="vz-nombre">{p.nombre[lang]}</p>
+            <div class="vz-lienzo">
+              <svg class="vz-svg" viewBox={`0 0 ${L.ancho} ${L.alto}`} aria-hidden="true" focusable="false">
+                {referencia && <line class="vz-ref" x1="0" x2={L.ancho} y1={referencia.y} y2={referencia.y} />}
+                <line class="vz-base" x1="0" x2={L.ancho} y1={yBase} y2={yBase} />
+                <path class="vz-tic" d={TICS} />
+                {series.map(({ m, k, g }) => (
+                  <g data-medida={m} data-m={String(k)}>
+                    {g.ruta && <path class="vz-linea" d={g.ruta} />}
+                    {g.puntos.map((pt) => <circle class="vz-punto" cx={pt.x} cy={pt.y} r={RADIO} />)}
+                    {g.puntos.map((pt) => <circle class="vz-diana" cx={pt.x} cy={pt.y} r="11" data-tip={`${p.nombre[lang]} · ${aviso(m, pt)}`} />)}
+                  </g>
+                ))}
+              </svg>
+              {referencia && <span class="vz-ref-rotulo" style={`top:${referencia.arriba}%`} set:html={fmt.dato(MITAD, fmt.porcentaje(MITAD, lang, 0), 'eje.pct')} />}
+              {series.map(({ m, k, g }) => (
+                <Fragment>
+                  {g.primera && <span class:list={['vz-etq', `vz-${g.primera.lado}`, `vz-${g.primera.ancla}`]} data-medida={m} data-m={String(k)} style={posicion(g.primera)} set:html={valor(p, m, g.primera)} />}
+                  {g.ultima && <span class:list={['vz-etq', 'vz-ultima', `vz-${g.ultima.lado}`, `vz-${g.ultima.ancla}`]} data-medida={m} data-m={String(k)} style={posicion(g.ultima)} set:html={valor(p, m, g.ultima)} />}
+                </Fragment>
+              ))}
+            </div>
+            <div class="vz-eje">
+              {MARCAS.map((mx, k) => (
+                <span
+                  class={k === 0 ? 'vz-ini' : k === MARCAS.length - 1 ? 'vz-fin' : 'vz-medio'}
+                  style={k === 0 || k === MARCAS.length - 1 ? undefined : `left:${enPorcentaje({ x: mx.x, y: 0 }).izq}%`}
+                  set:html={fmt.dato(mx.ano, String(mx.ano), `decada.${mx.decada}`)}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {(salvedad || hayLeyendaCorta) && (
+        <div class="vz-leyenda">
+          <span class="vz-muestras">
+            <svg class="vz-muestra" data-auditado="si" viewBox="0 0 44 12" aria-hidden="true" focusable="false"><path class="vz-linea" d="M2,6L42,6" /><circle class="vz-punto" cx="22" cy="6" r="3" /></svg>
+            {hayLeyendaCorta && <span class="vz-muestra-rotulo" set:html={t(lang, 'comun.fig.voz.leyenda.auditado')} />}
+            <svg class="vz-muestra" data-auditado="no" viewBox="0 0 44 12" aria-hidden="true" focusable="false"><path class="vz-linea" d="M2,6L42,6" /><circle class="vz-punto" cx="22" cy="6" r="3" /></svg>
+            {hayLeyendaCorta && <span class="vz-muestra-rotulo" set:html={t(lang, 'comun.fig.voz.leyenda.sin_auditar')} />}
+          </span>
+          {salvedad && <p class="nota" set:html={t(lang, 'inicio.apertura.figura.salvedad')} />}
+        </div>
+      )}
+
+      {/* Descripción larga: una línea por cámara. Va oculta a la vista, no al lector de pantalla. */}
+      <div id={ids.largo} class="sr-only">
+        <p set:html={t(lang, 'comun.alt.voz.largo.intro')} />
+        <ul>
+          {PAISES.map((p) => <li set:html={t(lang, p.sexo.auditado ? 'comun.alt.voz.largo.fila' : 'comun.alt.voz.largo.fila.sin_auditar', dePais(p.iso, CAMPOS_ALT))} />)}
+        </ul>
+        <p set:html={t(lang, 'comun.alt.voz.largo.salvedad')} />
+      </div>
+    </div>
+
+    <div slot="tabla">
+      {MEDIDAS.map((m, k) => (
+        <div class="fig-desliza" data-medida={m} data-m={String(k)} role="region" tabindex="0" aria-labelledby={`${id}-tabla-${m}`}>
+          <table class="fig-tabla vz-tabla">
+            <caption id={`${id}-tabla-${m}`}><span class="fig-rotulo-tabla"><Fragment set:html={t(lang, 'fig.voz.titulo')} /> · <Fragment set:html={nombreMedida(m)} /></span></caption>
+            <thead>
+              <tr>
+                <th scope="col" set:html={t(lang, 'paises.tabla.col.pais')} />
+                <th scope="col" set:html={t(lang, 'paises.tabla.col.periodo')} />
+                <th scope="col" class="num" set:html={nombreMedida(m)} />
+                <th scope="col" class="num" set:html={deCopy(['comun.fig.voz.tabla.col.n'], 'n', true)} />
+                <th scope="col" class="num" set:html={deCopy(['comun.fig.voz.tabla.col.den'], 'den', true)} />
+              </tr>
+            </thead>
+            {PAISES.map((p) => {
+              const decs = Object.keys(p.voz).sort();
+              return (
+                <tbody data-auditado={p.sexo.auditado ? 'si' : 'no'}>
+                  {decs.map((dec, k) => {
+                    const d = p.voz[dec][m];
+                    return (
+                      <tr>
+                        {k === 0 && (
+                          <th scope="rowgroup" rowspan={decs.length}>
+                            {p.nombre[lang]}
+                            {!p.sexo.auditado && hayLeyendaCorta && <span class="sr-only"> (<Fragment set:html={t(lang, LEYENDA[1])} />)</span>}
+                            {!p.sexo.auditado && <svg class="vz-muestra" data-auditado="no" viewBox="0 0 44 12" aria-hidden="true" focusable="false"><path class="vz-linea" d="M2,6L42,6" /><circle class="vz-punto" cx="22" cy="6" r="3" /></svg>}
+                          </th>
+                        )}
+                        <th scope="row" class="vz-periodo" set:html={periodo(p, dec)} />
+                        {/* Una década sin dato deja sus celdas vacías: no es un 0 %. */}
+                        <td class="num" set:html={conDato(d) ? fmt.dato(d.v, pct(d.v), clave(p.iso, dec, m, 'pct')) : ''} />
+                        <td class="num" set:html={conDato(d) ? fmt.dato(d.n, fmt.entero(d.n, lang), clave(p.iso, dec, m, 'n')) : ''} />
+                        <td class="num" set:html={conDato(d) ? fmt.dato(d.den, fmt.entero(d.den, lang), clave(p.iso, dec, m, 'den')) : ''} />
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              );
+            })}
+          </table>
+        </div>
+      ))}
+      <p class="nota fig-pie-tabla" set:html={t(lang, 'fig.voz.denominador')} />
+      {/* En la tabla, el padrón sin auditar solo lleva una muestra de trazo: esta frase dice cuáles son y qué significa. */}
+      <p class="nota fig-pie-tabla" set:html={t(lang, 'comun.alt.voz.largo.salvedad')} />
+    </div>
+
+    <div slot="datos" class="fig-datos">
+      <div class="fig-descarga">
+        <a class="boton" href={recurso(`datos/${ARCHIVOS[0]}`)} download>
+          <span set:html={rotulo(lang, 'comun.fig.datos')} />
+          <span class="fig-archivo">{ARCHIVOS[0]}</span>
+        </a>
+        <ul class="fig-archivos">
+          {ARCHIVOS.slice(1).map((a) => <li><a href={recurso(`datos/${a}`)} download>{a}</a></li>)}
+        </ul>
+        <p class="nota" set:html={t(lang, 'comun.fig.datos.nota')} />
+      </div>
+      <dl class="fig-leame">
+        <div><dt set:html={t(lang, 'comun.leame.que_mide.titulo')} /><dd set:html={t(lang, 'fig.voz.que_mide')} /></div>
+        <div><dt set:html={t(lang, 'comun.leame.denominador.titulo')} /><dd set:html={t(lang, 'fig.voz.denominador')} /></div>
+        <div><dt set:html={t(lang, 'comun.leame.salvedad.titulo')} /><dd set:html={t(lang, 'fig.voz.salvedad')} /></div>
+      </dl>
+    </div>
+  </Pestanas>
+</figure>
+
+<script>
+  import '../scripts/figuras';
+</script>
+
+<style is:global>
+  /* Estilos globales con prefijo `vz-`: los rótulos llegan por `set:html` y parte del marcado viaja por `slot`. */
+  .figvoz { margin: 0; }
+  .vz-cabeza { margin-bottom: .75rem; }
+  .vz-titulo {
+    margin: 0; max-width: 26ch;
+    font: 800 clamp(1.3rem, 1rem + 1.5vw, 2.15rem)/1.06 var(--display); letter-spacing: -.02em; font-stretch: 90%; text-wrap: balance;
+  }
+  .vz-titulo data.cifra { font: inherit; letter-spacing: inherit; }
+  /* En escritorio el título corre en una o dos líneas: cada línea que ahorra sube el gráfico al primer pantallazo. */
+  @media (min-width: 60rem) { .vz-titulo { max-width: none; } }
+
+  /* ── las tres medidas: radios de verdad, a la derecha de las pestañas ────────────────── */
+  .vz-medidas { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .9rem; padding-bottom: .45rem; }
+  .vz-medidas-rotulo { font: 600 .72rem/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+  .vz-opciones { display: inline-flex; gap: .25rem; }
+  .vz-opcion { position: relative; display: inline-flex; }
+  .vz-opcion input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .vz-opcion label {
+    display: inline-flex; align-items: center; min-height: 2.75rem; padding: 0 .8rem; border: 1px solid var(--hair); border-radius: var(--radio);
+    font: 600 var(--fs-small)/1 var(--display); color: var(--ink-2); cursor: pointer;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .vz-opcion label { transition: background .12s var(--ease), color .12s var(--ease), border-color .12s var(--ease); }
+  }
+  .vz-opcion:hover label { border-color: var(--ink); }
+  .vz-opcion input:checked + label { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .vz-opcion input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+  /* Manda la primera medida (palabras). Con `:has()`, manda el radio marcado; sin él, el control se retira y queda
+     la medida pública. El CSS solo conoce POSICIONES (0 · 1 · 2): los nombres de las medidas salen del dato. */
+  .figvoz [data-m]:not([data-m='0']) { display: none; }
+  @supports selector(:has(*)) {
+    .figvoz:has([data-conmuta='1']:checked) [data-m='0'],
+    .figvoz:has([data-conmuta='2']:checked) [data-m='0'] { display: none; }
+    .figvoz:has([data-conmuta='1']:checked) [data-m='1'],
+    .figvoz:has([data-conmuta='2']:checked) [data-m='2'] { display: block; }
+  }
+  /* Sin `:has()` no hay control de medidas: el gráfico se queda en palabras, pero las TRES tablas se leen seguidas. */
+  @supports not selector(:has(*)) { .vz-medidas { display: none; } .figvoz .fig-desliza[data-m] { display: block; } }
+
+  /* ── la rejilla de paneles: 2 × 8 en el móvil, 4 × 4 en escritorio ───────────────────── */
+  .vz-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 4vw, 2.75rem) clamp(.9rem, 2.4vw, 2.25rem); }
+  @media (min-width: 48rem) { .vz-rejilla { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .vz-mini { min-width: 0; container-type: inline-size; }
+  .vz-nombre {
+    margin: 0 0 .15rem; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: 700 clamp(.95rem, .85rem + .45vw, 1.2rem)/1.15 var(--display); letter-spacing: -.012em; font-stretch: 86%;
+  }
+  .vz-lienzo { position: relative; line-height: 0; }
+  .vz-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .vz-base { stroke: var(--ink); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .vz-tic { fill: none; stroke: var(--ink); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .vz-ref { stroke: var(--mute); stroke-width: 1px; stroke-dasharray: 1 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .vz-linea { fill: none; stroke: var(--dato); stroke-width: 2px; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .vz-punto { fill: var(--dato); stroke: var(--bg); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+  .vz-diana { fill: transparent; stroke: none; pointer-events: all; }
+
+  /* Padrón sin auditar: «se dibujan distinto». Trazo, forma y tono a la vez; nunca solo el color. */
+  [data-auditado='no'] .vz-linea { stroke: var(--dato-sin-auditar); stroke-dasharray: 5 4; stroke-linecap: butt; }
+  [data-auditado='no'] .vz-punto { fill: var(--bg); stroke: var(--dato-sin-auditar); stroke-width: 1.75px; }
+
+  /* Rótulos de valor: HTML colgado del punto. El fondo de papel los separa de la línea y de las marcas del eje. */
+  .vz-etq {
+    position: absolute; z-index: 1; padding: .1em .22em; background: var(--bg); white-space: nowrap;
+    font-size: .74rem; line-height: 1.05; color: var(--ink-2);
+  }
+  .vz-etq data.cifra { font-size: 1em; }
+  .vz-ultima { color: var(--ink); font-weight: 700; }
+  .vz-ultima data.cifra { font-weight: 700; }
+  /* En escritorio las marcas ganan cuerpo: la última cifra es el dato que se lee de cada panel. */
+  @media (min-width: 48rem) {
+    .vz-svg .vz-linea { stroke-width: 2.75px; }
+    .vz-svg .vz-punto { r: 3.4px; }
+    .vz-ultima { font-size: clamp(.82rem, .7rem + .45vw, 1.05rem); }
+  }
+  .vz-sobre.vz-inicio { transform: translate(-.3rem, calc(-100% - .42rem)); }
+  .vz-bajo.vz-inicio { transform: translate(-.3rem, .34rem); }
+  .vz-sobre.vz-fin { transform: translate(calc(-100% + .3rem), calc(-100% - .42rem)); }
+  .vz-bajo.vz-fin { transform: translate(calc(-100% + .3rem), .34rem); }
+  .vz-izquierda { transform: translate(calc(-100% - .45rem), -50%); }
+
+  /* La raya de la mitad se rotula solo en la primera columna: el eje es compartido y basta leerlo una vez por fila. */
+  .vz-ref-rotulo { position: absolute; left: 0; transform: translateY(-115%); font-size: .64rem; line-height: 1; color: var(--mute); display: none; }
+  .vz-ref-rotulo data.cifra { font-size: 1em; }
+  .vz-mini:nth-child(2n + 1) .vz-ref-rotulo { display: block; }
+  @media (min-width: 48rem) {
+    .vz-mini:nth-child(2n + 1) .vz-ref-rotulo { display: none; }
+    .vz-mini:nth-child(4n + 1) .vz-ref-rotulo { display: block; }
+  }
+
+  /* Eje X: los extremos siempre; las cuatro décadas de en medio, solo si el panel da de sí. */
+  .vz-eje { position: relative; height: 1.1rem; margin-top: .2rem; font-size: .68rem; line-height: 1; color: var(--mute); }
+  .vz-eje span { position: absolute; top: 0; white-space: nowrap; }
+  .vz-eje data.cifra { font-size: 1em; }
+  .vz-eje .vz-ini { left: 0; }
+  .vz-eje .vz-fin { right: 0; }
+  .vz-eje .vz-medio { transform: translateX(-50%); display: none; }
+  @container (min-width: 15.5rem) { .vz-eje .vz-medio { display: block; } }
+
+  /* ── leyenda de los dos trazos ───────────────────────────────────────────────────────── */
+  .vz-leyenda { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .6rem 1.25rem; margin-top: clamp(1.5rem, 3vw, 2.25rem); padding-top: 1rem; border-top: 1px solid var(--hair); }
+  .vz-leyenda p { margin: 0; flex: 1 1 18rem; max-width: var(--measure); }
+  .vz-muestras { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; padding-top: .15rem; }
+  .vz-muestra { width: 2.75rem; height: .75rem; overflow: visible; flex: none; }
+  .vz-muestra-rotulo { font: 600 var(--fs-small)/1.2 var(--display); color: var(--ink-2); margin-right: .6rem; }
+
+  /* ── tabla ───────────────────────────────────────────────────────────────────────────── */
+  .vz-tabla { max-width: 46rem; }
+  .vz-tabla tbody th[scope='rowgroup'] { white-space: nowrap; padding-right: 1.75rem; }
+  .vz-tabla tbody + tbody tr:first-child > * { border-top: 1px solid var(--ink); }
+  .vz-tabla .vz-periodo { font-family: var(--mono); font-weight: 400; color: var(--ink-2); white-space: nowrap; }
+  .vz-tabla .vz-muestra { display: block; margin-top: .35rem; width: 2.2rem; }
+  @media (max-width: 30rem) {
+    /* Dos clases: que gane a `.fig-tabla th` sea cual sea el orden en que el build junte las hojas. */
+    .fig-tabla.vz-tabla { font-size: .76rem; }
+    .fig-tabla.vz-tabla th, .fig-tabla.vz-tabla td { padding-right: .65rem; }
+    .fig-tabla.vz-tabla tbody th[scope='rowgroup'] { white-space: normal; padding-right: .65rem; }
+  }
+</style>

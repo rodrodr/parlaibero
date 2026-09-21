@@ -1,0 +1,17 @@
+iso,pais,camara,turnos_de_habla,vinculados,vinculacion_bruta,no_pueden_ocupar_escano,voz_colectiva,denominador_efectivo,vinculacion_efectiva,clave
+PT,Portugal,Assembleia da República,1554381,1329634,0.855411,64396,137659,1352326,0.98322,L
+ES,España,Congreso de los Diputados,558940,541332,0.968498,14338,67,544535,0.994118,L
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1280822,880638,0.687557,351661,31,929130,0.947809,L
+AR,Argentina,Cámara de Diputados de la Nación,256636,232976,0.907807,16838,0,239798,0.971551,L
+UY,Uruguay,Cámara de Representantes,421284,406165,0.964112,3430,2050,415804,0.976818,L
+MX,México,Cámara de Diputados,630937,606821,0.961777,13079,0,617858,0.982137,L
+PY,Paraguay,Cámara de Diputados,360201,275887,0.765925,66431,0,293770,0.939126,L
+CL,Chile,Cámara de Diputadas y Diputados,556679,529214,0.950663,18778,6426,531475,0.995746,L
+CR,Costa Rica,Asamblea Legislativa,375730,359416,0.956581,15560,0,360170,0.997907,L
+PE,Perú,Congreso de la República,849499,753834,0.887387,83730,4479,761290,0.990206,L
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),508324,345308,0.679307,155961,0,352363,0.979978,L
+CO,Colombia,Cámara de Representantes,463201,321258,0.693561,131303,0,331898,0.967942,L
+GT,Guatemala,Congreso de la República,251720,242617,0.963837,8626,0,243094,0.998038,L
+DO,República Dominicana,Cámara de Diputados,101381,99863,0.985027,384,2,100995,0.988792,L
+BR,Brasil,Câmara dos Deputados,1649698,1617382,0.980411,17602,0,1632096,0.990985,L
+SV,El Salvador,Asamblea Legislativa,48654,47865,0.983783,761,0,47893,0.999415,L

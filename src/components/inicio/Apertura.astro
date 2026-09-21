@@ -1,0 +1,67 @@
+---
+/**
+ * 2.1 · La apertura. La pregunta va SOLA y enorme: es el único h1 de la página y ocupa el primer pantallazo
+ * junto a la franja de la AEI. Debajo, la figura, que es la protagonista, con la salvedad DENTRO: es la leyenda de
+ * sus dos trazos (el copy pide el otro trazo «rotulado en la leyenda»). Solo después, el primer hallazgo (Uruguay)
+ * y los dos enlaces de la figura.
+ * Encima de la pregunta no hay nada: la línea-credencial baja tras la tesis (nota de diseño del copy).
+ */
+import FigVoz from '../FigVoz.astro';
+import { t, rotulo } from '../../lib/i18n';
+import { recurso } from '../../lib/rutas';
+import { FIGURAS } from '../../lib/figuras';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+// La figura pinta su propio título (`inicio.apertura.figura.titulo`), su control de medidas, sus pestañas, su
+// descarga y la salvedad como leyenda; la prosa de la página —el hallazgo y los dos enlaces— es de aquí.
+// «Ver turnos y oradoras» baja del texto al control de medidas de la figura: sin JavaScript es un ancla a ese
+// control (`<id>-medidas`); con él, la isla de la figura atiende `data-voz-medidas` y abre las otras dos medidas.
+const ID_FIGURA = FIGURAS.voz.ancla;
+---
+<section class="apertura" aria-labelledby="apertura-pregunta">
+  <div class="contenedor">
+    <h1 id="apertura-pregunta" class="pregunta" set:html={t(lang, 'inicio.apertura.pregunta')} />
+  </div>
+
+  <div class="contenedor figura">
+    <FigVoz lang={lang} id={ID_FIGURA} salvedad />
+  </div>
+
+  <div class="contenedor reja lectura">
+    <p class="lede ejemplos" set:html={t(lang, 'inicio.apertura.figura.ejemplos')} />
+    <div class="al-margen">
+      <p class="acciones">
+        <a class="boton secundario" href={recurso('datos/voz_por_camara.csv')} download set:html={rotulo(lang, 'comun.fig.datos')} />
+        <a class="medidas" href={`#${ID_FIGURA}-medidas`} data-voz-medidas set:html={rotulo(lang, 'inicio.apertura.figura.medidas')} />
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Poco aire arriba: la pregunta y el arranque de la figura tienen que caber con la franja de la AEI en el primer pantallazo. */
+  .apertura { padding-top: clamp(1.6rem, 4.2vw, 3.75rem); padding-bottom: clamp(3.25rem, 8vw, 7rem); }
+  .pregunta {
+    font-size: clamp(2.45rem, 1rem + 6.5vw, 6.2rem); line-height: .97; letter-spacing: -.034em;
+    font-stretch: 84%; /* eje de anchura estrecho: la pregunta es larga y tiene que caber en tres líneas de escritorio */
+    max-width: 17.5em;
+  }
+  /* Poco aire también aquí: en un escritorio de 1440 × 900 tiene que asomar la primera fila de líneas. */
+  .figura { margin-top: clamp(1.25rem, 3vw, 2.5rem); }
+
+  .lectura { margin-top: clamp(2rem, 4.5vw, 3.5rem); row-gap: 1.75rem; }
+  .ejemplos { margin: 0; max-width: 40rem; }
+  .al-margen { border-top: 1px solid var(--hair); padding-top: 1rem; max-width: 34rem; }
+  .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: .85rem 1.5rem; margin: 0; max-width: none; }
+  /* 44 px de alto: es un enlace suelto, junto a un botón, y se toca con el dedo. */
+  .medidas { font: 600 var(--fs-small)/1.2 var(--display); padding-block: 1.05em; }
+
+  @media (min-width: 60rem) {
+    .ejemplos { grid-column: 1 / span 7; }
+    /* Los dos enlaces de la figura van AL LADO del hallazgo, no debajo: misma altura, columna estrecha. */
+    .al-margen { grid-column: 9 / -1; align-self: start; }
+  }
+</style>

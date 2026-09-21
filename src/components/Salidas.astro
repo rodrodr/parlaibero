@@ -1,0 +1,112 @@
+---
+/**
+ * Las tres salidas de «Por dónde empezar», tituladas por lo que la persona YA sabe hacer (decisión del
+ * investigador, 2026-09-21), con el tamaño del archivo dentro de cada una. Se dibujan como una escalera de
+ * tres peldaños —sin programar · R o Python básico · métodos de texto—, no como tres tarjetas.
+ *
+ * El aviso del formulario va SIEMPRE ENCIMA de los enlaces, nunca en una nota emergente: quien llega a
+ * Harvard Dataverse tiene que saber antes del clic que le pedirán cinco datos.
+ *
+ *   familia="inicio" → inicio.empezar.salida1-3  (una unidad: «**Nombre.** texto con [enlaces]»)
+ *   familia="usar"   → usar.empezar.s1-3.titulo + .texto  (el texto acaba en su línea de [botones])
+ * Los encabezados de la sección (título, entrada, cierre) son de cada página, no de este componente.
+ */
+import { t, tEnlaces, existe } from '../lib/i18n';
+import { url, recurso, PAGINAS } from '../lib/rutas';
+import { ENLACES } from '../config/enlaces';
+import { enOtraPestana } from '../lib/remata';
+import type { Lang } from '../lib/idiomas';
+
+interface Props { lang: Lang; familia: 'inicio' | 'usar' }
+const { lang, familia } = Astro.props;
+
+// ── destinos, por orden de aparición en el copy ──────────────────────────────────────────
+// Los datos de las figuras son agregados y no pasan por el formulario. Esta es la salida de quien NO programa:
+// por eso el enlace entrega el Excel de la figura de apertura, que se abre con doble clic (el CSV y el LÉAME están
+// en la pestaña «Datos» de cada figura). Si algún día /datos/ tiene un índice, este es el único sitio que cambia.
+const DATOS_FIGURAS = recurso('datos/voz_por_camara.xlsx');
+const FICHA_PRUEBA = url(lang, `${PAGINAS.paises}/sv`);       // El Salvador, el país de prueba
+const INDICE_PAISES = url(lang, PAGINAS.paises);
+// ANCLA ACORDADA con «Usar los datos» (§6.2): la lista de las cámaras, cada una con su peso y su DOI.
+const LISTA_DOI = url(lang, `${PAGINAS.usar}#camino`);
+
+// `t()` envuelve en un <span> de aviso lo que aún no está traducido. Para partir una unidad en dos trozos
+// hay que retirarlo y devolvérselo a cada uno; si no, el HTML queda mal anidado.
+const SIN_TRADUCIR = /^<span lang="es" data-sin-traducir>([\s\S]*)<\/span>$/;
+function partir(html: string, cortar: (cuerpo: string) => [string, string]): [string, string] {
+  const m = html.match(SIN_TRADUCIR);
+  const envuelve = (s: string) => (m && s ? `<span lang="es" data-sin-traducir>${s}</span>` : s);
+  const [a, b] = cortar(m ? m[1] : html);
+  return [envuelve(a), envuelve(b)];
+}
+const trasElNombre = (c: string): [string, string] => {
+  const m = c.match(/^\s*<strong>([\s\S]+?)<\/strong>\s*([\s\S]*)$/);
+  return m ? [m[1], m[2]] : ['', c];
+};
+const anteLosBotones = (c: string): [string, string] => {
+  const i = c.indexOf('<a ');
+  return i < 0 ? [c, ''] : [c.slice(0, i).trim(), c.slice(i)];
+};
+
+interface Salida { titulo: string; texto: string; botones: string }
+const salidas: Salida[] = familia === 'inicio'
+  ? [
+      tEnlaces(lang, 'inicio.empezar.salida1', [DATOS_FIGURAS, FICHA_PRUEBA, ENLACES.explorador]),
+      tEnlaces(lang, 'inicio.empezar.salida2', [INDICE_PAISES]),
+      tEnlaces(lang, 'inicio.empezar.salida3', [ENLACES.coleccion]),
+    // El explorador abre en otra pestaña en TODO el sitio, y lo dice (lib/remata.ts).
+    ].map((html) => { const [titulo, texto] = partir(enOtraPestana(html), trasElNombre); return { titulo, texto, botones: '' }; })
+  : [
+      [ENLACES.explorador, DATOS_FIGURAS],
+      [INDICE_PAISES],
+      [LISTA_DOI],
+    ].map((destinos, i) => {
+      const [texto, botones] = partir(enOtraPestana(tEnlaces(lang, `usar.empezar.s${i + 1}.texto`, destinos)), anteLosBotones);
+      return { titulo: t(lang, `usar.empezar.s${i + 1}.titulo`), texto, botones: botones.replace(/<a /g, '<a class="boton secundario" ') };
+    });
+
+// En EN y PT, junto a la salida que abre el explorador: su interfaz está hoy solo en español (copy §1.6).
+const avisoIdioma = lang !== 'es' && existe(`comun.idioma.aviso.${lang}`) ? t(lang, `comun.idioma.aviso.${lang}`) : '';
+---
+<div class="salidas" data-familia={familia}>
+  <div class="aviso">
+    <p set:html={t(lang, 'comun.fija.formulario')} />
+    {/* El motivo es un dato pendiente del investigador: mientras falte, la vista previa lo enseña como pendiente. */}
+    {existe('comun.fija.formulario.motivo') && <p class="nota" set:html={t(lang, 'comun.fija.formulario.motivo')} />}
+  </div>
+
+  <ol class="peldanos" role="list">
+    {salidas.map((s, i) => (
+      <li class="salida">
+        {s.titulo && <h3 set:html={s.titulo} />}
+        <p class="texto" set:html={s.texto} />
+        {s.botones && <p class="botones" set:html={s.botones} />}
+        {i === 0 && avisoIdioma && <p class="nota idioma" set:html={avisoIdioma} />}
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .aviso { border-left: 3px solid var(--ink); padding: .15rem 0 .15rem 1.1rem; max-width: 46rem; }
+  .aviso p { margin: 0; max-width: none; }
+  .aviso p + p { margin-top: .5em; }
+
+  .peldanos { list-style: none; margin: clamp(2rem, 4.5vw, 3.5rem) 0 0; padding: 0; display: grid; gap: clamp(1.75rem, 3vw, 2.75rem); }
+  /* El filete grueso es la huella del peldaño. */
+  .salida { border-top: 2px solid var(--ink); padding-top: 1rem; min-width: 0; }
+  .salida h3 { margin-bottom: .55em; }
+  .salida p { margin: 0; max-width: 34rem; }
+  .salida .texto { font-size: clamp(1rem, .96rem + .2vw, 1.12rem); line-height: 1.5; }
+  .salida .botones { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: 1.1rem; max-width: none; }
+  .salida .idioma { margin-top: .9rem; }
+  /* «dieciséis» es prosa, no cifra: hereda el tipo del texto. Los tamaños de archivo sí van en mono. */
+  .salida :global(data.cifra[data-k='corpus.n']), .salida :global(data.cifra[data-k='dois.n']) { font: inherit; letter-spacing: inherit; }
+
+  @media (min-width: 60rem) {
+    /* La escalera sube hacia la derecha: cada destreza empieza un peldaño más arriba que la anterior. */
+    .peldanos { --peldano: clamp(1.75rem, 3vw, 3rem); grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+    .salida:nth-child(1) { margin-top: calc(2 * var(--peldano)); }
+    .salida:nth-child(2) { margin-top: var(--peldano); }
+  }
+</style>

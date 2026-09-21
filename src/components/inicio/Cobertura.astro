@@ -1,0 +1,57 @@
+---
+/**
+ * 2.2 · ¿Qué hay, y desde cuándo? La rejilla es la protagonista y va a todo el ancho; el texto solo la prepara.
+ * La frase censal pesa como un titular secundario; la lectura de la rejilla (cuántas celdas, qué dice el tono)
+ * va al margen, en cuerpo de nota; y «Busque su cámara» es la última línea antes de la figura, porque es una
+ * instrucción sobre ella. Los cinco países ausentes los pinta FigRejilla bajo su filete: aquí NO se repiten.
+ */
+import FigRejilla from '../FigRejilla.astro';
+import { t } from '../../lib/i18n';
+import { frases } from './frases';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<section class="seccion cobertura" aria-labelledby="cobertura-titulo">
+  <div class="contenedor reja cabeza">
+    <h2 id="cobertura-titulo" set:html={t(lang, 'inicio.cobertura.titulo')} />
+    <p class="censal" set:html={frases(t(lang, 'inicio.cobertura.censal'))} />
+    <div class="lectura">
+      <p class="nota" set:html={t(lang, 'inicio.cobertura.rejilla')} />
+      <p class="nota" set:html={t(lang, 'comun.fija.tono')} />
+    </div>
+    <p class="busque" set:html={t(lang, 'inicio.cobertura.busque')} />
+  </div>
+
+  <div class="contenedor figura">
+    <FigRejilla lang={lang} />
+  </div>
+</section>
+
+<style>
+  .cabeza { row-gap: 0; }
+  .censal {
+    margin: 0 0 clamp(1.5rem, 3vw, 2.5rem); max-width: none;
+    font-size: clamp(1.45rem, 1.1rem + 1.7vw, 2.6rem); line-height: 1.16; letter-spacing: -.012em;
+  }
+  .censal :global(.frase) { display: block; }
+  .lectura { border-top: 1px solid var(--hair); padding-top: 1rem; max-width: 34rem; }
+  .lectura p { margin: 0 0 .7em; }
+
+  /* La instrucción lleva un filete que corre hasta el margen derecho y desemboca en la figura. */
+  .busque {
+    display: flex; align-items: center; gap: 1rem; max-width: none;
+    margin: clamp(2rem, 4.5vw, 3.75rem) 0 0;
+    font: 800 var(--fs-h3)/1.1 var(--display); letter-spacing: -.012em; font-stretch: 92%;
+  }
+  .busque::after { content: ''; flex: 1; height: 1px; background: var(--ink); opacity: .55; }
+  .figura { margin-top: clamp(1.25rem, 2.5vw, 2rem); }
+
+  @media (min-width: 60rem) {
+    .cabeza h2 { grid-column: 1 / span 8; grid-row: 1; }
+    .censal { grid-column: 1 / span 7; grid-row: 2; }
+    /* Al margen y arriba: se lee de reojo, a la altura del titular. */
+    .lectura { grid-column: 9 / -1; grid-row: 1 / span 2; align-self: end; margin-bottom: clamp(1.5rem, 3vw, 2.5rem); }
+  }
+</style>

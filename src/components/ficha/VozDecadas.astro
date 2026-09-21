@@ -1,0 +1,170 @@
+---
+/**
+ * La voz femenina de UNA cámara, por década y en PALABRAS: una sola serie, la cámara contra sí misma.
+ *  · El techo del eje es el mismo en las dieciséis fichas y es EL DE LA FIGURA DE APERTURA (misma función, mismos
+ *    datos): el eje significa siempre lo mismo y una serie baja no se infla por dibujarse sola. No ordena países.
+ *  · Padrón sin auditar (AR, BR, CL, EC, PE): otro trazo —discontinuo, punto hueco, gris—, nunca solo otro color.
+ *  · Turnos y oradoras están a un clic, en tabla, con su n y su denominador: «Ver turnos y oradoras».
+ * Formas en SVG estirable; texto y cifras en HTML encima (legibles en el móvil y con su envoltorio auditable).
+ */
+import { t, plano, rotulo, existe } from '../../lib/i18n';
+import { fmt, PAISES, type Pais, type Medida } from '../../lib/cifras';
+import { maximoRedondeado, serie, escalaX, conDato, type Lienzo } from '../../viz/geom/voz';
+import type { Lang } from '../../lib/idiomas';
+import { ctxPais } from './contexto';
+
+interface Props { lang: Lang; p: Pais }
+const { lang, p } = Astro.props;
+const ctx = ctxPais(p.iso, lang);
+type NombreMedida = 'palabras' | 'turnos' | 'oradoras';
+
+// El eje va de la primera a la última década de la cámara SIN saltarse ninguna: una década sin datos se queda vacía
+// en su sitio, y la línea se parte ahí en vez de unir dos décadas que no son vecinas (la misma regla, y la misma
+// función, que la figura de apertura).
+const propias = Object.keys(p.voz).sort();
+const MEDIDAS = Object.keys(p.voz[propias[0]] ?? {}) as NombreMedida[];
+const ano = (dec: string) => parseInt(dec, 10);
+const decadas = Array.from({ length: (ano(propias[propias.length - 1]) - ano(propias[0])) / 10 + 1 }, (_, i) => `${ano(propias[0]) + 10 * i}s`);
+
+// Techo común a las tres medidas y a todas las cámaras; las rayas salen de él, una por décima. Nada se teclea.
+const techo = maximoRedondeado(PAISES.flatMap((q) => Object.values(q.voz).flatMap((d) => Object.values(d).map((m) => m.v))));
+const rayas = Array.from({ length: Math.round(techo * 10) + 1 }, (_, i) => ({ v: i / 10, rotulada: i % 2 === 0 }));
+
+/** La década, recortada a la ventana de la cámara: «1985–89», no unos ochenta que empezaron en 1985. */
+function tramo(dec: string): { desde: number; texto: string } {
+  const d = parseInt(dec, 10), desde = Math.max(d, p.inicio), hasta = Math.min(d + 9, p.fin);
+  return { desde, texto: desde === hasta ? String(desde) : `${desde}–${String(hasta).slice(-2)}` };
+}
+const clave = (dec: string, medida: NombreMedida, campo: 'pct' | 'n' | 'den') =>
+  medida === 'palabras' ? `pais.${p.iso}.palF.${dec}.${campo}` : `pais.${p.iso}.voz.${dec}.${medida}.${campo}`;
+
+// Lienzo de 100 × 100 que se estira: cada década ocupa una franja igual y su punto va en el centro de la suya.
+const LIENZO: Lienzo = { ancho: 100, alto: 100, izq: 50 / decadas.length, der: 50 / decadas.length, arriba: 0, abajo: 0 };
+const geo = serie({ iso: p.iso, puntos: decadas.filter((dec) => p.voz[dec]).map((dec) => ({ decada: dec, ...p.voz[dec].palabras })) }, decadas, techo, LIENZO);
+
+const eje = decadas.map((dec, i) => {
+  const tr = tramo(dec);
+  return { dec, x: escalaX(i, decadas.length, LIENZO), rotulo: fmt.dato(tr.desde, tr.texto, `decada.${dec}`) };
+});
+const puntos = geo.puntos.map((pt) => ({
+  x: pt.x, y: 100 - pt.y,
+  valor: fmt.dato(pt.v, fmt.porcentaje(pt.v, lang), clave(pt.decada, 'palabras', 'pct')),
+  aviso: plano(lang, 'comun.fig.voz.hover', { vars: { pct: fmt.porcentaje(pt.v, lang), n: fmt.entero(pt.n, lang), den: fmt.entero(pt.den, lang) } }),
+}));
+/** La medida de una década, o `null` si no hay dato: en la tabla deja la celda vacía, no un 0 %. */
+const medidaDe = (dec: string, medida: NombreMedida): Medida | null => { const m = p.voz[dec]?.[medida]; return m && conDato(m) ? m : null; };
+const alt = plano(lang, p.sexo.auditado ? 'comun.alt.voz.largo.fila' : 'comun.alt.voz.largo.fila.sin_auditar', ctx);
+
+// TODO-COPY: no hay rótulo aprobado para las tres medidas como cabecera de tabla (`ficha.voz.col.<medida>`).
+// Mientras tanto se usa el identificador del propio dato (es el valor de la columna `medida` del CSV de la figura),
+// marcado con `data-todo-copy` en las TRES lenguas —en español parece texto bueno y no lo es—: `audit-cifras` lo
+// lista y, en publicación, falla. Si el copy añade las claves, se usan sin tocar este archivo.
+const cabecera = (medida: NombreMedida) => existe(`ficha.voz.col.${medida}`)
+  ? t(lang, `ficha.voz.col.${medida}`)
+  : `<span data-todo-copy="ficha.voz.col.${medida}"${lang === 'es' ? '' : ' lang="es" data-sin-traducir'}>${medida}</span>`;
+---
+<figure class:list={['voz', 'entra', { 'sin-auditar': !p.sexo.auditado }]}>
+  <div class="lienzo" role="img" aria-label={alt}>
+    {rayas.map(({ v, rotulada }) => (
+      <span class="raya" style={`bottom:${((100 * v) / techo).toFixed(3)}%`} set:html={rotulada ? fmt.dato(v, fmt.porcentaje(v, lang, 0), 'eje.pct') : ''} />
+    ))}
+    <svg class="formas" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      {geo.ruta && <path class="linea" d={geo.ruta} />}
+    </svg>
+    {puntos.map((d) => (
+      <span class="marca" style={`left:${d.x}%;bottom:${d.y}%`} title={d.aviso}>
+        <span class="punto"></span>
+        <span class="valor" set:html={d.valor} />
+      </span>
+    ))}
+  </div>
+  <div class="eje" aria-hidden="true">
+    {eje.map((d) => <span style={`left:${d.x}%`} set:html={d.rotulo} />)}
+  </div>
+
+  <figcaption class="nota" set:html={t(lang, p.sexo.auditado ? 'ficha.voz.salvedad.auditado' : 'ficha.voz.salvedad.sin_auditar', ctx)} />
+
+  <details class="desplegable">
+    <summary set:html={rotulo(lang, 'ficha.voz.enlace')} />
+    <div class="desliza" role="region" tabindex="0" aria-label={plano(lang, 'ficha.voz.enlace')}>
+      <table>
+        <caption><Fragment set:html={t(lang, 'ficha.titulo', ctx)} /> · <Fragment set:html={t(lang, 'ficha.voz.titulo')} /></caption>
+        <thead>
+          <tr>
+            <th scope="col" set:html={t(lang, 'paises.tabla.col.periodo')} />
+            {MEDIDAS.map((medida) => <th scope="col" class="num medida" set:html={cabecera(medida)} />)}
+          </tr>
+        </thead>
+        <tbody>
+          {eje.map(({ dec, rotulo: decada }) => (
+            <tr>
+              <th scope="row" set:html={decada} />
+              {MEDIDAS.map((medida) => {
+                const m = medidaDe(dec, medida);
+                return m ? (
+                  <td class="num">
+                    <span class="pct" set:html={fmt.dato(m.v, fmt.porcentaje(m.v, lang), clave(dec, medida, 'pct'))} />
+                    <span class="partes">
+                      <Fragment set:html={fmt.dato(m.n, fmt.entero(m.n, lang), clave(dec, medida, 'n'))} />
+                      <span> / </span>
+                      <Fragment set:html={fmt.dato(m.den, fmt.entero(m.den, lang), clave(dec, medida, 'den'))} />
+                    </span>
+                  </td>
+                ) : <td class="num"></td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="nota pie-tabla" set:html={t(lang, 'fig.voz.denominador')} />
+  </details>
+</figure>
+
+<style>
+  .voz { margin: clamp(1.75rem, 4vw, 3rem) 0 0; --margen-eje: 2.9rem; }
+  .lienzo { position: relative; height: clamp(12rem, 30vw, 17rem); margin: 1.4rem 0 0 var(--margen-eje); border-bottom: 1px solid var(--ink); }
+  .formas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; overflow: visible; }
+
+  /* Rayas del eje: filete a todo el ancho y su cifra colgada en el margen izquierdo. */
+  .raya { position: absolute; left: calc(-1 * var(--margen-eje)); right: 0; height: 0; border-top: 1px solid var(--hair); font: 500 .72rem/1 var(--mono); color: var(--mute); }
+  .raya :global(data) { position: absolute; left: 0; top: -.45em; padding-right: .45em; background: var(--bg); }
+  .raya:first-child { border-top-color: transparent; } /* el cero ya lo dibuja la base del lienzo */
+
+  .linea { fill: none; stroke: var(--dato); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .marca { position: absolute; width: 0; height: 0; }
+  .punto { position: absolute; left: -.34rem; top: -.34rem; width: .68rem; height: .68rem; border-radius: 50%; background: var(--dato); box-sizing: border-box; }
+  .valor { position: absolute; left: 0; bottom: .7rem; transform: translateX(-50%); padding: .12em .3em; background: var(--bg); font-weight: 600; font-size: .8rem; line-height: 1; color: var(--ink); white-space: nowrap; }
+
+  /* Padrón sin auditar: «su serie se dibuja distinto». Trazo, forma y tono; nunca solo el color. */
+  .sin-auditar .linea { stroke: var(--dato-sin-auditar); stroke-dasharray: 7 5; }
+  .sin-auditar .punto { background: var(--bg); border: 2px solid var(--dato-sin-auditar); }
+
+  .eje { position: relative; height: 1.4rem; margin: .5rem 0 0 var(--margen-eje); font: 500 .74rem/1 var(--mono); color: var(--mute); }
+  .eje span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+
+  figcaption { margin-top: 1.2rem; max-width: var(--measure); }
+
+  .desplegable { margin-top: .55rem; }
+  summary { cursor: pointer; width: fit-content; font: 700 var(--fs-small)/1.2 var(--display); font-stretch: 92%; color: var(--accent); padding-block: .9rem; }
+  .desliza { overflow-x: auto; margin-top: .8rem; max-width: 100%; }
+  table { border-collapse: collapse; font-size: var(--fs-small); }
+  caption { text-align: left; font: 700 var(--fs-small)/1.3 var(--display); padding-bottom: .6rem; }
+  th, td { padding: .45rem 0 .45rem 1.5rem; border-bottom: 1px solid var(--hair); text-align: left; vertical-align: top; }
+  th:first-child { padding-left: 0; font-weight: 400; white-space: nowrap; }
+  thead th { font: 700 .78rem/1.2 var(--display); border-bottom-color: var(--ink); }
+  .medida { text-transform: capitalize; }
+  .num { text-align: right; }
+  .pct { display: block; font-weight: 600; }
+  .partes { display: block; margin-top: .15rem; color: var(--mute); font-size: .78rem; white-space: nowrap; }
+  .pie-tabla { margin: .9rem 0 0; max-width: var(--measure); }
+
+  @media (max-width: 30rem) {
+    .voz { --margen-eje: 2.3rem; }
+    .valor { font-size: .68rem; padding-inline: .15em; }
+    .eje { font-size: .66rem; }
+    /* En el móvil, «n / den» puede partirse en dos líneas: así las tres medidas caben sin deslizar. */
+    th, td { padding-left: .9rem; }
+    .partes { white-space: normal; }
+  }
+</style>

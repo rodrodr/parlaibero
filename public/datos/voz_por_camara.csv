@@ -1,0 +1,205 @@
+iso,pais,camara,decada,medida,valor,n,den,sexo_auditado,clave,medido_el
+PT,Portugal,Assembleia da República,1970s,palabras,0.044009,417649,9490002,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1970s,turnos,0.03115,2660,85393,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1970s,oradoras,0.054545,18,330,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1980s,palabras,0.060157,2033981,33811479,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1980s,turnos,0.049581,15306,308704,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1980s,oradoras,0.083127,67,806,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1990s,palabras,0.100513,2688607,26748967,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1990s,turnos,0.073651,17238,234049,si,C,2026-09-07
+PT,Portugal,Assembleia da República,1990s,oradoras,0.126935,82,646,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2000s,palabras,0.163658,4050670,24750897,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2000s,turnos,0.117966,31445,266559,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2000s,oradoras,0.255663,158,618,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2010s,palabras,0.324991,7901736,24313683,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2010s,turnos,0.282076,71841,254687,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2010s,oradoras,0.349282,219,627,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2020s,palabras,0.335033,4939918,14744562,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2020s,turnos,0.24016,43287,180242,si,C,2026-09-07
+PT,Portugal,Assembleia da República,2020s,oradoras,0.377517,225,596,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1970s,palabras,0.024721,171994,6957442,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1970s,turnos,0.008533,311,36447,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1970s,oradoras,0.0575,23,400,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1980s,palabras,0.034534,870925,25219651,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1980s,turnos,0.015564,1582,101648,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1980s,oradoras,0.07438,54,726,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1990s,palabras,0.133994,3760199,28062547,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1990s,turnos,0.06621,7628,115209,si,C,2026-09-07
+ES,España,Congreso de los Diputados,1990s,oradoras,0.206751,147,711,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2000s,palabras,0.249,7148025,28706980,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2000s,turnos,0.433362,48130,111062,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2000s,oradoras,0.377931,274,725,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2010s,palabras,0.305603,7805237,25540474,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2010s,turnos,0.392462,40320,102736,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2010s,oradoras,0.425223,381,896,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2020s,palabras,0.421318,8603279,20419933,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2020s,turnos,0.599528,44503,74230,si,C,2026-09-07
+ES,España,Congreso de los Diputados,2020s,oradoras,0.439614,273,621,si,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1970s,palabras,0.002285,3953,1729603,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1970s,turnos,0.001821,30,16474,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1970s,oradoras,0.030534,4,131,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1980s,palabras,0.014234,292507,20549543,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1980s,turnos,0.008097,2018,249221,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1980s,oradoras,0.047377,28,591,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1990s,palabras,0.045385,1071862,23616868,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1990s,turnos,0.030299,9039,298323,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,1990s,oradoras,0.08871,88,992,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2000s,palabras,0.117562,2740550,23311480,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2000s,turnos,0.106327,21993,206843,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2000s,oradoras,0.232271,226,973,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2010s,palabras,0.331138,5112096,15437949,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2010s,turnos,0.40266,24249,60222,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2010s,oradoras,0.362319,175,483,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2020s,palabras,0.403022,3950418,9801985,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2020s,turnos,0.375931,17018,45269,no,C,2026-09-07
+EC,Ecuador,Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional,2020s,oradoras,0.389899,193,495,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,1980s,palabras,0.007361,185553,25205994,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,1980s,turnos,0.013384,973,72697,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,1980s,oradoras,0.041063,17,414,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,1990s,palabras,0.020965,5013,239111,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,1990s,turnos,0.017736,21,1184,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,1990s,oradoras,0.065934,6,91,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2000s,palabras,0.161849,4931428,30469254,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2000s,turnos,0.209762,12231,58309,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2000s,oradoras,0.316535,201,635,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2010s,palabras,0.249197,5782681,23205281,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2010s,turnos,0.270037,14410,53363,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2010s,oradoras,0.381148,279,732,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2020s,palabras,0.287961,2727506,9471802,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2020s,turnos,0.254084,11619,45729,no,C,2026-09-07
+AR,Argentina,Cámara de Diputados de la Nación,2020s,oradoras,0.434409,202,465,no,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,1980s,palabras,0.002461,31342,12733594,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,1980s,turnos,0.003972,209,52614,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,1980s,oradoras,0.04712,9,191,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,1990s,palabras,0.0245,697967,28488302,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,1990s,turnos,0.033417,3699,110691,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,1990s,oradoras,0.106101,40,377,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2000s,palabras,0.100331,3319670,33087027,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2000s,turnos,0.113783,12563,110412,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2000s,oradoras,0.158879,68,428,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2010s,palabras,0.197155,6145822,31172589,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2010s,turnos,0.182385,14663,80396,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2010s,oradoras,0.27027,130,481,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2020s,palabras,0.234145,4441241,18967908,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2020s,turnos,0.214162,10885,50826,si,C,2026-09-07
+UY,Uruguay,Cámara de Representantes,2020s,oradoras,0.365591,170,465,si,C,2026-09-07
+MX,México,Cámara de Diputados,1980s,palabras,0.143055,812894,5682374,si,C,2026-09-07
+MX,México,Cámara de Diputados,1980s,turnos,0.112599,1875,16652,si,C,2026-09-07
+MX,México,Cámara de Diputados,1980s,oradoras,0.120907,48,397,si,C,2026-09-07
+MX,México,Cámara de Diputados,1990s,palabras,0.173687,3820131,21994326,si,C,2026-09-07
+MX,México,Cámara de Diputados,1990s,turnos,0.165943,8939,53868,si,C,2026-09-07
+MX,México,Cámara de Diputados,1990s,oradoras,0.148921,214,1437,si,C,2026-09-07
+MX,México,Cámara de Diputados,2000s,palabras,0.374552,28492280,76070209,si,C,2026-09-07
+MX,México,Cámara de Diputados,2000s,turnos,0.330967,47977,144960,si,C,2026-09-07
+MX,México,Cámara de Diputados,2000s,oradoras,0.24868,565,2272,si,C,2026-09-07
+MX,México,Cámara de Diputados,2010s,palabras,0.509383,43060198,84533988,si,C,2026-09-07
+MX,México,Cámara de Diputados,2010s,turnos,0.37155,84518,227474,si,C,2026-09-07
+MX,México,Cámara de Diputados,2010s,oradoras,0.408737,945,2312,si,C,2026-09-07
+MX,México,Cámara de Diputados,2020s,palabras,0.649082,21187802,32642730,si,C,2026-09-07
+MX,México,Cámara de Diputados,2020s,turnos,0.639616,104812,163867,si,C,2026-09-07
+MX,México,Cámara de Diputados,2020s,oradoras,0.492948,734,1489,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,1980s,palabras,0.012118,5238,432238,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,1980s,turnos,0.004423,20,4522,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,1980s,oradoras,0.046154,3,65,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,1990s,palabras,0.020106,277502,13802228,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,1990s,turnos,0.011204,1768,157799,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,1990s,oradoras,0.029412,7,238,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2000s,palabras,0.086323,357272,4138788,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2000s,turnos,0.056971,2411,42320,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2000s,oradoras,0.085714,18,210,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2010s,palabras,0.167542,413713,2469304,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2010s,turnos,0.083207,2246,26993,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2010s,oradoras,0.17341,30,173,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2020s,palabras,0.222921,1155003,5181214,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2020s,turnos,0.089576,3947,44063,si,C,2026-09-07
+PY,Paraguay,Cámara de Diputados,2020s,oradoras,0.181208,27,149,si,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,1990s,palabras,0.060379,1567951,25968455,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,1990s,turnos,0.049553,8078,163017,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,1990s,oradoras,0.101322,23,227,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2000s,palabras,0.111615,3381613,30297125,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2000s,turnos,0.107037,12914,120650,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2000s,oradoras,0.135135,30,222,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2010s,palabras,0.146454,3964352,27068953,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2010s,turnos,0.146357,19867,135743,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2010s,oradoras,0.183746,52,283,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2020s,palabras,0.262977,5204215,19789583,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2020s,turnos,0.235356,25843,109804,no,C,2026-09-07
+CL,Chile,Cámara de Diputadas y Diputados,2020s,oradoras,0.290698,75,258,no,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,1990s,palabras,0.118113,1036172,8772729,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,1990s,turnos,0.132241,4221,31919,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,1990s,oradoras,0.18239,29,159,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2000s,palabras,0.23368,8011846,34285601,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2000s,turnos,0.233328,31773,136173,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2000s,oradoras,0.327778,59,180,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2010s,palabras,0.233273,8507669,36470866,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2010s,turnos,0.254155,34298,134949,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2010s,oradoras,0.377119,89,236,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2020s,palabras,0.43423,6296258,14499819,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2020s,turnos,0.409858,23091,56339,si,C,2026-09-07
+CR,Costa Rica,Asamblea Legislativa,2020s,oradoras,0.440678,52,118,si,C,2026-09-07
+PE,Perú,Congreso de la República,1990s,palabras,0.136663,1970025,14415152,no,C,2026-09-07
+PE,Perú,Congreso de la República,1990s,turnos,0.1893,15278,80708,no,C,2026-09-07
+PE,Perú,Congreso de la República,1990s,oradoras,0.097403,15,154,no,C,2026-09-07
+PE,Perú,Congreso de la República,2000s,palabras,0.174041,5933906,34094809,no,C,2026-09-07
+PE,Perú,Congreso de la República,2000s,turnos,0.172723,42701,247223,no,C,2026-09-07
+PE,Perú,Congreso de la República,2000s,oradoras,0.202156,75,371,no,C,2026-09-07
+PE,Perú,Congreso de la República,2010s,palabras,0.245245,6424842,26197692,no,C,2026-09-07
+PE,Perú,Congreso de la República,2010s,turnos,0.24622,52372,212704,no,C,2026-09-07
+PE,Perú,Congreso de la República,2010s,oradoras,0.263158,85,323,no,C,2026-09-07
+PE,Perú,Congreso de la República,2020s,palabras,0.315499,5278354,16730178,no,C,2026-09-07
+PE,Perú,Congreso de la República,2020s,turnos,0.343102,73149,213199,no,C,2026-09-07
+PE,Perú,Congreso de la República,2020s,oradoras,0.329966,98,297,no,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),1990s,palabras,0.10735,924545,8612471,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),1990s,turnos,0.097876,6975,71264,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),1990s,oradoras,0.143911,39,271,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2000s,palabras,0.119228,1965522,16485416,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2000s,turnos,0.182575,20205,110667,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2000s,oradoras,0.191257,70,366,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2010s,palabras,0.192236,2525182,13135828,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2010s,turnos,0.17237,18445,107008,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2010s,oradoras,0.207483,61,294,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2020s,palabras,0.254369,1683806,6619535,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2020s,turnos,0.268574,15009,55884,si,C,2026-09-07
+PA,Panamá,Asamblea Nacional (Legislativa hasta 2004),2020s,oradoras,0.316583,63,199,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2000s,palabras,0.11634,1290717,11094357,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2000s,turnos,0.100797,6426,63752,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2000s,oradoras,0.111111,36,324,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2010s,palabras,0.129464,2001260,15457989,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2010s,turnos,0.087234,10028,114955,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2010s,oradoras,0.168467,78,463,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2020s,palabras,0.210814,2682435,12724204,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2020s,turnos,0.178638,25465,142551,si,C,2026-09-07
+CO,Colombia,Cámara de Representantes,2020s,oradoras,0.217877,78,358,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2000s,palabras,0.169423,2991194,17655162,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2000s,turnos,0.102624,13976,136187,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2000s,oradoras,0.107042,38,355,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2010s,palabras,0.101962,954772,9364008,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2010s,turnos,0.069503,4595,66112,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2010s,oradoras,0.157434,54,343,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2020s,palabras,0.212939,1487800,6986985,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2020s,turnos,0.256362,10336,40318,si,C,2026-09-07
+GT,Guatemala,Congreso de la República,2020s,oradoras,0.196911,51,259,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2000s,palabras,0.183183,1014799,5539817,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2000s,turnos,0.201852,9197,45563,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2000s,oradoras,0.183099,65,355,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2010s,palabras,0.198147,979880,4945222,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2010s,turnos,0.21621,7101,32843,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2010s,oradoras,0.24359,76,312,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2020s,palabras,0.115812,383675,3312909,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2020s,turnos,0.105327,2260,21457,si,C,2026-09-07
+DO,República Dominicana,Cámara de Diputados,2020s,oradoras,0.316568,107,338,si,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2000s,palabras,0.081565,6122269,75060136,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2000s,turnos,0.042116,22015,522720,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2000s,oradoras,0.088172,82,930,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2010s,palabras,0.105461,9707697,92050212,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2010s,turnos,0.090478,70871,783295,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2010s,oradoras,0.115942,160,1380,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2020s,palabras,0.207286,6696176,32303978,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2020s,turnos,0.166479,51836,311367,no,C,2026-09-07
+BR,Brasil,Câmara dos Deputados,2020s,oradoras,0.18358,161,877,no,C,2026-09-07
+SV,El Salvador,Asamblea Legislativa,2010s,palabras,0.231868,600875,2591452,si,C,2026-09-07
+SV,El Salvador,Asamblea Legislativa,2010s,turnos,0.16283,2108,12946,si,C,2026-09-07
+SV,El Salvador,Asamblea Legislativa,2010s,oradoras,0.394558,58,147,si,C,2026-09-07
+SV,El Salvador,Asamblea Legislativa,2020s,palabras,0.356251,3971087,11146865,si,C,2026-09-07
+SV,El Salvador,Asamblea Legislativa,2020s,turnos,0.203041,7090,34919,si,C,2026-09-07
+SV,El Salvador,Asamblea Legislativa,2020s,oradoras,0.4,98,245,si,C,2026-09-07

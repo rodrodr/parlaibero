@@ -1,0 +1,64 @@
+---
+/**
+ * 2.6 · Tres años de trabajo. Una descarga. El título repite A PROPÓSITO el remate de la tesis: la página se
+ * cierra donde se abrió el argumento. Orden del copy: entrada → aviso del formulario (lo pone <Salidas>, encima
+ * de los enlaces) → las tres salidas → las tres frases fijas → la cita de la colección.
+ * No hay eslogan de cierre ni licencia: la licencia ya va en la línea-credencial y en el pie.
+ */
+import Salidas from '../Salidas.astro';
+import Cita from '../Cita.astro';
+import { t } from '../../lib/i18n';
+import { frases } from './frases';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const fijas = ['comun.fija.local', 'comun.fija.explorador', 'comun.fija.identificadores'];
+---
+<section class="seccion empezar" aria-labelledby="empezar-titulo">
+  <div class="contenedor reja">
+    <h2 id="empezar-titulo" set:html={frases(t(lang, 'inicio.empezar.titulo'))} />
+    <p class="lede entrada" set:html={t(lang, 'inicio.empezar.entrada')} />
+  </div>
+
+  <div class="contenedor escalera">
+    <Salidas lang={lang} familia="inicio" />
+  </div>
+
+  <div class="contenedor">
+    <ul class="fijas" role="list">
+      {fijas.map((clave) => <li class="nota" set:html={t(lang, clave)} />)}
+    </ul>
+  </div>
+
+  <div class="contenedor reja">
+    {/* La cita de la colección depende de una decisión del investigador (anexo C, duda 3): mientras falte,
+        el bloque se pinta igual, con su marca de pendiente, para que la vista previa enseñe lo que queda. */}
+    <div class="cita-coleccion">
+      <Cita lang={lang} texto={t(lang, 'inicio.empezar.cita')} />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* El eco del remate de la tesis: las mismas dos frases, cada una en su línea. */
+  .empezar h2 :global(.frase) { display: block; }
+  .entrada { margin: 0; }
+  .escalera { margin-top: clamp(2.25rem, 5vw, 4rem); }
+
+  .fijas {
+    list-style: none; padding: 1rem 0 0; margin: clamp(2.5rem, 6vw, 5rem) 0 0;
+    border-top: 1px solid var(--hair);
+    display: grid; gap: .6rem clamp(1rem, 2.4vw, 2.5rem); grid-template-columns: minmax(0, 1fr);
+  }
+  .fijas li { max-width: 30rem; }
+  .cita-coleccion { margin-top: clamp(2.5rem, 6vw, 5rem); }
+
+  @media (min-width: 60rem) {
+    .empezar h2 { grid-column: 1 / span 8; }
+    .entrada { grid-column: 9 / -1; align-self: end; margin-bottom: clamp(.9rem, 1.8vw, 1.8rem); }
+    .fijas { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    /* La cita se alinea con la segunda vertical de la página, la del remate de la tesis. */
+    .cita-coleccion { grid-column: 5 / -1; }
+  }
+</style>

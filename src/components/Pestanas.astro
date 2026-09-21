@@ -1,0 +1,126 @@
+---
+/**
+ * Pestañas de una figura: Gráfico · Tabla · Datos. SIN JavaScript: tres radios y `:has()`.
+ *  · Los radios son radios de verdad (una sola parada de tabulación, las flechas cambian de pestaña y el lector de
+ *    pantalla dice «1 de 3»); no se fingen `role="tab"` que sin script no sabrían moverse.
+ *  · Donde no hay `:has()` las tres partes se leen seguidas, una debajo de otra, y la barra se retira: es la
+ *    degradación prevista, no un fallo. La tabla y la descarga nunca quedan detrás de un script.
+ *  · Los estilos son GLOBALES y con prefijo (`pest-`, `fig-`): el contenido llega por `slot` desde FigVoz y
+ *    FigRejilla, y la nota emergente la crea la isla; nada de eso lleva el ámbito de este componente.
+ *
+ * Ranuras: `grafico` · `tabla` · `datos`, y `barra` para un control propio de la figura a la derecha de las pestañas.
+ */
+import { t } from '../lib/i18n';
+import type { Lang } from '../lib/idiomas';
+
+interface Props {
+  lang: Lang;
+  /** Prefijo único en la página: nombra el grupo de radios y da id a cada panel (`<id>-tabla`…). */
+  id: string;
+  /** id del elemento que nombra la figura: es también el nombre accesible del grupo de pestañas. */
+  etiquetadoPor: string;
+}
+const { lang, id, etiquetadoPor } = Astro.props;
+
+// Un solo texto aprobado trae los tres rótulos, entre corchetes y en este orden.
+const html = t(lang, 'comun.fig.pestanas');
+const prestado = html.includes('data-sin-traducir');
+const rotulos = [...html.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1]);
+const PANELES = ['grafico', 'tabla', 'datos'] as const;
+if (rotulos.length !== PANELES.length) throw new Error(`«comun.fig.pestanas» debe traer ${PANELES.length} rótulos entre corchetes y trae ${rotulos.length} (${lang}).`);
+---
+<div class="pestanas" data-pestanas>
+  <div class="pest-barra no-imprimir">
+    <div class="pest-radios" role="radiogroup" aria-labelledby={etiquetadoPor}>
+      {PANELES.map((panel, i) => (
+        <span class="pest-opcion">
+          <input class="pest-radio" type="radio" name={`${id}-pest`} id={`${id}-pest-${panel}`} value={panel} checked={i === 0} />
+          <label for={`${id}-pest-${panel}`} lang={prestado ? 'es' : undefined} data-sin-traducir={prestado ? '' : undefined} set:html={rotulos[i]} />
+        </span>
+      ))}
+    </div>
+    <slot name="barra" />
+  </div>
+  <div class="pest-panel" data-panel="grafico" id={`${id}-grafico`}><slot name="grafico" /></div>
+  <div class="pest-panel" data-panel="tabla" id={`${id}-tabla`}><slot name="tabla" /></div>
+  <div class="pest-panel" data-panel="datos" id={`${id}-datos`}><slot name="datos" /></div>
+</div>
+
+<style is:global>
+  /* ── barra ─────────────────────────────────────────────────────────────────────────── */
+  .pest-barra {
+    display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: .35rem 2rem;
+    border-bottom: 1px solid var(--hair); margin-bottom: clamp(1.25rem, 3vw, 2.25rem);
+  }
+  .pest-radios { display: flex; gap: .15rem; margin-bottom: -1px; }
+  .pest-opcion { position: relative; display: inline-flex; }
+  /* El radio se esconde de la vista, no del teclado ni del lector: sigue recibiendo el foco. */
+  .pest-radio { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+  .pest-opcion label {
+    /* 44 px de alto: la pestaña se toca con el dedo. */
+    display: inline-flex; align-items: center; justify-content: center; min-height: 2.75rem; padding: 0 .95rem; min-width: 2.75rem;
+    font: 600 var(--fs-small)/1 var(--display); letter-spacing: .01em; color: var(--mute);
+    border-bottom: 2px solid transparent; cursor: pointer;
+  }
+  .pest-opcion:first-child label { padding-left: 0; }
+  .pest-opcion:hover label { color: var(--ink); }
+  .pest-radio:checked + label { color: var(--ink); border-bottom-color: var(--ink); }
+  .pest-radio:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: var(--radio); }
+  @media (prefers-reduced-motion: no-preference) {
+    .pest-opcion label { transition: color .12s var(--ease), border-color .24s var(--ease); }
+  }
+
+  /* ── paneles ───────────────────────────────────────────────────────────────────────── */
+  @supports selector(:has(*)) {
+    .pest-panel { display: none; }
+    .pestanas:has(> .pest-barra .pest-radio[value='grafico']:checked) > .pest-panel[data-panel='grafico'],
+    .pestanas:has(> .pest-barra .pest-radio[value='tabla']:checked) > .pest-panel[data-panel='tabla'],
+    .pestanas:has(> .pest-barra .pest-radio[value='datos']:checked) > .pest-panel[data-panel='datos'] { display: block; }
+  }
+  @supports not selector(:has(*)) {
+    .pest-radios { display: none; }
+    .pest-panel + .pest-panel { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--hair); }
+  }
+  @media print {
+    .pest-panel[data-panel='datos'] { display: none !important; }
+  }
+
+  /* ── tabla de una figura ───────────────────────────────────────────────────────────── */
+  /* Se desliza DENTRO de su caja: la página nunca gana scroll horizontal. Con `tabindex`, también con teclado. */
+  .fig-desliza { overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+  .fig-tabla { border-collapse: collapse; width: 100%; font-size: var(--fs-small); line-height: 1.35; }
+  .fig-tabla caption { text-align: left; padding-bottom: .9rem; font: 700 var(--fs-small)/1.3 var(--display); color: var(--ink); }
+  /* El título mide lo que la caja visible, no lo que la tabla: no se corta y no se va al deslizarla. */
+  .fig-rotulo-tabla { display: inline-block; position: sticky; left: 0; max-width: calc(100vw - 2 * var(--gutter)); }
+  .fig-tabla th, .fig-tabla td { padding: .5rem 1.4rem .5rem 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--hair); font-weight: 400; }
+  .fig-tabla th:last-child, .fig-tabla td:last-child { padding-right: 0; }
+  .fig-tabla thead th { font: 700 .78rem/1.25 var(--display); letter-spacing: .01em; color: var(--ink-2); border-bottom-color: var(--ink); vertical-align: bottom; white-space: nowrap; }
+  .fig-tabla tbody th { font-family: var(--display); font-weight: 600; }
+  .fig-tabla .num { text-align: right; white-space: nowrap; }
+  .fig-tabla code { font-size: .92em; }
+  .fig-tabla a { color: inherit; text-decoration-color: var(--accent); }
+  .fig-tabla a:hover { color: var(--accent); }
+  .fig-pie-tabla { margin: 1rem 0 0; max-width: var(--measure); }
+
+  /* ── panel de datos ────────────────────────────────────────────────────────────────── */
+  .fig-datos { display: grid; gap: 1.5rem clamp(2rem, 5vw, 5rem); grid-template-columns: minmax(0, 1fr); max-width: 64rem; }
+  .fig-datos p { margin: 0; }
+  .fig-descarga { display: flex; flex-direction: column; align-items: flex-start; gap: .9rem; }
+  .fig-descarga .boton { flex-wrap: wrap; }
+  .fig-archivo { font: 500 .8em/1.2 var(--mono); opacity: .85; overflow-wrap: anywhere; }
+  .fig-archivos { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .4rem 1.4rem; font: 500 var(--fs-small)/1.3 var(--mono); }
+  .fig-archivos a { overflow-wrap: anywhere; }
+  .fig-leame { margin: 0; display: grid; gap: 1.1rem; }
+  .fig-leame dt { font: 600 .72rem/1.3 var(--mono); letter-spacing: .08em; color: var(--mute); }
+  .fig-leame dd { margin: .3rem 0 0; font-size: var(--fs-small); line-height: 1.45; color: var(--ink-2); max-width: var(--measure); }
+  .fig-leame dd p + p { margin-top: .6em; }
+  @media (min-width: 56rem) { .fig-datos { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
+
+  /* ── nota emergente (la crea src/scripts/figuras.ts; sin script no existe) ─────────── */
+  .fig-tip {
+    position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; max-width: min(32rem, calc(100vw - 1rem));
+    padding: .45rem .6rem; border-radius: var(--radio); background: var(--ink); color: var(--bg);
+    font: 500 .78rem/1.35 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -.01em;
+  }
+  .fig-tip[hidden] { display: none; }
+</style>

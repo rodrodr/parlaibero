@@ -1,0 +1,163 @@
+---
+/**
+ * Diccionario de las columnas del archivo de intervenciones, generado desde `src/data/columnas.json`
+ * (nombre, tipo, `definicion_<lang>`, y la disponibilidad MEDIDA por cámara con su base). Aquí no se redacta ninguna
+ * definición (copy §6.4); los rótulos son los de §1.11 (`usar.columnas.col.*`, `.base.*`, `.celda`).
+ *  · Es la TABLA que la entradilla promete («la tabla lo dice»): columna · tipo · qué es · cuánto se pudo llenar.
+ *    Se maqueta con rejilla de CSS, así que cada elemento lleva su `role` explícito: cambiar el `display` de una tabla
+ *    le quita la semántica en más de un navegador.
+ *  · La tira: dieciséis celdas, una por cámara, en el orden de la rejilla de cobertura. Codifica por LLENADO, no por
+ *    tono: una proporción se lee mejor como longitud, vale igual en tema claro y oscuro, y no pide distinguir colores.
+ *    Una celda al 0 % queda vacía, con su filete: la ausencia nunca es un color de dato.
+ *  · Ninguna cifra sin su denominador: la base de cada columna (todas las filas · los turnos de habla · los turnos
+ *    vinculados) va escrita bajo la tira y dentro de la nota de cada celda.
+ *  · El número de orden lo pone un contador de CSS: ningún número se teclea.
+ *  · Cada columna tiene ancla propia (`#col-<nombre>`) para que otras páginas puedan enlazar a una sola.
+ *  · Se listan los NOMBRES de las columnas —también `speaker_raw` y `speaker_name`, que existen en el archivo—;
+ *    ningún VALOR de esas columnas llega al sitio.
+ */
+import COLUMNAS from '../data/columnas.json';
+import { PAISES, escapa, fmt } from '../lib/cifras';
+import { t, plano } from '../lib/i18n';
+import type { Lang } from '../lib/idiomas';
+
+type Base = 'filas' | 'habla' | 'vinculadas';
+interface Columna {
+  nombre: string; orden: number; grupo: string; tipo: string; base: Base;
+  definicion_es: string; definicion_en: string; definicion_pt: string;
+  disponibilidad: Record<string, number>;
+}
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const columnas = [...(COLUMNAS as Columna[])].sort((a, b) => a.orden - b.orden);
+const campo = `definicion_${lang}` as const;
+
+/** Las definiciones vienen del exportador con las mismas marcas mínimas del copy: `código` y **negrita**. */
+const marcas = (s: string) => escapa(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+
+/** Si a una columna le falta la definición en esta lengua, cae al español y se marca, como hace `t()`. */
+function definicion(c: Columna): string {
+  const propia = c[campo]?.trim();
+  if (propia) return marcas(propia);
+  return `<span lang="es" data-sin-traducir>${marcas(c.definicion_es)}</span>`;
+}
+
+/** Un decimal. En los bordes TRUNCA en vez de redondear: una columna al 99,9999 % no se lee «100 %», ni una al 0,0001 % «0 %». */
+function porcentaje(v: number): string {
+  const x = 100 * v;
+  let dec = 1, val = Math.round(x * 10) / 10;
+  if (v < 1 && val >= 100) { dec = 2; val = Math.floor(x * 100) / 100; }
+  if (v > 0 && val <= 0) { dec = 2; val = Math.ceil(x * 100) / 100; }
+  return fmt.porcentaje(val / 100, lang, dec);
+}
+
+const filas = columnas.map((c) => {
+  const base = t(lang, `usar.columnas.base.${c.base}`);
+  const celdas = PAISES.map((p) => {
+    const v = c.disponibilidad[p.iso];
+    if (typeof v !== 'number') throw new Error(`columnas.json no trae la disponibilidad de «${c.nombre}» en ${p.iso}.`);
+    const texto = porcentaje(v);
+    const vars = (pct: string) => ({ camara: escapa(p.nombre[lang]), pct, base });
+    return {
+      iso: p.iso, v,
+      // La nota emergente es texto plano; la que lee el lector de pantalla lleva la cifra en su envoltorio auditable.
+      titulo: plano(lang, 'usar.columnas.celda', { vars: vars(texto) }),
+      html: t(lang, 'usar.columnas.celda', { vars: vars(fmt.dato(v, texto, `columna.${c.nombre}.disp.${p.iso}`)) }),
+    };
+  });
+  return { c, base, celdas };
+});
+---
+<div class="columnas-bloque">
+  <div class="leyenda nota">
+    <p set:html={t(lang, 'usar.columnas.col.leyenda')} />
+    {/* La clave de lectura: la misma geometría de la tira, con el código de cada cámara en su celda. */}
+    <ol class="tira clave" aria-hidden="true">
+      {PAISES.map((p) => <li class="celda"><span class="iso mono">{p.iso.toUpperCase()}</span></li>)}
+    </ol>
+  </div>
+
+  <div class="columnas" role="table" aria-labelledby="columnas-t">
+    <div class="cabecera" role="row">
+      <span role="columnheader" set:html={t(lang, 'usar.columnas.col.columna')} />
+      <span role="columnheader" class="sr-only" set:html={t(lang, 'usar.columnas.col.tipo')} />
+      <span role="columnheader" set:html={t(lang, 'usar.columnas.col.definicion')} />
+      <span role="columnheader" class="sr-only" set:html={t(lang, 'usar.columnas.col.disponibilidad')} />
+    </div>
+    {filas.map(({ c, base, celdas }) => (
+      <div class="columna" role="row" id={`col-${c.nombre}`}>
+        <div class="quien" role="rowheader"><code class="nombre">{c.nombre}</code></div>
+        <div class="tipo-celda" role="cell"><span class="tipo mono">{c.tipo}</span></div>
+        <div class="def" role="cell" set:html={definicion(c)} />
+        <div class="disp" role="cell">
+          <p class="rotulo-disp nota" aria-hidden="true" set:html={t(lang, 'usar.columnas.col.disponibilidad')} />
+          <ol class="tira">
+            {celdas.map((x) => (
+              <li class:list={['celda', { vacia: x.v === 0 }]} style={`--v:${x.v}`} title={x.titulo}>
+                <span class="sr-only" set:html={x.html} />
+              </li>
+            ))}
+          </ol>
+          <p class="base nota" aria-hidden="true" set:html={base} />
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .columnas-bloque { min-width: 0; }
+  .leyenda { display: grid; gap: .6rem; margin: 0 0 1.4rem; max-width: var(--measure); }
+  .leyenda p { margin: 0; }
+
+  /* ── la tira: dieciséis celdas, una por cámara ── */
+  .tira { --celda: .82rem; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(16, var(--celda)); gap: 2px; }
+  .celda {
+    position: relative; height: 1.15rem; border: 1px solid var(--hair); border-radius: 1px; overflow: hidden;
+    background: linear-gradient(to top, var(--rampa-2) calc(var(--v, 0) * 100%), transparent calc(var(--v, 0) * 100%));
+  }
+  .celda.vacia { border-style: dashed; border-color: var(--mute); }
+  .tira.clave .celda { height: auto; border-color: transparent; background: none; overflow: visible; }
+  .iso { display: block; font-size: .5rem; line-height: 1.6; letter-spacing: 0; text-align: center; color: var(--mute); }
+
+  .columnas { margin: 0; counter-reset: columna; border-bottom: 1px solid var(--hair); }
+  .cabecera { display: none; }
+  .columna {
+    counter-increment: columna; position: relative;
+    display: grid; gap: .35rem 1.5rem; padding: 1.05rem 0 1.15rem 2.6rem; border-top: 1px solid var(--hair);
+    scroll-margin-top: 1.5rem;
+  }
+  .columna::before {
+    content: counter(columna, decimal-leading-zero); position: absolute; left: 0; top: 1.3rem;
+    font: 500 .78rem/1 var(--mono); color: var(--mute); font-variant-numeric: tabular-nums;
+  }
+  /* El ancla de otra página aterriza aquí: se señala la columna pedida sin mover nada. */
+  .columna:target { background: var(--bg-2); }
+  .columna:target::before { color: var(--accent); font-weight: 700; }
+  .quien, .tipo-celda { min-width: 0; }
+  .nombre { font-size: 1.02rem; font-weight: 700; color: var(--ink); overflow-wrap: anywhere; }
+  .columna .tipo { font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; color: var(--mute); border: 1px solid var(--hair); border-radius: var(--radio); padding: .12em .45em; }
+  .def { margin: 0; font-size: .96em; line-height: 1.5; color: var(--ink-2); max-width: var(--measure); overflow-wrap: break-word; }
+  .def :global(code) { color: var(--ink); overflow-wrap: anywhere; }
+  .def :global(strong) { color: var(--ink); }
+  .disp { display: grid; gap: .3rem; margin-top: .35rem; }
+  .disp p { margin: 0; }
+  .rotulo-disp { color: var(--ink-2); }
+  .base { color: var(--mute); }
+
+  @media (min-width: 48rem) {
+    .cabecera, .columna { grid-template-columns: 13.5rem minmax(0, 1fr); }
+    .cabecera {
+      display: grid; gap: 0 1.5rem; padding: 0 0 .5rem 2.6rem;
+      font-weight: 600; font-size: .72rem; line-height: 1.3; letter-spacing: .06em; text-transform: uppercase; color: var(--mute);
+    }
+    /* A la izquierda, el nombre y debajo su tipo; a la derecha, la definición y debajo su tira. */
+    .quien { grid-column: 1; grid-row: 1; }
+    .tipo-celda { grid-column: 1; grid-row: 2; align-self: start; }
+    .def { grid-column: 2; grid-row: 1 / span 2; }
+    .disp { grid-column: 2; grid-row: 3; }
+    .tira { --celda: .95rem; }
+    .iso { font-size: .56rem; }
+  }
+</style>

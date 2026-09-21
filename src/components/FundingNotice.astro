@@ -1,0 +1,53 @@
+---
+/**
+ * Mención obligatoria de la financiación (AEI, guía del 5-feb-2026, §2 y §3).
+ *  · va en TODAS las páginas (variante `completa`, en el pie) y, en Inicio, además en el PRIMER
+ *    PANTALLAZO sin scroll (variante `franja`, bajo la cabecera);
+ *  · la referencia va SIEMPRE junto a los logotipos: texto y banda son un bloque indivisible;
+ *  · la banda es el fichero oficial, entero: no se recorta, no se recolorea y no se traduce; en tema
+ *    oscuro va sobre placa clara;
+ *  · ningún otro logotipo del sitio puede ser más alto que esta banda.
+ * `scripts/check-funding.mjs` comprueba todo esto sobre `dist/` y bloquea el despliegue si falla.
+ */
+import { Image } from 'astro:assets';
+import banda from '../assets/aei/logo_proyectos_AEI.jpg';
+import { t, plano } from '../lib/i18n';
+import type { Lang } from '../lib/idiomas';
+
+interface Props { lang: Lang; variante: 'franja' | 'completa' }
+const { lang, variante } = Astro.props;
+---
+<div class:list={['aei', variante]} data-aei={variante}>
+  {variante === 'completa' && <p class="aei-texto" set:html={t(lang, 'comun.aei.completa')} />}
+  <p class="aei-corta" set:html={t(lang, 'comun.aei.corta')} />
+  <span class="aei-placa">
+    <Image
+      src={banda}
+      alt={plano(lang, 'comun.aei.logos.alt')}
+      width={1600}
+      widths={[480, 720, 1080, 1600]}
+      sizes={variante === 'franja' ? '(max-width: 640px) 92vw, 420px' : '(max-width: 640px) 92vw, 520px'}
+      quality={88}
+      loading={variante === 'franja' ? 'eager' : 'lazy'}
+      fetchpriority={variante === 'franja' ? 'high' : 'auto'}
+      class="aei-banda"
+    />
+  </span>
+</div>
+
+<style>
+  .aei { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+  .aei p { margin: 0; max-width: none; }
+  .aei-corta { font: 600 var(--fs-small)/1.25 var(--mono); color: var(--ink-2); letter-spacing: .01em; }
+  .aei-texto { flex-basis: 100%; font-size: var(--fs-small); color: var(--ink-2); line-height: 1.45; max-width: 46rem; }
+  .aei-placa { display: inline-block; background: var(--placa); padding: 3px; border-radius: var(--radio); line-height: 0; }
+  .aei-banda { display: block; width: auto; height: auto; }
+  /* La banda nunca baja de 56 px de alto: por debajo, el nombre del Ministerio deja de leerse (en tableta llegó a
+     medir 38 px, menos que en el móvil). Es una banda de 5,16 : 1, así que 56 px de alto son unos 290 de ancho. */
+  .franja .aei-banda { height: clamp(56px, 5.2vw, 64px); width: auto; }
+  .completa .aei-banda { height: clamp(64px, 6vw, 80px); width: auto; }
+  @media (max-width: 640px) {
+    .aei { flex-direction: column; align-items: flex-start; gap: .35rem; }
+    .franja .aei-banda, .completa .aei-banda { width: min(92vw, 420px); height: auto; }
+  }
+</style>

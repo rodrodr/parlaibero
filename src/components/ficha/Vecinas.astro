@@ -1,0 +1,52 @@
+---
+/**
+ * Ficha anterior y siguiente, en el ORDEN FIJO del sitio (década de entrada y año de inicio): el mismo de la rejilla.
+ * No es un orden de mérito, y por eso no hay «primera» ni «última» destacadas: en los extremos, el hueco queda vacío.
+ */
+import { t, plano, rotulo, existe } from '../../lib/i18n';
+import { fmt, PAISES, type Pais } from '../../lib/cifras';
+import { url, PAGINAS } from '../../lib/rutas';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang; p: Pais }
+const { lang, p } = Astro.props;
+const i = PAISES.findIndex((q) => q.iso === p.iso);
+const vecinas: { q: Pais | undefined; rel: 'prev' | 'next'; flecha: string; clave: string }[] = [
+  { q: PAISES[i - 1], rel: 'prev', flecha: '←', clave: 'ficha.vecinas.anterior' },
+  { q: PAISES[i + 1], rel: 'next', flecha: '→', clave: 'ficha.vecinas.siguiente' },
+];
+const periodo = (q: Pais) => `${fmt.dato(q.inicio, String(q.inicio), `pais.${q.iso}.inicio`)}–${fmt.dato(q.fin, String(q.fin), `pais.${q.iso}.fin`)}`;
+// TODO-COPY: no hay rótulo para «ficha anterior / siguiente» (`ficha.vecinas.anterior` y `.siguiente`). Mientras
+// falte, el enlace se nombra con el país y la dirección solo la dan la flecha (a la vista, oculta al lector de
+// pantalla) y `rel` (para las máquinas): queda declarado con `data-todo-copy`. Cuando existan, van dentro del enlace,
+// solo para el lector de pantalla, sin tocar este archivo.
+---
+<nav class="vecinas" aria-label={plano(lang, 'comun.nav.paises')}>
+  <div class="contenedor fila">
+    {vecinas.map(({ q, rel, flecha, clave }) => q ? (
+      <a class:list={['vecina', rel]} href={url(lang, `${PAGINAS.paises}/${q.iso}`)} rel={rel} data-todo-copy={existe(clave) ? undefined : clave}>
+        <span class="flecha" aria-hidden="true">{flecha}</span>
+        {existe(clave) && <span class="sr-only"><Fragment set:html={t(lang, clave)} />: </span>}
+        <span class="nombre">{q.nombre[lang]}</span>
+        <span class="periodo" set:html={periodo(q)} />
+      </a>
+    ) : <span class:list={['vecina', 'vacia', rel]} />)}
+    <a class="todas" href={url(lang, PAGINAS.paises)} set:html={rotulo(lang, 'comun.nav.paises')} />
+  </div>
+</nav>
+
+<style>
+  .vecinas { border-top: 1px solid var(--ink); }
+  .fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 clamp(1rem, 4vw, 3rem); padding-block: clamp(1.5rem, 4vw, 3rem) 0; }
+  .vecina { display: grid; gap: .3rem; text-decoration: none; color: var(--ink); align-content: start; }
+  .vecina.next { text-align: right; justify-items: end; }
+  .flecha { font: 500 1.2rem/1 var(--mono); color: var(--accent); transition: transform .12s var(--ease); }
+  .nombre { font: 800 var(--fs-h3)/1.05 var(--display); letter-spacing: -.018em; font-stretch: 90%; text-wrap: balance; overflow-wrap: anywhere; }
+  .periodo { font-size: var(--fs-small); color: var(--mute); }
+  a.vecina:hover .nombre { text-decoration: underline; text-decoration-thickness: .08em; text-underline-offset: .15em; }
+  .todas { grid-column: 1 / -1; justify-self: center; margin-top: 1.75rem; font: 600 var(--fs-small)/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; }
+  @media (prefers-reduced-motion: no-preference) {
+    a.vecina.prev:hover .flecha { transform: translateX(-4px); }
+    a.vecina.next:hover .flecha { transform: translateX(4px); }
+  }
+</style>

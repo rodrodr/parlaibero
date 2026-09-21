@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Node / Astro (aún no hay andamiaje: llega tras la Puerta 2)
+node_modules/
+dist/
+.astro/
+
+# entorno local
+.env
+.env.*
+
+# Playwright
+test-results/
+playwright-report/
+
+# control local de nombres (lo escribe diaries/scripts/exportar_sitio.py): nunca se versiona ni se publica
+.cache/
+
+# Python
+__pycache__/
+*.pyc

@@ -1,0 +1,78 @@
+---
+/**
+ * «Hoy puede»: las tareas que la ficha promete, y solo las que ese país sostiene.
+ *  · buscar: siempre; con huecos declarados, la salvedad entra tras el año final (nota de diseño del copy);
+ *  · abrir una sesión que reconoce: una línea por evento PRESENTE (Ecuador tiene dos); si no hay, no se pinta;
+ *  · una sesión que no encontrará: los eventos que caen en un hueco (hoy, Paraguay). Se dibuja como ausencia,
+ *    con contorno y sin número: no es una tarea, es un aviso;
+ *  · exportar: siempre; donde casi ninguna fila trae número de sesión, se dice que el pasaje se localiza por fecha.
+ */
+import { t } from '../../lib/i18n';
+import { eventosDe, EVENTOS_TODOS, type Pais, type Evento } from '../../lib/cifras';
+import type { Lang } from '../../lib/idiomas';
+import { ctxPais, ctxEvento } from './contexto';
+
+interface Props { lang: Lang; p: Pais }
+const { lang, p } = Astro.props;
+const ctx = ctxPais(p.iso, lang);
+
+/** Por debajo de esta parte de filas con `session_number`, citar «fecha y número» engaña: se avisa. Es un umbral del build, no un dato. */
+const UMBRAL_NUMERO_SESION = 0.9;
+
+// La salvedad de los huecos va pegada al año final, que `t()` emite con su clave: se ancla ahí, en cualquier lengua.
+const finDeSerie = new RegExp(`<data[^>]*data-k="pais\\.${p.iso}\\.fin"[^>]*>[^<]*</data>`);
+const buscar = p.huecos.length
+  ? t(lang, 'ficha.tareas.buscar', ctx).replace(finDeSerie, (fin) => `${fin} ${t(lang, 'ficha.tareas.buscar.huecos', ctx)}`)
+  : t(lang, 'ficha.tareas.buscar', ctx);
+
+// `{{evento.<iso>-<fecha>.que_paso}}` lo resuelve `i18n.ts` con la clave `eventos.<id>` del copy: sin nombres y ya trilingüe.
+const deEvento = (clave: string, e: Evento) => t(lang, clave, ctxEvento(`${e.iso}-${e.date}`, lang));
+
+const presentes = eventosDe(p.iso);
+const ausentes = EVENTOS_TODOS.filter((e) => e.iso === p.iso && !e.presente);
+const sinNumero = p.disp_session_number < UMBRAL_NUMERO_SESION;
+---
+<ol class="tareas" role="list">
+  <li set:html={buscar} />
+  {presentes.map((e) => <li set:html={deEvento('ficha.tareas.sesion', e)} />)}
+  {ausentes.map((e) => <li class="ausente" set:html={deEvento('ficha.tareas.sesion_ausente', e)} />)}
+  <li>
+    <Fragment set:html={t(lang, 'ficha.tareas.exportar', ctx)} />
+    {sinNumero && <span class="sin-numero" set:html={t(lang, 'ficha.tareas.exportar.sin_numero', ctx)} />}
+  </li>
+</ol>
+<div class="avisos">
+  <p class="nota" set:html={t(lang, 'comun.fija.local')} />
+  <p class="nota" set:html={t(lang, 'comun.fija.explorador')} />
+</div>
+
+<style>
+  .tareas { list-style: none; margin: 0; padding: 0; counter-reset: tarea; max-width: 44rem; }
+  .tareas li {
+    counter-increment: tarea; position: relative;
+    padding: 1.05rem 0 1.15rem 3.4rem; border-top: 1px solid var(--hair);
+    font-size: var(--fs-lede); line-height: 1.32; text-wrap: pretty;
+  }
+  .tareas li:first-child { border-top-color: var(--ink); }
+  /* El ordinal lo pone el contador: ningún número se teclea. */
+  .tareas li::before {
+    content: counter(tarea, decimal-leading-zero); position: absolute; left: 0; top: 1.3rem;
+    font: 600 var(--fs-small)/1 var(--mono); color: var(--mute); letter-spacing: .04em;
+  }
+  .tareas :global(strong) { font-family: var(--display); font-weight: 750; font-stretch: 92%; letter-spacing: -.01em; }
+
+  /* La sesión que no está: papel con contorno, como todo hueco del sitio. No cuenta como tarea. */
+  .tareas li.ausente { counter-increment: none; color: var(--ink-2); font-size: var(--fs-body); }
+  .tareas li.ausente::before {
+    content: ''; top: 1.35rem; width: 1.5rem; height: .85rem;
+    border: 1px dashed var(--ausencia); border-radius: var(--radio);
+  }
+  .sin-numero { display: block; margin-top: .55rem; font-size: var(--fs-body); color: var(--ink-2); }
+
+  .avisos { margin-top: 1.4rem; padding-left: 3.4rem; max-width: 44rem; }
+  .avisos p { margin: 0 0 .35em; }
+  @media (max-width: 30rem) {
+    .tareas li { padding-left: 2.4rem; }
+    .avisos { padding-left: 2.4rem; }
+  }
+</style>

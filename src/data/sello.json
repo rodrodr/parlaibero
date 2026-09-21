@@ -1,0 +1,10 @@
+{
+ "exportado": "2026-09-21",
+ "medido_el": "2026-09-07",
+ "edicion_datos": "2026-09-07",
+ "data_json_sha256": "4eb973d970f28d656dffdf0d702ac640fdb97d01df446d63bd8a112e353c29a2",
+ "puertas": 8,
+ "avisos": [
+  "cobertura_temporal.md es anterior a algún corpus_info.json (tr-0167): regenérelo"
+ ]
+}

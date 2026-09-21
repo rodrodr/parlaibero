@@ -1,0 +1,98 @@
+---
+/**
+ * INICIO — la cara del proyecto. Seis movimientos, en el orden exacto del copy aprobado (§2):
+ * la pregunta y su figura · la tesis · qué hay · quién ocupa el pleno · aquel día · lo que falta · por dónde empezar.
+ * La página no lleva JavaScript propio: lo que se mueve o se copia vive en las figuras y en <Cita>.
+ */
+import Base from '../../layouts/Base.astro';
+import Apertura from '../../components/inicio/Apertura.astro';
+import Tesis from '../../components/inicio/Tesis.astro';
+import Cobertura from '../../components/inicio/Cobertura.astro';
+import Pleno from '../../components/inicio/Pleno.astro';
+import Sesiones from '../../components/inicio/Sesiones.astro';
+import SinDueno from '../../components/inicio/SinDueno.astro';
+import Empezar from '../../components/inicio/Empezar.astro';
+import { plano } from '../../lib/i18n';
+import { PAISES } from '../../lib/cifras';
+import { url, PAGINAS } from '../../lib/rutas';
+import { ENLACES } from '../../config/enlaces';
+import { rutasPorIdioma, HTML_LANG, type Lang } from '../../lib/idiomas';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+
+const titulo = plano(lang, 'inicio.meta.titulo');
+const descripcion = plano(lang, 'inicio.meta.descripcion');
+// El copy lo exige: una descripción que el buscador corta no describe nada.
+const MAX_DESCRIPCION = 155;
+if (descripcion.length > MAX_DESCRIPCION) throw new Error(`inicio.meta.descripcion (${lang}) resuelta mide ${descripcion.length} caracteres; el máximo es ${MAX_DESCRIPCION}.`);
+
+// ── JSON-LD · DataCatalog ────────────────────────────────────────────────────────────────
+// Nombre, descripción, financiador y periodo de cada conjunto salen del `dataset.jsonld` DEPOSITADO
+// (src/data/jsonld/), para que la página y Harvard Dataverse digan lo mismo; el DOI, de PAISES.
+type Depositado = { name?: string; description?: string; inLanguage?: string; temporalCoverage?: string; funder?: Record<string, unknown>; funding?: unknown };
+const depositados = import.meta.glob<{ default: Depositado }>('../../data/jsonld/*.json', { eager: true });
+const deposito = (iso: string): Depositado => {
+  const mod = Object.entries(depositados).find(([ruta]) => ruta.endsWith(`/${iso}.json`))?.[1];
+  if (!mod) throw new Error(`Falta src/data/jsonld/${iso}.json: sin él, ${iso.toUpperCase()} no entra en el catálogo.`);
+  return mod.default;
+};
+const canonica = (ruta: string) => new URL(url(lang, ruta), Astro.site).href;
+// La mención de la AEI trae el identificador del financiador; los nombres y acrónimos van en español en las tres lenguas.
+const idFinanciador = plano('es', 'comun.aei.completa').match(/10\.13039\/\d+/)?.[0];
+const comun = deposito(PAISES[0].iso);
+
+const jsonld = {
+  '@context': 'https://schema.org',
+  '@type': 'DataCatalog',
+  '@id': canonica(PAGINAS.inicio) + '#catalogo',
+  name: plano(lang, 'comun.cabecera.nombre'),
+  description: descripcion,
+  url: canonica(PAGINAS.inicio),
+  inLanguage: HTML_LANG[lang],
+  license: ENLACES.licencia,
+  sameAs: ENLACES.coleccion,
+  funder: { ...comun.funder, url: ENLACES.aei, ...(idFinanciador ? { identifier: ENLACES.doi(idFinanciador) } : {}) },
+  funding: comun.funding,
+  dataset: PAISES.map((p) => {
+    if (!p.doi) throw new Error(`${p.iso.toUpperCase()} no tiene DOI: no se publica un catálogo con un conjunto sin identificador.`);
+    const d = deposito(p.iso);
+    return {
+      '@type': 'Dataset',
+      '@id': ENLACES.doi(p.doi),
+      identifier: ENLACES.doi(p.doi),
+      name: d.name,
+      description: d.description,
+      url: ENLACES.doi(p.doi),
+      mainEntityOfPage: canonica(`${PAGINAS.paises}/${p.iso}`),
+      version: p.version,
+      license: p.licencia_url,
+      inLanguage: d.inLanguage,
+      spatialCoverage: p.nombre[lang],
+      temporalCoverage: d.temporalCoverage,
+    };
+  }),
+};
+---
+<Base lang={lang} ruta={PAGINAS.inicio} titulo={titulo} descripcion={descripcion} franjaAEI jsonld={jsonld}>
+  <div class="inicio">
+    <Apertura lang={lang} />
+    <Tesis lang={lang} />
+    <Cobertura lang={lang} />
+    <Pleno lang={lang} />
+    <Sesiones lang={lang} />
+    <SinDueno lang={lang} />
+    <Empezar lang={lang} />
+  </div>
+</Base>
+
+<style is:global>
+  /* Rejilla editorial de doce columnas, solo de Inicio. En móvil cada pieza ocupa todo el ancho;
+     los desplazamientos asimétricos son cosa del escritorio y los decide cada componente. */
+  .inicio .reja { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.4vw, 2.5rem); }
+  /* `:where` deja esta regla sin especificidad: la colocación que decide cada componente gana siempre, cargue en el orden que cargue. */
+  :where(.inicio .reja) > * { grid-column: 1 / -1; min-width: 0; }
+  /* Un número escrito con letras («dieciséis», `|letra`) es prosa: en mono parecería una errata. Lo marca quien sabe
+     que todas las cifras de su frase van en letra; donde conviven con cifras de verdad se apunta por `data-k`. */
+  .inicio .en-letra data.cifra { font: inherit; letter-spacing: inherit; }
+</style>

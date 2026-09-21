@@ -1,0 +1,87 @@
+---
+/**
+ * 2.3 · ¿Quién ocupa el tiempo del pleno? El fragmento es el argumento, no la cifra: va como cita tipográfica
+ * grande, en la itálica que el sitio reserva a lo que alguien dijo, y SIN nombre (partido · cámara · fecha).
+ * El texto sale de src/data/fragmento.json y no del diccionario, porque es literal del Diario y no se traduce
+ * en ninguna lengua («ojala» va sin tilde, como allí); las comillas las pone la tipografía, no el dato.
+ * Las etiquetas «bruta» y «efectiva» no aparecen en Inicio: viven en Metodología, adonde lleva «por país».
+ */
+import fragmento from '../../data/fragmento.json';
+import { t, tEnlaces, plano } from '../../lib/i18n';
+import { pais } from '../../lib/cifras';
+import { url, PAGINAS } from '../../lib/rutas';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+// Ancla de Metodología (la declara su página): la tabla por cámara del apartado 4, «Quién habla».
+const TABLA_POR_PAIS = `${PAGINAS.metodologia}#por-pais`;
+
+// El copy aprobado y el dato tienen que decir lo mismo, letra por letra: si el exportador cambia el fragmento,
+// el investigador tiene que volver a aprobarlo antes de que salga en portada.
+const aprobado = plano('es', 'inicio.pleno.fragmento').replace(/^«|»$/g, '');
+if (aprobado !== fragmento.texto) {
+  const aviso = 'src/data/fragmento.json ya no coincide con «inicio.pleno.fragmento» del copy aprobado.';
+  if (process.env.STRICT === '1') throw new Error(aviso);
+  console.warn('⚠ ' + aviso);
+}
+// La lengua de la cita es la de su cámara, no la de la página.
+const lenguaCita = pais(fragmento.iso)?.lenguas.includes('Portuguese') ? 'pt' : 'es';
+---
+<section class="seccion pleno" aria-labelledby="pleno-titulo">
+  <div class="contenedor reja">
+    <h2 id="pleno-titulo" set:html={t(lang, 'inicio.pleno.titulo')} />
+    <p class="lede unidad" set:html={t(lang, 'inicio.pleno.unidad')} />
+  </div>
+
+  <div class="contenedor reja">
+    <figure class="fragmento entra">
+      <blockquote lang={lenguaCita}><p>{fragmento.texto}</p></blockquote>
+      <figcaption set:html={t(lang, 'inicio.pleno.fragmento.pie')} />
+    </figure>
+  </div>
+
+  <div class="contenedor reja cuentas">
+    <p class="vinculacion" set:html={t(lang, 'inicio.pleno.vinculacion')} />
+    <p class="nota panama" set:html={tEnlaces(lang, 'inicio.pleno.panama', [url(lang, TABLA_POR_PAIS)])} />
+  </div>
+</section>
+
+<style>
+  .pleno h2 { max-width: 14em; }
+  .unidad { margin: 0; }
+
+  .fragmento { margin: clamp(2.75rem, 7vw, 6.5rem) 0; }
+  blockquote { margin: 0; quotes: '«' '»' '“' '”'; }
+  blockquote p {
+    margin: 0; max-width: none;
+    font-style: italic; font-weight: 400;
+    font-size: clamp(1.5rem, 1.02rem + 2.2vw, 3.05rem); line-height: 1.2; letter-spacing: -.012em;
+    text-wrap: pretty;
+  }
+  blockquote p::before { content: open-quote; }
+  blockquote p::after { content: close-quote; }
+  figcaption {
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+    font: 500 var(--fs-small)/1.5 var(--mono); letter-spacing: .02em; color: var(--mute);
+  }
+  /* Un filete corto antes del pie: es la firma de la cita, y aquí la firma no es un nombre. */
+  figcaption::before { content: ''; display: inline-block; width: 2.5rem; height: 1px; background: currentColor; vertical-align: middle; margin-right: .8rem; }
+  figcaption :global(data.cifra) { font-size: 1em; letter-spacing: inherit; }
+
+  .cuentas { row-gap: 1.5rem; }
+  .vinculacion { margin: 0; max-width: 40rem; }
+  .panama { margin: 0; border-top: 1px solid var(--hair); padding-top: 1rem; max-width: 34rem; }
+
+  @media (min-width: 40rem) {
+    /* La comilla de apertura cuelga fuera de la caja: el texto queda alineado por la primera letra. */
+    blockquote p { text-indent: -.5em; }
+  }
+  @media (min-width: 60rem) {
+    .pleno h2, .unidad { grid-column: 1 / span 8; }
+    .fragmento { grid-column: 2 / span 10; }
+    .vinculacion { grid-column: 1 / span 7; }
+    .panama { grid-column: 9 / -1; align-self: start; }
+  }
+</style>

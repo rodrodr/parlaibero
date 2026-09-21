@@ -1,0 +1,2367 @@
+[
+ {
+  "iso": "pt",
+  "nombre": {
+   "es": "Portugal",
+   "en": "Portugal",
+   "pt": "Portugal"
+  },
+  "camara": "Assembleia da República",
+  "tipo_camara": "única",
+  "diario": "Diário da Assembleia da República, I Série",
+  "decada_entrada": "1970s",
+  "inicio": 1976,
+  "fin": 2025,
+  "primera": "1976-06-03",
+  "ultima": "2025-12-12",
+  "anos_periodo": 50,
+  "anos_con_sesion": 50,
+  "huecos": [],
+  "sesiones": 4939,
+  "filas": 1559320,
+  "sesiones_sin_habla": 4,
+  "habla": 1554381,
+  "vinculados": 1329634,
+  "den_efectivo": 1352326,
+  "no_escano": 64396,
+  "voz_colectiva": 137659,
+  "mediana_palabras": 18,
+  "disp_session_number": 0.9914569874192452,
+  "voz": {
+   "1970s": {
+    "palabras": {
+     "v": 0.04400936901804657,
+     "n": 417649,
+     "den": 9490002
+    },
+    "turnos": {
+     "v": 0.031150094270022133,
+     "n": 2660,
+     "den": 85393
+    },
+    "oradoras": {
+     "v": 0.05454545454545454,
+     "n": 18,
+     "den": 330
+    }
+   },
+   "1980s": {
+    "palabras": {
+     "v": 0.060156522582168026,
+     "n": 2033981,
+     "den": 33811479
+    },
+    "turnos": {
+     "v": 0.04958147610656163,
+     "n": 15306,
+     "den": 308704
+    },
+    "oradoras": {
+     "v": 0.08312655086848635,
+     "n": 67,
+     "den": 806
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.10051255437266045,
+     "n": 2688607,
+     "den": 26748967
+    },
+    "turnos": {
+     "v": 0.07365124397027972,
+     "n": 17238,
+     "den": 234049
+    },
+    "oradoras": {
+     "v": 0.12693498452012383,
+     "n": 82,
+     "den": 646
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.1636575029987802,
+     "n": 4050670,
+     "den": 24750897
+    },
+    "turnos": {
+     "v": 0.11796637892549117,
+     "n": 31445,
+     "den": 266559
+    },
+    "oradoras": {
+     "v": 0.255663430420712,
+     "n": 158,
+     "den": 618
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.32499132278725523,
+     "n": 7901736,
+     "den": 24313683
+    },
+    "turnos": {
+     "v": 0.28207564579267885,
+     "n": 71841,
+     "den": 254687
+    },
+    "oradoras": {
+     "v": 0.3492822966507177,
+     "n": 219,
+     "den": 627
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.33503321427927124,
+     "n": 4939918,
+     "den": 14744562
+    },
+    "turnos": {
+     "v": 0.2401604509492793,
+     "n": 43287,
+     "den": 180242
+    },
+    "oradoras": {
+     "v": 0.3775167785234899,
+     "n": 225,
+     "den": 596
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.8554,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Debates Parlamentares, Assembleia da República. https://debates.parlamento.pt/catalogo/r3/dar. HTML. Legislatures I-XVII (1976-2025).",
+   "es": "Debates Parlamentares, Assembleia da República. https://debates.parlamento.pt/catalogo/r3/dar. HTML. Legislaturas I-XVII (1976-2025).",
+   "pt": "Debates Parlamentares, Assembleia da República. https://debates.parlamento.pt/catalogo/r3/dar. HTML. Legislaturas I-XVII (1976-2025)."
+  },
+  "n_limitaciones": 3,
+  "csv_bytes": 1199719582,
+  "doi": "10.7910/DVN/VRPUFU",
+  "url": "https://doi.org/10.7910/DVN/VRPUFU",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-PT: Parliamentary Speeches from Portugal (1976-2025)\", https://doi.org/10.7910/DVN/VRPUFU, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Portuguese"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "es",
+  "nombre": {
+   "es": "España",
+   "en": "Spain",
+   "pt": "Espanha"
+  },
+  "camara": "Congreso de los Diputados",
+  "tipo_camara": "baja",
+  "diario": "Diario de Sesiones (Pleno, Diputación Permanente, sesiones de 1977-79)",
+  "decada_entrada": "1970s",
+  "inicio": 1977,
+  "fin": 2025,
+  "primera": "1977-07-13",
+  "ultima": "2025-12-11",
+  "anos_periodo": 49,
+  "anos_con_sesion": 49,
+  "huecos": [],
+  "sesiones": 3559,
+  "filas": 562514,
+  "sesiones_sin_habla": 1,
+  "habla": 558940,
+  "vinculados": 541332,
+  "den_efectivo": 544535,
+  "no_escano": 14338,
+  "voz_colectiva": 67,
+  "mediana_palabras": 40,
+  "disp_session_number": 0.9779321023973622,
+  "voz": {
+   "1970s": {
+    "palabras": {
+     "v": 0.024720867238275216,
+     "n": 171994,
+     "den": 6957442
+    },
+    "turnos": {
+     "v": 0.008532938239086893,
+     "n": 311,
+     "den": 36447
+    },
+    "oradoras": {
+     "v": 0.0575,
+     "n": 23,
+     "den": 400
+    }
+   },
+   "1980s": {
+    "palabras": {
+     "v": 0.034533586527426566,
+     "n": 870925,
+     "den": 25219651
+    },
+    "turnos": {
+     "v": 0.015563513300802771,
+     "n": 1582,
+     "den": 101648
+    },
+    "oradoras": {
+     "v": 0.0743801652892562,
+     "n": 54,
+     "den": 726
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.13399350386834097,
+     "n": 3760199,
+     "den": 28062547
+    },
+    "turnos": {
+     "v": 0.0662101051133158,
+     "n": 7628,
+     "den": 115209
+    },
+    "oradoras": {
+     "v": 0.20675105485232068,
+     "n": 147,
+     "den": 711
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.24899954645176886,
+     "n": 7148025,
+     "den": 28706980
+    },
+    "turnos": {
+     "v": 0.43336154580324504,
+     "n": 48130,
+     "den": 111062
+    },
+    "oradoras": {
+     "v": 0.3779310344827586,
+     "n": 274,
+     "den": 725
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.30560266814155446,
+     "n": 7805237,
+     "den": 25540474
+    },
+    "turnos": {
+     "v": 0.39246223329699426,
+     "n": 40320,
+     "den": 102736
+    },
+    "oradoras": {
+     "v": 0.4252232142857143,
+     "n": 381,
+     "den": 896
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.42131768992581903,
+     "n": 8603279,
+     "den": 20419933
+    },
+    "turnos": {
+     "v": 0.5995284925232386,
+     "n": 44503,
+     "den": 74230
+    },
+    "oradoras": {
+     "v": 0.4396135265700483,
+     "n": 273,
+     "den": 621
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.9685,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Congreso de los Diputados de España, Official Publications. https://www.congreso.es/es/busqueda-de-publicaciones. Coverage: 1977-07-13 to 2025-12-11. Source format: PDF.",
+   "es": "Congreso de los Diputados de España, Publicaciones Oficiales. https://www.congreso.es/es/busqueda-de-publicaciones. Cobertura: de 1977-07-13 a 2025-12-11. Formato de la fuente: PDF.",
+   "pt": "Congreso de los Diputados de España, Publicações Oficiais. https://www.congreso.es/es/busqueda-de-publicaciones. Cobertura: de 1977-07-13 a 2025-12-11. Formato da fonte: PDF."
+  },
+  "n_limitaciones": 5,
+  "csv_bytes": 1058266687,
+  "doi": "10.7910/DVN/OKHGAB",
+  "url": "https://doi.org/10.7910/DVN/OKHGAB",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-ES: Parliamentary Speeches from Spain (1977-2025)\", https://doi.org/10.7910/DVN/OKHGAB, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian",
+   "Catalan, Valencian",
+   "Basque",
+   "Galician"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "ec",
+  "nombre": {
+   "es": "Ecuador",
+   "en": "Ecuador",
+   "pt": "Equador"
+  },
+  "camara": "Cámara Nacional de Representantes / Congreso Nacional / Asambleas Constituyentes / Asamblea Nacional",
+  "tipo_camara": "única",
+  "diario": "Actas",
+  "decada_entrada": "1970s",
+  "inicio": 1979,
+  "fin": 2025,
+  "primera": "1979-08-08",
+  "ultima": "2025-12-21",
+  "anos_periodo": 47,
+  "anos_con_sesion": 47,
+  "huecos": [],
+  "sesiones": 6105,
+  "filas": 1292596,
+  "sesiones_sin_habla": 0,
+  "habla": 1280822,
+  "vinculados": 880638,
+  "den_efectivo": 929130,
+  "no_escano": 351661,
+  "voz_colectiva": 31,
+  "mediana_palabras": 15,
+  "disp_session_number": 0.9955540957453048,
+  "voz": {
+   "1970s": {
+    "palabras": {
+     "v": 0.00228549557326161,
+     "n": 3953,
+     "den": 1729603
+    },
+    "turnos": {
+     "v": 0.0018210513536481728,
+     "n": 30,
+     "den": 16474
+    },
+    "oradoras": {
+     "v": 0.030534351145038167,
+     "n": 4,
+     "den": 131
+    }
+   },
+   "1980s": {
+    "palabras": {
+     "v": 0.014234233822134146,
+     "n": 292507,
+     "den": 20549543
+    },
+    "turnos": {
+     "v": 0.008097230971707841,
+     "n": 2018,
+     "den": 249221
+    },
+    "oradoras": {
+     "v": 0.047377326565143825,
+     "n": 28,
+     "den": 591
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.045385442303357074,
+     "n": 1071862,
+     "den": 23616868
+    },
+    "turnos": {
+     "v": 0.030299373497853,
+     "n": 9039,
+     "den": 298323
+    },
+    "oradoras": {
+     "v": 0.08870967741935484,
+     "n": 88,
+     "den": 992
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.11756224829997924,
+     "n": 2740550,
+     "den": 23311480
+    },
+    "turnos": {
+     "v": 0.10632702097726295,
+     "n": 21993,
+     "den": 206843
+    },
+    "oradoras": {
+     "v": 0.23227132579650564,
+     "n": 226,
+     "den": 973
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.33113828786453436,
+     "n": 5112096,
+     "den": 15437949
+    },
+    "turnos": {
+     "v": 0.40266015741755506,
+     "n": 24249,
+     "den": 60222
+    },
+    "oradoras": {
+     "v": 0.36231884057971014,
+     "n": 175,
+     "den": 483
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.4030222449840517,
+     "n": 3950418,
+     "den": 9801985
+    },
+    "turnos": {
+     "v": 0.3759305484989728,
+     "n": 17018,
+     "den": 45269
+    },
+    "oradoras": {
+     "v": 0.3898989898989899,
+     "n": 193,
+     "den": 495
+    }
+   }
+  },
+  "sexo": {
+   "auditado": false,
+   "cobertura": 0.687,
+   "fuentes": null
+  },
+  "fuente": {
+   "en": "Minutes and debate records of the Congreso Nacional and the Asamblea Nacional of Ecuador, from 1979-07-23, when Congress was installed after the return to democracy. Includes the 2007-2008 Constituent Assembly, distinguished by the AC prefix in its session identifier because its numbering overlaps with that of Congress. The sources are scanned PDFs with no text layer and of very uneven quality: the older volumes are typewritten and microfilmed.",
+   "es": "Actas y diarios de debates del Congreso Nacional y de la Asamblea Nacional del Ecuador, desde el 1979-07-23, cuando se instaló el Congreso tras el retorno a la democracia. Incluye la Asamblea Constituyente de 2007-2008, distinguida por el prefijo AC en su identificador de sesión porque su numeración se solapa con la del Congreso. Las fuentes son PDF escaneados sin capa de texto y de calidad muy desigual: los volúmenes más antiguos están mecanografiados y microfilmados.",
+   "pt": "Atas e diários de debates do Congreso Nacional e da Asamblea Nacional do Equador, desde 1979-07-23, quando o Congresso foi instalado após o regresso à democracia. Inclui a Assembleia Constituinte de 2007-2008, distinguida pelo prefixo AC no seu identificador de sessão porque a sua numeração se sobrepõe à do Congresso. As fontes são PDF digitalizados sem camada de texto e de qualidade muito desigual: os volumes mais antigos são dactilografados e microfilmados."
+  },
+  "n_limitaciones": 6,
+  "csv_bytes": 1153237752,
+  "doi": "10.7910/DVN/M2QJN6",
+  "url": "https://doi.org/10.7910/DVN/M2QJN6",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Martínez Ramos, Julián"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Martínez Ramos, Julián, 2026, \"ParlaIbero-EC: Parliamentary Speeches from Ecuador (1979-2025)\", https://doi.org/10.7910/DVN/M2QJN6, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian",
+   "Quechua"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "ar",
+  "nombre": {
+   "es": "Argentina",
+   "en": "Argentina",
+   "pt": "Argentina"
+  },
+  "camara": "Cámara de Diputados de la Nación",
+  "tipo_camara": "baja",
+  "diario": "Diario de Sesiones",
+  "decada_entrada": "1980s",
+  "inicio": 1983,
+  "fin": 2025,
+  "primera": "1983-11-29",
+  "ultima": "2025-12-17",
+  "anos_periodo": 43,
+  "anos_con_sesion": 33,
+  "huecos": [
+   [
+    1991,
+    2000
+   ]
+  ],
+  "sesiones": 1086,
+  "filas": 258808,
+  "sesiones_sin_habla": 15,
+  "habla": 256636,
+  "vinculados": 232976,
+  "den_efectivo": 239798,
+  "no_escano": 16838,
+  "voz_colectiva": 0,
+  "mediana_palabras": 23,
+  "disp_session_number": 1.0,
+  "voz": {
+   "1980s": {
+    "palabras": {
+     "v": 0.007361463309084339,
+     "n": 185553,
+     "den": 25205994
+    },
+    "turnos": {
+     "v": 0.01338432122370937,
+     "n": 973,
+     "den": 72697
+    },
+    "oradoras": {
+     "v": 0.04106280193236715,
+     "n": 17,
+     "den": 414
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.020965158441058757,
+     "n": 5013,
+     "den": 239111
+    },
+    "turnos": {
+     "v": 0.017736486486486486,
+     "n": 21,
+     "den": 1184
+    },
+    "oradoras": {
+     "v": 0.06593406593406594,
+     "n": 6,
+     "den": 91
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.1618493186607063,
+     "n": 4931428,
+     "den": 30469254
+    },
+    "turnos": {
+     "v": 0.20976178634516113,
+     "n": 12231,
+     "den": 58309
+    },
+    "oradoras": {
+     "v": 0.3165354330708661,
+     "n": 201,
+     "den": 635
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.24919676689112275,
+     "n": 5782681,
+     "den": 23205281
+    },
+    "turnos": {
+     "v": 0.27003729175646046,
+     "n": 14410,
+     "den": 53363
+    },
+    "oradoras": {
+     "v": 0.38114754098360654,
+     "n": 279,
+     "den": 732
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.28796062248767446,
+     "n": 2727506,
+     "den": 9471802
+    },
+    "turnos": {
+     "v": 0.2540838417634324,
+     "n": 11619,
+     "den": 45729
+    },
+    "oradoras": {
+     "v": 0.4344086021505376,
+     "n": 202,
+     "den": 465
+    }
+   }
+  },
+  "sexo": {
+   "auditado": false,
+   "cobertura": 0.9012,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Diario de Sesiones, Cámara de Diputados de la Nación Argentina (HCDN). https://www.diputados.gob.ar/. Coverage: 1983-1990 (return to democracy) and 2001-2025. Obtained as text already embedded in the official PDFs; no OCR was required.",
+   "es": "Diario de Sesiones, Cámara de Diputados de la Nación Argentina (HCDN). https://www.diputados.gob.ar/. Cobertura: 1983-1990 (retorno a la democracia) y 2001-2025. Obtenido como texto ya embebido en los PDF oficiales; no se requirió OCR.",
+   "pt": "Diario de Sesiones, Cámara de Diputados de la Nación Argentina (HCDN). https://www.diputados.gob.ar/. Cobertura: 1983-1990 (regresso à democracia) e 2001-2025. Obtido como texto já embebido nos PDF oficiais; não foi necessário OCR."
+  },
+  "n_limitaciones": 6,
+  "csv_bytes": 882264667,
+  "doi": "10.7910/DVN/IVNYID",
+  "url": "https://doi.org/10.7910/DVN/IVNYID",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-AR: Parliamentary Speeches from Argentina (1983-2025)\", https://doi.org/10.7910/DVN/IVNYID, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "uy",
+  "nombre": {
+   "es": "Uruguay",
+   "en": "Uruguay",
+   "pt": "Uruguai"
+  },
+  "camara": "Cámara de Representantes",
+  "tipo_camara": "baja",
+  "diario": "Diario de Sesiones",
+  "decada_entrada": "1980s",
+  "inicio": 1985,
+  "fin": 2025,
+  "primera": "1985-02-14",
+  "ultima": "2025-12-17",
+  "anos_periodo": 41,
+  "anos_con_sesion": 41,
+  "huecos": [],
+  "sesiones": 2813,
+  "filas": 424097,
+  "sesiones_sin_habla": 4,
+  "habla": 421284,
+  "vinculados": 406165,
+  "den_efectivo": 415804,
+  "no_escano": 3430,
+  "voz_colectiva": 2050,
+  "mediana_palabras": 11,
+  "disp_session_number": 1.0,
+  "voz": {
+   "1980s": {
+    "palabras": {
+     "v": 0.002461363225496274,
+     "n": 31342,
+     "den": 12733594
+    },
+    "turnos": {
+     "v": 0.0039723267571368836,
+     "n": 209,
+     "den": 52614
+    },
+    "oradoras": {
+     "v": 0.04712041884816754,
+     "n": 9,
+     "den": 191
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.024500126402759982,
+     "n": 697967,
+     "den": 28488302
+    },
+    "turnos": {
+     "v": 0.03341735100414668,
+     "n": 3699,
+     "den": 110691
+    },
+    "oradoras": {
+     "v": 0.10610079575596817,
+     "n": 40,
+     "den": 377
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.10033146828211552,
+     "n": 3319670,
+     "den": 33087027
+    },
+    "turnos": {
+     "v": 0.11378292214614354,
+     "n": 12563,
+     "den": 110412
+    },
+    "oradoras": {
+     "v": 0.1588785046728972,
+     "n": 68,
+     "den": 428
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.19715468612504403,
+     "n": 6145822,
+     "den": 31172589
+    },
+    "turnos": {
+     "v": 0.18238469575600777,
+     "n": 14663,
+     "den": 80396
+    },
+    "oradoras": {
+     "v": 0.2702702702702703,
+     "n": 130,
+     "den": 481
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.23414500956035847,
+     "n": 4441241,
+     "den": 18967908
+    },
+    "turnos": {
+     "v": 0.21416204304883327,
+     "n": 10885,
+     "den": 50826
+    },
+    "oradoras": {
+     "v": 0.3655913978494624,
+     "n": 170,
+     "den": 465
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.9612,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Diarios de Sesiones de la Cámara de Representantes, Parlamento del Uruguay. https://www.parlamento.gub.uy/. Legislatures XLII-L (1985-2025). PDF.",
+   "es": "Diarios de Sesiones de la Cámara de Representantes, Parlamento del Uruguay. https://www.parlamento.gub.uy/. Legislaturas XLII-L (1985-2025). PDF.",
+   "pt": "Diarios de Sesiones de la Cámara de Representantes, Parlamento del Uruguay. https://www.parlamento.gub.uy/. Legislaturas XLII-L (1985-2025). PDF."
+  },
+  "n_limitaciones": 4,
+  "csv_bytes": 973968680,
+  "doi": "10.7910/DVN/KI1AOC",
+  "url": "https://doi.org/10.7910/DVN/KI1AOC",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Gutiérrez Oria, Óscar"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Gutiérrez Oria, Óscar, 2026, \"ParlaIbero-UY: Parliamentary Speeches from Uruguay (1985-2025)\", https://doi.org/10.7910/DVN/KI1AOC, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "mx",
+  "nombre": {
+   "es": "México",
+   "en": "Mexico",
+   "pt": "México"
+  },
+  "camara": "Cámara de Diputados",
+  "tipo_camara": "baja",
+  "diario": "Diario de los Debates",
+  "decada_entrada": "1980s",
+  "inicio": 1988,
+  "fin": 2025,
+  "primera": "1988-08-15",
+  "ultima": "2025-11-26",
+  "anos_periodo": 38,
+  "anos_con_sesion": 38,
+  "huecos": [],
+  "sesiones": 2537,
+  "filas": 633474,
+  "sesiones_sin_habla": 5,
+  "habla": 630937,
+  "vinculados": 606821,
+  "den_efectivo": 617858,
+  "no_escano": 13079,
+  "voz_colectiva": 0,
+  "mediana_palabras": 30,
+  "disp_session_number": 1.0,
+  "voz": {
+   "1980s": {
+    "palabras": {
+     "v": 0.1430553497534657,
+     "n": 812894,
+     "den": 5682374
+    },
+    "turnos": {
+     "v": 0.11259908719673313,
+     "n": 1875,
+     "den": 16652
+    },
+    "oradoras": {
+     "v": 0.12090680100755667,
+     "n": 48,
+     "den": 397
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.17368711366740677,
+     "n": 3820131,
+     "den": 21994326
+    },
+    "turnos": {
+     "v": 0.16594267468627014,
+     "n": 8939,
+     "den": 53868
+    },
+    "oradoras": {
+     "v": 0.1489213639526792,
+     "n": 214,
+     "den": 1437
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.37455240855194705,
+     "n": 28492280,
+     "den": 76070209
+    },
+    "turnos": {
+     "v": 0.3309671633554084,
+     "n": 47977,
+     "den": 144960
+    },
+    "oradoras": {
+     "v": 0.24867957746478872,
+     "n": 565,
+     "den": 2272
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.5093832554072807,
+     "n": 43060198,
+     "den": 84533988
+    },
+    "turnos": {
+     "v": 0.37155015518257034,
+     "n": 84518,
+     "den": 227474
+    },
+    "oradoras": {
+     "v": 0.4087370242214533,
+     "n": 945,
+     "den": 2312
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.6490818016752888,
+     "n": 21187802,
+     "den": 32642730
+    },
+    "turnos": {
+     "v": 0.6396162741735676,
+     "n": 104812,
+     "den": 163867
+    },
+    "oradoras": {
+     "v": 0.49294828744123576,
+     "n": 734,
+     "den": 1489
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.9618,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Diario de los Debates, Cámara de Diputados del Congreso de la Unión (Mexico). https://cronica.diputados.gob.mx/. Legislatures LIV-LXVI (1988-2025). HTML (ISO-8859-1 encoding) with embedded text; no OCR.",
+   "es": "Diario de los Debates, Cámara de Diputados del Congreso de la Unión (México). https://cronica.diputados.gob.mx/. Legislaturas LIV-LXVI (1988-2025). HTML (codificación ISO-8859-1) con texto embebido; sin OCR.",
+   "pt": "Diario de los Debates, Cámara de Diputados del Congreso de la Unión (México). https://cronica.diputados.gob.mx/. Legislaturas LIV-LXVI (1988-2025). HTML (codificação ISO-8859-1) com texto embebido; sem OCR."
+  },
+  "n_limitaciones": 3,
+  "csv_bytes": 1649696869,
+  "doi": "10.7910/DVN/0IS1YE",
+  "url": "https://doi.org/10.7910/DVN/0IS1YE",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-MX: Parliamentary Speeches from Mexico (1988-2025)\", https://doi.org/10.7910/DVN/0IS1YE, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "py",
+  "nombre": {
+   "es": "Paraguay",
+   "en": "Paraguay",
+   "pt": "Paraguai"
+  },
+  "camara": "Cámara de Diputados",
+  "tipo_camara": "baja",
+  "diario": "Diario de Sesiones",
+  "decada_entrada": "1980s",
+  "inicio": 1988,
+  "fin": 2025,
+  "primera": "1988-12-13",
+  "ultima": "2025-12-16",
+  "anos_periodo": 38,
+  "anos_con_sesion": 32,
+  "huecos": [
+   [
+    2001,
+    2002
+   ],
+   [
+    2006,
+    2007
+   ],
+   [
+    2011,
+    2012
+   ]
+  ],
+  "sesiones": 1275,
+  "filas": 362945,
+  "sesiones_sin_habla": 2,
+  "habla": 360201,
+  "vinculados": 275887,
+  "den_efectivo": 293770,
+  "no_escano": 66431,
+  "voz_colectiva": 0,
+  "mediana_palabras": 23,
+  "disp_session_number": 0.9432278266573635,
+  "voz": {
+   "1980s": {
+    "palabras": {
+     "v": 0.012118323701294195,
+     "n": 5238,
+     "den": 432238
+    },
+    "turnos": {
+     "v": 0.004422821760283061,
+     "n": 20,
+     "den": 4522
+    },
+    "oradoras": {
+     "v": 0.046153846153846156,
+     "n": 3,
+     "den": 65
+    }
+   },
+   "1990s": {
+    "palabras": {
+     "v": 0.020105594546039957,
+     "n": 277502,
+     "den": 13802228
+    },
+    "turnos": {
+     "v": 0.011204126768864188,
+     "n": 1768,
+     "den": 157799
+    },
+    "oradoras": {
+     "v": 0.029411764705882353,
+     "n": 7,
+     "den": 238
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.08632285586988268,
+     "n": 357272,
+     "den": 4138788
+    },
+    "turnos": {
+     "v": 0.05697069943289225,
+     "n": 2411,
+     "den": 42320
+    },
+    "oradoras": {
+     "v": 0.08571428571428572,
+     "n": 18,
+     "den": 210
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.16754235201498074,
+     "n": 413713,
+     "den": 2469304
+    },
+    "turnos": {
+     "v": 0.08320675730745009,
+     "n": 2246,
+     "den": 26993
+    },
+    "oradoras": {
+     "v": 0.17341040462427745,
+     "n": 30,
+     "den": 173
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.22292130763176352,
+     "n": 1155003,
+     "den": 5181214
+    },
+    "turnos": {
+     "v": 0.08957628849601706,
+     "n": 3947,
+     "den": 44063
+    },
+    "oradoras": {
+     "v": 0.18120805369127516,
+     "n": 27,
+     "den": 149
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.7654,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Honorable Cámara de Diputados de Paraguay, Diario de Sesiones. https://www.diputados.gov.py/. Legislatures 1989-2025. PDF.",
+   "es": "Honorable Cámara de Diputados de Paraguay, Diario de Sesiones. https://www.diputados.gov.py/. Legislaturas 1989-2025. PDF.",
+   "pt": "Honorable Cámara de Diputados de Paraguay, Diario de Sesiones. https://www.diputados.gov.py/. Legislaturas 1989-2025. PDF."
+  },
+  "n_limitaciones": 5,
+  "csv_bytes": 264430982,
+  "doi": "10.7910/DVN/PDX8GA",
+  "url": "https://doi.org/10.7910/DVN/PDX8GA",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Martínez Osorio, Sofía Anabel"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Martínez Osorio, Sofía Anabel, 2026, \"ParlaIbero-PY: Parliamentary Speeches from Paraguay (1988-2025)\", https://doi.org/10.7910/DVN/PDX8GA, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian",
+   "Guaraní"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "cl",
+  "nombre": {
+   "es": "Chile",
+   "en": "Chile",
+   "pt": "Chile"
+  },
+  "camara": "Cámara de Diputadas y Diputados",
+  "tipo_camara": "baja",
+  "diario": "Boletín de sesión",
+  "decada_entrada": "1990s",
+  "inicio": 1990,
+  "fin": 2025,
+  "primera": "1990-03-11",
+  "ultima": "2025-12-17",
+  "anos_periodo": 36,
+  "anos_con_sesion": 36,
+  "huecos": [],
+  "sesiones": 4336,
+  "filas": 596729,
+  "sesiones_sin_habla": 13,
+  "habla": 556679,
+  "vinculados": 529214,
+  "den_efectivo": 531475,
+  "no_escano": 18778,
+  "voz_colectiva": 6426,
+  "mediana_palabras": 27,
+  "disp_session_number": 1.0,
+  "voz": {
+   "1990s": {
+    "palabras": {
+     "v": 0.060379063752541304,
+     "n": 1567951,
+     "den": 25968455
+    },
+    "turnos": {
+     "v": 0.049553114092395274,
+     "n": 8078,
+     "den": 163017
+    },
+    "oradoras": {
+     "v": 0.1013215859030837,
+     "n": 23,
+     "den": 227
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.1116149799692215,
+     "n": 3381613,
+     "den": 30297125
+    },
+    "turnos": {
+     "v": 0.1070368835474513,
+     "n": 12914,
+     "den": 120650
+    },
+    "oradoras": {
+     "v": 0.13513513513513514,
+     "n": 30,
+     "den": 222
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.146453835876105,
+     "n": 3964352,
+     "den": 27068953
+    },
+    "turnos": {
+     "v": 0.14635745489638508,
+     "n": 19867,
+     "den": 135743
+    },
+    "oradoras": {
+     "v": 0.18374558303886926,
+     "n": 52,
+     "den": 283
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.2629774967971786,
+     "n": 5204215,
+     "den": 19789583
+    },
+    "turnos": {
+     "v": 0.2353557247459109,
+     "n": 25843,
+     "den": 109804
+    },
+    "oradoras": {
+     "v": 0.29069767441860467,
+     "n": 75,
+     "den": 258
+    }
+   }
+  },
+  "sexo": {
+   "auditado": false,
+   "cobertura": 0.9507,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Session bulletins of the Cámara de Diputadas y Diputados de Chile (Open Data, https://opendata.camara.cl/), 1990-2025. Four complementary formats: structured XML (1991-2024), scanned PDF with an embedded text layer (1990-1995), Word .DOC (1996-2015) and digital PDF (2016-2025).",
+   "es": "Boletines de sesiones de la Cámara de Diputadas y Diputados de Chile (Open Data, https://opendata.camara.cl/), 1990-2025. Cuatro formatos complementarios: XML estructurado (1991-2024), PDF escaneado con capa de texto embebida (1990-1995), Word .DOC (1996-2015) y PDF digital (2016-2025).",
+   "pt": "Boletins de sessões da Cámara de Diputadas y Diputados de Chile (Open Data, https://opendata.camara.cl/), 1990-2025. Quatro formatos complementares: XML estruturado (1991-2024), PDF digitalizado com camada de texto embebida (1990-1995), Word .DOC (1996-2015) e PDF digital (2016-2025)."
+  },
+  "n_limitaciones": 5,
+  "csv_bytes": 1003034557,
+  "doi": "10.7910/DVN/IKBNRL",
+  "url": "https://doi.org/10.7910/DVN/IKBNRL",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Miranda Olivares, Nicolás"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Miranda Olivares, Nicolás, 2026, \"ParlaIbero-CL: Parliamentary Speeches from Chile (1990-2025)\", https://doi.org/10.7910/DVN/IKBNRL, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "cr",
+  "nombre": {
+   "es": "Costa Rica",
+   "en": "Costa Rica",
+   "pt": "Costa Rica"
+  },
+  "camara": "Asamblea Legislativa",
+  "tipo_camara": "única",
+  "diario": "Actas de la Sesión Plenaria",
+  "decada_entrada": "1990s",
+  "inicio": 1994,
+  "fin": 2025,
+  "primera": "1994-02-06",
+  "ultima": "2025-12-17",
+  "anos_periodo": 32,
+  "anos_con_sesion": 32,
+  "huecos": [],
+  "sesiones": 5343,
+  "filas": 381976,
+  "sesiones_sin_habla": 0,
+  "habla": 375730,
+  "vinculados": 359416,
+  "den_efectivo": 360170,
+  "no_escano": 15560,
+  "voz_colectiva": 0,
+  "mediana_palabras": 49,
+  "disp_session_number": 1.0,
+  "voz": {
+   "1990s": {
+    "palabras": {
+     "v": 0.11811284721094199,
+     "n": 1036172,
+     "den": 8772729
+    },
+    "turnos": {
+     "v": 0.1322409849932642,
+     "n": 4221,
+     "den": 31919
+    },
+    "oradoras": {
+     "v": 0.18238993710691823,
+     "n": 29,
+     "den": 159
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.2336796137830572,
+     "n": 8011846,
+     "den": 34285601
+    },
+    "turnos": {
+     "v": 0.23332819281355335,
+     "n": 31773,
+     "den": 136173
+    },
+    "oradoras": {
+     "v": 0.3277777777777778,
+     "n": 59,
+     "den": 180
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.2332730185238815,
+     "n": 8507669,
+     "den": 36470866
+    },
+    "turnos": {
+     "v": 0.25415527347368266,
+     "n": 34298,
+     "den": 134949
+    },
+    "oradoras": {
+     "v": 0.3771186440677966,
+     "n": 89,
+     "den": 236
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.4342301100448219,
+     "n": 6296258,
+     "den": 14499819
+    },
+    "turnos": {
+     "v": 0.40985817994639595,
+     "n": 23091,
+     "den": 56339
+    },
+    "oradoras": {
+     "v": 0.4406779661016949,
+     "n": 52,
+     "den": 118
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.9566,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Minutes of plenary sessions, Asamblea Legislativa de la República de Costa Rica, 1994-2025. Source format: .docx (embedded text, not scanned images).",
+   "es": "Actas de las sesiones plenarias, Asamblea Legislativa de la República de Costa Rica, 1994-2025. Formato de la fuente: .docx (texto embebido, no imágenes escaneadas).",
+   "pt": "Atas das sessões plenárias, Asamblea Legislativa de la República de Costa Rica, 1994-2025. Formato da fonte: .docx (texto embebido, não imagens digitalizadas)."
+  },
+  "n_limitaciones": 4,
+  "csv_bytes": 686487236,
+  "doi": "10.7910/DVN/W6UAHQ",
+  "url": "https://doi.org/10.7910/DVN/W6UAHQ",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Gómez-Campos, Steffan"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Gómez-Campos, Steffan, 2026, \"ParlaIbero-CR: Parliamentary Speeches from Costa Rica (1994-2025)\", https://doi.org/10.7910/DVN/W6UAHQ, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "pe",
+  "nombre": {
+   "es": "Perú",
+   "en": "Peru",
+   "pt": "Peru"
+  },
+  "camara": "Congreso de la República",
+  "tipo_camara": "única",
+  "diario": "Diario de los Debates",
+  "decada_entrada": "1990s",
+  "inicio": 1995,
+  "fin": 2025,
+  "primera": "1995-06-01",
+  "ultima": "2025-12-29",
+  "anos_periodo": 31,
+  "anos_con_sesion": 31,
+  "huecos": [],
+  "sesiones": 3061,
+  "filas": 852560,
+  "sesiones_sin_habla": 0,
+  "habla": 849499,
+  "vinculados": 753834,
+  "den_efectivo": 761290,
+  "no_escano": 83730,
+  "voz_colectiva": 4479,
+  "mediana_palabras": 23,
+  "disp_session_number": 0.9999700066616783,
+  "voz": {
+   "1990s": {
+    "palabras": {
+     "v": 0.13666349130414995,
+     "n": 1970025,
+     "den": 14415152
+    },
+    "turnos": {
+     "v": 0.1892996976755712,
+     "n": 15278,
+     "den": 80708
+    },
+    "oradoras": {
+     "v": 0.09740259740259741,
+     "n": 15,
+     "den": 154
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.1740413328023043,
+     "n": 5933906,
+     "den": 34094809
+    },
+    "turnos": {
+     "v": 0.17272260267046352,
+     "n": 42701,
+     "den": 247223
+    },
+    "oradoras": {
+     "v": 0.20215633423180593,
+     "n": 75,
+     "den": 371
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.2452445810875248,
+     "n": 6424842,
+     "den": 26197692
+    },
+    "turnos": {
+     "v": 0.2462200992929141,
+     "n": 52372,
+     "den": 212704
+    },
+    "oradoras": {
+     "v": 0.2631578947368421,
+     "n": 85,
+     "den": 323
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.315498974368354,
+     "n": 5278354,
+     "den": 16730178
+    },
+    "turnos": {
+     "v": 0.3431019845308843,
+     "n": 73149,
+     "den": 213199
+    },
+    "oradoras": {
+     "v": 0.32996632996632996,
+     "n": 98,
+     "den": 297
+    }
+   }
+  },
+  "sexo": {
+   "auditado": false,
+   "cobertura": 0.8874,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Congreso de la República del Perú, Diario de Debates. https://www.congreso.gob.pe/diariodebates/diariodebates/. Legislatures PE35-PE42 (1995-2025).",
+   "es": "Congreso de la República del Perú, Diario de Debates. https://www.congreso.gob.pe/diariodebates/diariodebates/. Legislaturas PE35-PE42 (1995-2025).",
+   "pt": "Congreso de la República del Perú, Diario de Debates. https://www.congreso.gob.pe/diariodebates/diariodebates/. Legislaturas PE35-PE42 (1995-2025)."
+  },
+  "n_limitaciones": 3,
+  "csv_bytes": 836342599,
+  "doi": "10.7910/DVN/7MK94V",
+  "url": "https://doi.org/10.7910/DVN/7MK94V",
+  "version": "1.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-PE: Parliamentary Speeches from Peru (1995-2025)\", https://doi.org/10.7910/DVN/7MK94V, Harvard Dataverse, V1",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian",
+   "Quechua"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "pa",
+  "nombre": {
+   "es": "Panamá",
+   "en": "Panama",
+   "pt": "Panamá"
+  },
+  "camara": "Asamblea Nacional (Legislativa hasta 2004)",
+  "tipo_camara": "única",
+  "diario": "Actas del Pleno",
+  "decada_entrada": "1990s",
+  "inicio": 1996,
+  "fin": 2025,
+  "primera": "1996-01-15",
+  "ultima": "2025-10-29",
+  "anos_periodo": 30,
+  "anos_con_sesion": 30,
+  "huecos": [],
+  "sesiones": 3638,
+  "filas": 511962,
+  "sesiones_sin_habla": 14,
+  "habla": 508324,
+  "vinculados": 345308,
+  "den_efectivo": 352363,
+  "no_escano": 155961,
+  "voz_colectiva": 0,
+  "mediana_palabras": 16,
+  "disp_session_number": 0.07777921017575523,
+  "voz": {
+   "1990s": {
+    "palabras": {
+     "v": 0.10734956320897916,
+     "n": 924545,
+     "den": 8612471
+    },
+    "turnos": {
+     "v": 0.09787550516389762,
+     "n": 6975,
+     "den": 71264
+    },
+    "oradoras": {
+     "v": 0.14391143911439114,
+     "n": 39,
+     "den": 271
+    }
+   },
+   "2000s": {
+    "palabras": {
+     "v": 0.11922792849146178,
+     "n": 1965522,
+     "den": 16485416
+    },
+    "turnos": {
+     "v": 0.18257475128086964,
+     "n": 20205,
+     "den": 110667
+    },
+    "oradoras": {
+     "v": 0.1912568306010929,
+     "n": 70,
+     "den": 366
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.19223622599199686,
+     "n": 2525182,
+     "den": 13135828
+    },
+    "turnos": {
+     "v": 0.17237029007177032,
+     "n": 18445,
+     "den": 107008
+    },
+    "oradoras": {
+     "v": 0.20748299319727892,
+     "n": 61,
+     "den": 294
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.2543692268414624,
+     "n": 1683806,
+     "den": 6619535
+    },
+    "turnos": {
+     "v": 0.26857418939231265,
+     "n": 15009,
+     "den": 55884
+    },
+    "oradoras": {
+     "v": 0.3165829145728643,
+     "n": 63,
+     "den": 199
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.6784,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Minutes of the plenary of the Asamblea Nacional de la República de Panamá (Asamblea Legislativa until 2004). https://www.asamblea.gob.pa/. Sessions 1996-2025, constitutional periods 1994-1999 to 2024-2029. PDF (scanned with OCR for 1996-1999; embedded text otherwise).",
+   "es": "Actas del pleno de la Asamblea Nacional de la República de Panamá (Asamblea Legislativa hasta 2004). https://www.asamblea.gob.pa/. Sesiones 1996-2025, períodos constitucionales de 1994-1999 a 2024-2029. PDF (escaneado con OCR para 1996-1999; texto embebido en el resto).",
+   "pt": "Atas do plenário da Asamblea Nacional de la República de Panamá (Asamblea Legislativa até 2004). https://www.asamblea.gob.pa/. Sessões 1996-2025, períodos constitucionais de 1994-1999 a 2024-2029. PDF (digitalizado com OCR para 1996-1999; texto embebido nos restantes)."
+  },
+  "n_limitaciones": 4,
+  "csv_bytes": 487650099,
+  "doi": "10.7910/DVN/Y8FUSX",
+  "url": "https://doi.org/10.7910/DVN/Y8FUSX",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Martínez Osorio, Sofía Anabel"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Martínez Osorio, Sofía Anabel, 2026, \"ParlaIbero-PA: Parliamentary Speeches from Panama (1996-2025)\", https://doi.org/10.7910/DVN/Y8FUSX, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "co",
+  "nombre": {
+   "es": "Colombia",
+   "en": "Colombia",
+   "pt": "Colômbia"
+  },
+  "camara": "Cámara de Representantes",
+  "tipo_camara": "baja",
+  "diario": "Gaceta del Congreso (actas de plenaria)",
+  "decada_entrada": "2000s",
+  "inicio": 2000,
+  "fin": 2025,
+  "primera": "2000-03-21",
+  "ultima": "2025-12-16",
+  "anos_periodo": 26,
+  "anos_con_sesion": 26,
+  "huecos": [],
+  "sesiones": 1608,
+  "filas": 464805,
+  "sesiones_sin_habla": 1,
+  "habla": 463201,
+  "vinculados": 321258,
+  "den_efectivo": 331898,
+  "no_escano": 131303,
+  "voz_colectiva": 0,
+  "mediana_palabras": 23,
+  "disp_session_number": 0.9888183822839448,
+  "voz": {
+   "2000s": {
+    "palabras": {
+     "v": 0.11633995552874313,
+     "n": 1290717,
+     "den": 11094357
+    },
+    "turnos": {
+     "v": 0.10079683774626678,
+     "n": 6426,
+     "den": 63752
+    },
+    "oradoras": {
+     "v": 0.1111111111111111,
+     "n": 36,
+     "den": 324
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.1294644471541544,
+     "n": 2001260,
+     "den": 15457989
+    },
+    "turnos": {
+     "v": 0.08723413509634205,
+     "n": 10028,
+     "den": 114955
+    },
+    "oradoras": {
+     "v": 0.16846652267818574,
+     "n": 78,
+     "den": 463
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.21081358016580054,
+     "n": 2682435,
+     "den": 12724204
+    },
+    "turnos": {
+     "v": 0.17863782085008173,
+     "n": 25465,
+     "den": 142551
+    },
+    "oradoras": {
+     "v": 0.21787709497206703,
+     "n": 78,
+     "den": 358
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.6936,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Gaceta del Congreso (plenary sessions of the Cámara de Representantes), Congreso de la República de Colombia, 2000-2025. Digital text, not scanned; in 675 files a broken CMap font encoding was recovered with a deterministic decoder.",
+   "es": "Gaceta del Congreso (sesiones plenarias de la Cámara de Representantes), Congreso de la República de Colombia, 2000-2025. Texto digital, no escaneado; en 675 ficheros se recuperó una codificación de fuente CMap defectuosa con un decodificador determinista.",
+   "pt": "Gaceta del Congreso (sessões plenárias da Cámara de Representantes), Congreso de la República de Colombia, 2000-2025. Texto digital, não digitalizado; em 675 ficheiros recuperou-se uma codificação de fonte CMap defeituosa com um descodificador determinístico."
+  },
+  "n_limitaciones": 3,
+  "csv_bytes": 506515781,
+  "doi": "10.7910/DVN/TYYERX",
+  "url": "https://doi.org/10.7910/DVN/TYYERX",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-CO: Parliamentary Speeches from Colombia (2000-2025)\", https://doi.org/10.7910/DVN/TYYERX, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "gt",
+  "nombre": {
+   "es": "Guatemala",
+   "en": "Guatemala",
+   "pt": "Guatemala"
+  },
+  "camara": "Congreso de la República",
+  "tipo_camara": "única",
+  "diario": "Diario de Sesiones",
+  "decada_entrada": "2000s",
+  "inicio": 2000,
+  "fin": 2026,
+  "primera": "2000-05-11",
+  "ultima": "2026-01-14",
+  "anos_periodo": 27,
+  "anos_con_sesion": 27,
+  "huecos": [],
+  "sesiones": 2039,
+  "filas": 253759,
+  "sesiones_sin_habla": 0,
+  "habla": 251720,
+  "vinculados": 242617,
+  "den_efectivo": 243094,
+  "no_escano": 8626,
+  "voz_colectiva": 0,
+  "mediana_palabras": 18,
+  "disp_session_number": 1.0,
+  "voz": {
+   "2000s": {
+    "palabras": {
+     "v": 0.1694231975894642,
+     "n": 2991194,
+     "den": 17655162
+    },
+    "turnos": {
+     "v": 0.1026235984345055,
+     "n": 13976,
+     "den": 136187
+    },
+    "oradoras": {
+     "v": 0.10704225352112676,
+     "n": 38,
+     "den": 355
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.10196189494925677,
+     "n": 954772,
+     "den": 9364008
+    },
+    "turnos": {
+     "v": 0.06950326718296225,
+     "n": 4595,
+     "den": 66112
+    },
+    "oradoras": {
+     "v": 0.15743440233236153,
+     "n": 54,
+     "den": 343
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.21293877115808893,
+     "n": 1487800,
+     "den": 6986985
+    },
+    "turnos": {
+     "v": 0.2563619227144204,
+     "n": 10336,
+     "den": 40318
+    },
+    "oradoras": {
+     "v": 0.1969111969111969,
+     "n": 51,
+     "den": 259
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.9638,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Congreso de la República de Guatemala, session records. https://www.congreso.gob.gt/seccion_informacion_legislativa/diario_de_sesiones. PDF.",
+   "es": "Congreso de la República de Guatemala, actas de las sesiones. https://www.congreso.gob.gt/seccion_informacion_legislativa/diario_de_sesiones. PDF.",
+   "pt": "Congreso de la República de Guatemala, atas das sessões. https://www.congreso.gob.gt/seccion_informacion_legislativa/diario_de_sesiones. PDF."
+  },
+  "n_limitaciones": 4,
+  "csv_bytes": 282211635,
+  "doi": "10.7910/DVN/NH5TTC",
+  "url": "https://doi.org/10.7910/DVN/NH5TTC",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Barreto-Martín, Eduardo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Barreto-Martín, Eduardo, 2026, \"ParlaIbero-GT: Parliamentary Speeches from Guatemala (2000-2026)\", https://doi.org/10.7910/DVN/NH5TTC, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "do",
+  "nombre": {
+   "es": "República Dominicana",
+   "en": "Dominican Republic",
+   "pt": "República Dominicana"
+  },
+  "camara": "Cámara de Diputados",
+  "tipo_camara": "baja",
+  "diario": "Actas de sesión del Pleno",
+  "decada_entrada": "2000s",
+  "inicio": 2001,
+  "fin": 2025,
+  "primera": "2001-02-07",
+  "ultima": "2025-12-17",
+  "anos_periodo": 25,
+  "anos_con_sesion": 25,
+  "huecos": [],
+  "sesiones": 2225,
+  "filas": 229325,
+  "sesiones_sin_habla": 100,
+  "habla": 101381,
+  "vinculados": 99863,
+  "den_efectivo": 100995,
+  "no_escano": 384,
+  "voz_colectiva": 2,
+  "mediana_palabras": 50,
+  "disp_session_number": 0.5912962019038698,
+  "voz": {
+   "2000s": {
+    "palabras": {
+     "v": 0.18318276578450154,
+     "n": 1014799,
+     "den": 5539817
+    },
+    "turnos": {
+     "v": 0.2018523802207932,
+     "n": 9197,
+     "den": 45563
+    },
+    "oradoras": {
+     "v": 0.18309859154929578,
+     "n": 65,
+     "den": 355
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.19814681727129743,
+     "n": 979880,
+     "den": 4945222
+    },
+    "turnos": {
+     "v": 0.21621045580488993,
+     "n": 7101,
+     "den": 32843
+    },
+    "oradoras": {
+     "v": 0.24358974358974358,
+     "n": 76,
+     "den": 312
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.1158121155757674,
+     "n": 383675,
+     "den": 3312909
+    },
+    "turnos": {
+     "v": 0.10532693293563872,
+     "n": 2260,
+     "den": 21457
+    },
+    "oradoras": {
+     "v": 0.3165680473372781,
+     "n": 107,
+     "den": 338
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.985,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Minutes of plenary sessions, Cámara de Diputados de la República Dominicana, 2001-2025, covering seven constitutional periods (1998-2002 to 2024-2028). PDF, mostly born-digital; seven documents were scans and were processed with OCR.",
+   "es": "Actas de las sesiones plenarias, Cámara de Diputados de la República Dominicana, 2001-2025, que abarcan siete períodos constitucionales (de 1998-2002 a 2024-2028). PDF, en su mayoría digital de origen; siete documentos eran escaneos y se procesaron con OCR.",
+   "pt": "Atas das sessões plenárias, Cámara de Diputados de la República Dominicana, 2001-2025, abrangendo sete períodos constitucionais (de 1998-2002 a 2024-2028). PDF, na maioria digital de origem; sete documentos eram digitalizações e foram processados com OCR."
+  },
+  "n_limitaciones": 5,
+  "csv_bytes": 548828569,
+  "doi": "10.7910/DVN/DZKXUG",
+  "url": "https://doi.org/10.7910/DVN/DZKXUG",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Martínez Osorio, Sofía Anabel"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Martínez Osorio, Sofía Anabel, 2026, \"ParlaIbero-DO: Parliamentary Speeches from the Dominican Republic (2001-2025)\", https://doi.org/10.7910/DVN/DZKXUG, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "br",
+  "nombre": {
+   "es": "Brasil",
+   "en": "Brazil",
+   "pt": "Brasil"
+  },
+  "camara": "Câmara dos Deputados",
+  "tipo_camara": "baja",
+  "diario": "Notas taquigráficas (Íntegra das sessões)",
+  "decada_entrada": "2000s",
+  "inicio": 2003,
+  "fin": 2025,
+  "primera": "2003-01-01",
+  "ultima": "2025-12-19",
+  "anos_periodo": 23,
+  "anos_con_sesion": 23,
+  "huecos": [],
+  "sesiones": 7731,
+  "filas": 1657113,
+  "sesiones_sin_habla": 898,
+  "habla": 1649698,
+  "vinculados": 1617382,
+  "den_efectivo": 1632096,
+  "no_escano": 17602,
+  "voz_colectiva": 0,
+  "mediana_palabras": 15,
+  "disp_session_number": 1.0,
+  "voz": {
+   "2000s": {
+    "palabras": {
+     "v": 0.08156485354622858,
+     "n": 6122269,
+     "den": 75060136
+    },
+    "turnos": {
+     "v": 0.04211623813896541,
+     "n": 22015,
+     "den": 522720
+    },
+    "oradoras": {
+     "v": 0.08817204301075268,
+     "n": 82,
+     "den": 930
+    }
+   },
+   "2010s": {
+    "palabras": {
+     "v": 0.10546088693418762,
+     "n": 9707697,
+     "den": 92050212
+    },
+    "turnos": {
+     "v": 0.0904780446702711,
+     "n": 70871,
+     "den": 783295
+    },
+    "oradoras": {
+     "v": 0.11594202898550725,
+     "n": 160,
+     "den": 1380
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.20728642150511617,
+     "n": 6696176,
+     "den": 32303978
+    },
+    "turnos": {
+     "v": 0.16647878548465317,
+     "n": 51836,
+     "den": 311367
+    },
+    "oradoras": {
+     "v": 0.18358038768529075,
+     "n": 161,
+     "den": 877
+    }
+   }
+  },
+  "sexo": {
+   "auditado": false,
+   "cobertura": 0.9804,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Câmara dos Deputados, full session records. https://www2.camara.leg.br/atividade-legislativa/plenario/discursos/notas.html. PDF. Legislatures 52-57 (2003-2025).",
+   "es": "Câmara dos Deputados, actas íntegras de las sesiones. https://www2.camara.leg.br/atividade-legislativa/plenario/discursos/notas.html. PDF. Legislaturas 52-57 (2003-2025).",
+   "pt": "Câmara dos Deputados, atas integrais das sessões. https://www2.camara.leg.br/atividade-legislativa/plenario/discursos/notas.html. PDF. Legislaturas 52-57 (2003-2025)."
+  },
+  "n_limitaciones": 5,
+  "csv_bytes": 1527460901,
+  "doi": "10.7910/DVN/VTXNW3",
+  "url": "https://doi.org/10.7910/DVN/VTXNW3",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo, 2026, \"ParlaIbero-BR: Parliamentary Speeches from Brazil (2003-2025)\", https://doi.org/10.7910/DVN/VTXNW3, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Portuguese"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ },
+ {
+  "iso": "sv",
+  "nombre": {
+   "es": "El Salvador",
+   "en": "El Salvador",
+   "pt": "El Salvador"
+  },
+  "camara": "Asamblea Legislativa",
+  "tipo_camara": "única",
+  "diario": "Versión taquigráfica",
+  "decada_entrada": "2010s",
+  "inicio": 2018,
+  "fin": 2025,
+  "primera": "2018-05-01",
+  "ultima": "2025-12-23",
+  "anos_periodo": 8,
+  "anos_con_sesion": 8,
+  "huecos": [],
+  "sesiones": 423,
+  "filas": 49077,
+  "sesiones_sin_habla": 0,
+  "habla": 48654,
+  "vinculados": 47865,
+  "den_efectivo": 47893,
+  "no_escano": 761,
+  "voz_colectiva": 0,
+  "mediana_palabras": 92,
+  "disp_session_number": 0.9762224208141063,
+  "voz": {
+   "2010s": {
+    "palabras": {
+     "v": 0.2318680801342259,
+     "n": 600875,
+     "den": 2591452
+    },
+    "turnos": {
+     "v": 0.1628302178279005,
+     "n": 2108,
+     "den": 12946
+    },
+    "oradoras": {
+     "v": 0.3945578231292517,
+     "n": 58,
+     "den": 147
+    }
+   },
+   "2020s": {
+    "palabras": {
+     "v": 0.3562514662194258,
+     "n": 3971087,
+     "den": 11146865
+    },
+    "turnos": {
+     "v": 0.20304132420745152,
+     "n": 7090,
+     "den": 34919
+    },
+    "oradoras": {
+     "v": 0.4,
+     "n": 98,
+     "den": 245
+    }
+   }
+  },
+  "sexo": {
+   "auditado": true,
+   "cobertura": 0.9838,
+   "fuentes": [
+    "manual — human review of the full roster",
+    "official_registry — official chamber registry declaring sex",
+    "roster — already recorded in the national roster",
+    "given_name — given-name dictionary learned from the corpus itself",
+    "given_name_morph — morphology of the first given name",
+    "honorific — grammatical gender of the courtesy title next to the name",
+    "given_name_rare — same dictionary, name seen once"
+   ]
+  },
+  "fuente": {
+   "en": "Asamblea Legislativa de El Salvador, Historical Archive. https://www.asamblea.gob.sv/sesion-plenaria/historico-sesion. PDF.",
+   "es": "Asamblea Legislativa de El Salvador, Archivo Histórico. https://www.asamblea.gob.sv/sesion-plenaria/historico-sesion. PDF.",
+   "pt": "Asamblea Legislativa de El Salvador, Arquivo Histórico. https://www.asamblea.gob.sv/sesion-plenaria/historico-sesion. PDF."
+  },
+  "n_limitaciones": 4,
+  "csv_bytes": 103092395,
+  "doi": "10.7910/DVN/MUJU6A",
+  "url": "https://doi.org/10.7910/DVN/MUJU6A",
+  "version": "2.0",
+  "fecha_version": "2026-09-07",
+  "autores": [
+   "Rodrigues-Silveira, Rodrigo",
+   "Martínez Osorio, Sofía Anabel"
+  ],
+  "cita": "Rodrigues-Silveira, Rodrigo; Martínez Osorio, Sofía Anabel, 2026, \"ParlaIbero-SV: Parliamentary Speeches from El Salvador (2018-2025)\", https://doi.org/10.7910/DVN/MUJU6A, Harvard Dataverse, V2",
+  "licencia": "CC BY 4.0",
+  "licencia_url": "http://creativecommons.org/licenses/by/4.0",
+  "lenguas": [
+   "Spanish, Castilian"
+  ],
+  "_proc": {
+   "claves": [
+    "P",
+    "L",
+    "D"
+   ],
+   "voz": "C",
+   "medido_el": "2026-09-07",
+   "nota_voz": "series medidas sobre los canónicos de trabajo; difieren de lo depositado solo en Ecuador (meta.nota_ec)"
+  }
+ }
+]

@@ -1,0 +1,200 @@
+---
+/**
+ * Layout único. Cabecera, navegación, selector de idioma y tema, pie con la mención COMPLETA de la AEI
+ * (obligatoria en todas las páginas). En Inicio, además, la franja de la AEI va bajo la cabecera, dentro
+ * del primer pantallazo: `franjaAEI`.
+ */
+import '@fontsource-variable/archivo/wdth.css';
+import '@fontsource-variable/source-serif-4/opsz.css';
+import '@fontsource-variable/source-serif-4/opsz-italic.css';
+import '@fontsource-variable/jetbrains-mono/wght.css';
+import '../styles/base.css';
+import FundingNotice from '../components/FundingNotice.astro';
+import Escalera from '../components/Escalera.astro';
+import { t, plano, rotulo, tEnlaces } from '../lib/i18n';
+import { url, recurso, PAGINAS } from '../lib/rutas';
+import { LANGS, HTML_LANG, type Lang } from '../lib/idiomas';
+import { ENLACES, hrefContacto } from '../config/enlaces';
+import { enOtraPestana, ID_NOTA_EXPLORADOR } from '../lib/remata';
+
+interface Props {
+  lang: Lang;
+  /** ruta de la página SIN el idioma: '' · 'paises' · 'paises/uy' · 'metodologia'… */
+  ruta: string;
+  titulo: string;
+  descripcion: string;
+  franjaAEI?: boolean;
+  jsonld?: unknown;
+}
+const { lang, ruta, titulo, descripcion, franjaAEI = false, jsonld } = Astro.props;
+const canonica = new URL(url(lang, ruta), Astro.site).href;
+const nav = [
+  { clave: 'comun.nav.paises', ruta: PAGINAS.paises },
+  { clave: 'comun.nav.metodologia', ruta: PAGINAS.metodologia },
+  { clave: 'comun.nav.usar', ruta: PAGINAS.usar },
+  { clave: 'comun.nav.instituciones.corto', ruta: PAGINAS.instituciones },
+  // Quinta pestaña, a la derecha de «Parlamentos y organismos» (copy §8). Lleva a la PÁGINA que presenta el explorador;
+  // a la herramienta se va desde ella y desde los botones [Abrir el explorador], siempre en otra pestaña.
+  { clave: 'comun.nav.explorador', ruta: PAGINAS.explorador },
+];
+const activa = (r: string) => ruta === r || ruta.startsWith(r + '/');
+// Un destino por corchete de `comun.pie.enlaces`, en su orden. Sin vía de contacto decidida (anexo C, duda 5), el
+// sexto queda vacío y `tEnlaces` lo pinta como pendiente: la vista previa enseña lo que falta.
+const enlacesPie = enOtraPestana(tEnlaces(lang, 'comun.pie.enlaces', [
+  ENLACES.coleccion, ENLACES.explorador, url(lang, `${PAGINAS.usar}#citar`), recurso('datos/procedencia.csv'), ENLACES.erratas, hrefContacto() ?? '',
+]));
+---
+<!doctype html>
+<html lang={HTML_LANG[lang]}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonica} />
+    {LANGS.map((l) => <link rel="alternate" hreflang={HTML_LANG[l]} href={new URL(url(l, ruta), Astro.site).href} />)}
+    <link rel="alternate" hreflang="x-default" href={new URL(url('es', ruta), Astro.site).href} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:locale" content={HTML_LANG[lang].replace('-', '_')} />
+    <meta property="og:image" content={new URL(recurso(`og-${lang}.png`), Astro.site).href} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href={recurso('favicon.svg')} />
+    <link rel="sitemap" href={recurso('sitemap-index.xml')} />
+    <meta name="color-scheme" content="light dark" />
+    {jsonld && <script type="application/ld+json" set:html={JSON.stringify(jsonld)} />}
+    <script is:inline>
+      try { const t = localStorage.getItem('tema'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <a class="saltar" href="#contenido" set:html={rotulo(lang, 'comun.nav.saltar')} />
+    <header class="cabecera">
+      <div class="contenedor cabecera-fila">
+        <a class="marca" href={url(lang)}>
+          <Escalera />
+          <span class="marca-texto">
+            <span class="marca-nombre" set:html={t(lang, 'comun.cabecera.nombre')} />
+            <span class="marca-descriptor" set:html={t(lang, 'comun.cabecera.descriptor')} />
+          </span>
+        </a>
+        <nav aria-label={plano(lang, 'comun.nav.aria')} class="nav">
+          <ul>
+            {nav.map((n) => (
+              <li><a href={url(lang, n.ruta)} aria-current={activa(n.ruta) ? 'page' : undefined} set:html={rotulo(lang, n.clave)} /></li>
+            ))}
+          </ul>
+        </nav>
+        <div class="utilidades">
+          <div class="idiomas" role="group" aria-label={plano(lang, 'comun.idioma.aria')}>
+            {LANGS.map((l) => (
+              <a href={url(l, ruta)} hreflang={HTML_LANG[l]} lang={HTML_LANG[l]} aria-current={l === lang ? 'true' : undefined}>
+                {/* El nombre completo sale del copy y está SIEMPRE en el nombre accesible; el código solo se ve donde no cabe el nombre. */}
+                <span class="idioma-codigo">{l.toUpperCase()}</span>{' '}<span class="idioma-nombre" set:html={rotulo(l, `comun.idioma.${l}`)} />
+              </a>
+            ))}
+          </div>
+          {/* Nace oculto: sin JavaScript no haría nada, y el sitio no enseña botones inertes. Lo descubre su script. */}
+          <button type="button" class="tema" hidden data-claro={plano(lang, 'comun.nav.tema.claro')} data-oscuro={plano(lang, 'comun.nav.tema.oscuro')} aria-label={plano(lang, 'comun.nav.tema.oscuro')}>◐</button>
+        </div>
+      </div>
+      {franjaAEI && (
+        <div class="franja-aei"><div class="contenedor"><FundingNotice lang={lang} variante="franja" /></div></div>
+      )}
+    </header>
+
+    <main id="contenido"><slot /></main>
+
+    <footer class="pie">
+      <div class="contenedor pie-rejilla">
+        <div class="pie-aei"><FundingNotice lang={lang} variante="completa" /></div>
+        {/* Orden del copy (§1.4): AEI · quién · depósito y Diario · licencia · edición · privacidad · enlaces. */}
+        <div class="pie-quien">
+          <p class="pie-nombre" set:html={t(lang, 'comun.pie.quien')} />
+          <p class="nota" set:html={t(lang, 'comun.pie.deposito')} />
+          <p class="nota" set:html={t(lang, 'comun.fija.diario')} />
+          <p class="nota" set:html={t(lang, 'comun.pie.licencia')} />
+        </div>
+        <div class="pie-sello">
+          <p class="pie-edicion nota mono" set:html={t(lang, 'comun.pie.edicion')} />
+          <p class="nota" set:html={t(lang, 'comun.privacidad.linea')} />
+          <p class="nota" set:html={t(lang, 'comun.privacidad.ampliada')} />
+        </div>
+        <div class="pie-enlaces nota" set:html={enlacesPie} />
+        {/* La dice una vez por página; la señalan con `aria-describedby` todos los enlaces al explorador (lib/remata.ts). */}
+        <p id={ID_NOTA_EXPLORADOR} hidden set:html={t(lang, 'comun.enlace.explorador')} />
+      </div>
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const b = document.querySelector('.tema'); if (!b) return;
+        b.hidden = false;
+        const oscuro = () => (document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+        const pinta = () => b.setAttribute('aria-label', oscuro() ? b.dataset.claro : b.dataset.oscuro);
+        b.addEventListener('click', () => { const n = oscuro() ? 'light' : 'dark'; document.documentElement.dataset.theme = n; try { localStorage.setItem('tema', n); } catch (e) {} pinta(); });
+        pinta();
+      })();
+    </script>
+  </body>
+</html>
+
+<style>
+  .saltar { position: absolute; left: -999px; top: 0; z-index: 10; background: var(--accent); color: var(--accent-ink); padding: .6em 1em; font: 700 var(--fs-small) var(--display); }
+  .saltar:focus { left: var(--gutter); top: .5rem; }
+  .cabecera { border-bottom: 1px solid var(--hair); background: var(--bg); }
+  .cabecera-fila { display: flex; align-items: center; gap: 1rem 1.5rem; padding-block: .7rem; flex-wrap: wrap; }
+  .marca { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--ink); margin-right: auto; line-height: 1.05; }
+  .marca-texto { display: flex; flex-direction: column; }
+  .marca-nombre { font: 800 1.5rem/1 var(--display); letter-spacing: -.03em; font-stretch: 88%; }
+  .marca-descriptor { font: 500 .72rem/1.2 var(--mono); color: var(--mute); letter-spacing: .02em; margin-top: .2rem; }
+  .nav ul { display: flex; flex-wrap: wrap; gap: .25rem 1rem; list-style: none; margin: 0; padding: 0; }
+  /* Con la quinta pestaña («Explorador») la fila ya no cabía: la navegación toma el ancho de los titulares (92 %) y
+     cede algo de aire entre pestañas. No se quita nada. */
+  .nav a { font: 600 var(--fs-small)/1.2 var(--display); font-stretch: 92%; color: var(--ink); text-decoration: none; padding-block: .3rem; border-bottom: 2px solid transparent; }
+  .nav a:hover, .nav a[aria-current='page'] { border-bottom-color: var(--accent); }
+  .utilidades { display: flex; align-items: center; gap: .75rem; }
+  .idiomas { display: flex; gap: .15rem; font: 600 .74rem/1 var(--mono); }
+  .idiomas a { padding: .38rem .45rem; text-decoration: none; color: var(--mute); border-radius: var(--radio); white-space: nowrap; }
+  /* Los tres nombres completos, las cinco pestañas y la marca suman unos 1.230 px (medido en las tres lenguas; el
+     español es el más ancho), y el contenedor no pasa de 78rem: solo caben donde ya mide eso, de 86rem en adelante.
+     Por debajo se ve el código, y el nombre queda para el lector de pantalla. */
+  .idioma-nombre { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  @media (min-width: 86rem) {
+    .idioma-codigo { display: none; }
+    .idioma-nombre { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
+  }
+  .idiomas a[aria-current='true'] { color: var(--accent-ink); background: var(--accent); }
+  .tema { background: none; border: 1px solid var(--hair); color: var(--ink); border-radius: 50%; width: 2rem; height: 2rem; cursor: pointer; font-size: 1rem; line-height: 1; }
+  .franja-aei { border-top: 1px solid var(--hair); background: var(--bg-2); padding-block: .45rem; }
+  .pie { border-top: 1px solid var(--hair); background: var(--bg-2); padding-block: clamp(2.5rem, 6vw, 4.5rem); margin-top: clamp(3rem, 8vw, 7rem); }
+  .pie-rejilla { display: grid; gap: 1.5rem 3rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+  .pie-aei { grid-column: 1 / -1; padding-bottom: 1.5rem; border-bottom: 1px solid var(--hair); }
+  .pie p { margin: 0 0 .45em; max-width: none; }
+  .pie-nombre { font: 700 1rem/1.3 var(--display); }
+  /* Cada enlace del pie, un objetivo táctil de 44 px de alto. */
+  .pie-enlaces :global(a), .pie-enlaces :global(mark) { display: inline-block; margin: 0 1rem 0 0; }
+  .pie-enlaces :global(a) { padding-block: .8rem; }
+  .pie-edicion { color: var(--mute); }
+  /* Hasta 72rem la marca, las cinco pestañas y los idiomas no caben en una fila (unos 1.040 px con los códigos). Antes
+     de que el navegador la parta a su manera —dejaba los idiomas solos en una segunda fila, o en una tercera— va en DOS
+     filas a propósito: marca e idiomas arriba, navegación debajo. Es la zona de tabletas y móviles: objetivos de 44 px. */
+  @media (max-width: 71.99rem) {
+    .nav { order: 3; flex-basis: 100%; }
+    .cabecera-fila { row-gap: .25rem; }
+    .marca { min-height: 2.75rem; }
+    .nav ul { row-gap: 0; }
+    .nav a { display: inline-block; padding-block: .85rem; }
+    .idiomas a { min-width: 2.75rem; min-height: 2.75rem; display: inline-flex; align-items: center; justify-content: center; }
+    .tema { width: 2.75rem; height: 2.75rem; }
+  }
+  @media (max-width: 720px) {
+    .marca-descriptor { display: none; }
+    /* El aire entre columnas se cede para que marca e idiomas quepan en una fila a 360 px. */
+    .cabecera-fila { gap: 1rem; }
+  }
+  /* El wordmark es un adorno: donde la fila de la cabecera va justa, cede su sitio al nombre y a los idiomas. */
+  @media (max-width: 29.99rem) { .marca :global(.escalera) { display: none; } }
+</style>

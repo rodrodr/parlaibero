@@ -1,0 +1,79 @@
+---
+/**
+ * Bloque de cita copiable. SIN JavaScript ya funciona: la cita es texto real y `user-select: all` hace que un solo
+ * toque la seleccione entera. El botón «Copiar la cita» nace oculto y solo lo enseña el script, para que nunca haya
+ * en pantalla un botón que no hace nada.
+ *
+ * `texto` llega de dos formas y las dos valen: plano (la cita de un país, `p.cita`) o ya como HTML de `t()` (la cita
+ * de la colección, que mientras esté pendiente trae su `mark.pendiente` y debe verse como tal).
+ *
+ * `data-autoria`: una cita nombra a sus AUTORES, que son los investigadores y no gente que figure en los datos. El
+ * control de nombres de `audit-cifras` exime el bloque entero (un autor puede llamarse como un diputado).
+ */
+import { rotulo, plano } from '../lib/i18n';
+import { escapa } from '../lib/cifras';
+import type { Lang } from '../lib/idiomas';
+
+interface Props {
+  lang: Lang;
+  texto: string;
+  /** Lengua del TEXTO de la cita cuando no es la de la página: la cita de Dataverse va en inglés en las tres. */
+  lenguaTexto?: string;
+}
+const { lang, texto, lenguaTexto } = Astro.props;
+
+// Solo `t()` emite estas etiquetas y estas entidades (también si luego se le quitan las etiquetas); una cita
+// bibliográfica en texto plano no las lleva nunca. Así no se escapa dos veces lo que ya venía escapado.
+const yaEsHtml = /<(mark|data|span|strong|em|code)\b|&(amp|lt|gt|quot);/.test(texto);
+const html = yaEsHtml ? texto : escapa(texto);
+---
+<div class="cita" data-cita data-autoria>
+  <p class="cita-texto" data-cita-texto translate="no" lang={lenguaTexto} set:html={html} />
+  <p class="cita-acciones no-imprimir">
+    <button type="button" class="boton secundario" data-cita-copiar hidden set:html={rotulo(lang, 'comun.cita.copiar')} />
+    <span class="cita-aviso" role="status" data-cita-aviso data-copiada={plano(lang, 'comun.cita.copiada')}></span>
+  </p>
+</div>
+
+<script>
+  // Solo AÑADE el botón: la página no depende de él. Un único script atiende todas las citas de la página.
+  document.querySelectorAll<HTMLElement>('[data-cita]').forEach((caja) => {
+    const boton = caja.querySelector<HTMLButtonElement>('[data-cita-copiar]');
+    const texto = caja.querySelector<HTMLElement>('[data-cita-texto]');
+    const aviso = caja.querySelector<HTMLElement>('[data-cita-aviso]');
+    if (!boton || !texto || !aviso) return;
+    boton.hidden = false;
+    let reloj = 0;
+    boton.addEventListener('click', async () => {
+      const cita = (texto.textContent ?? '').replace(/\s+/g, ' ').trim();
+      try {
+        await navigator.clipboard.writeText(cita);
+      } catch {
+        // Sin permiso de portapapeles (contexto no seguro, navegador antiguo): se selecciona y se copia a la antigua.
+        const rango = document.createRange();
+        rango.selectNodeContents(texto);
+        const seleccion = window.getSelection();
+        seleccion?.removeAllRanges();
+        seleccion?.addRange(rango);
+        if (!document.execCommand('copy')) return; // queda seleccionada: basta Ctrl+C
+      }
+      aviso.textContent = aviso.dataset.copiada ?? '';
+      window.clearTimeout(reloj);
+      reloj = window.setTimeout(() => { aviso.textContent = ''; }, 4000);
+    });
+  });
+</script>
+
+<style>
+  .cita { border-left: 3px solid var(--ink); padding: .15rem 0 .15rem clamp(1rem, 2.5vw, 1.75rem); max-width: 46rem; }
+  .cita-texto {
+    margin: 0; max-width: none; font: 400 var(--fs-body)/1.5 var(--text);
+    overflow-wrap: anywhere; /* el DOI no debe ensanchar la página en el móvil */
+    -webkit-user-select: all; user-select: all;
+  }
+  .cita-acciones { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin: 0; max-width: none; }
+  .cita-acciones > * { margin-top: .9rem; }
+  /* `.boton` fija `display`, y eso anula el `hidden` del navegador: hay que devolvérselo. */
+  .cita-acciones [hidden] { display: none; }
+  .cita-aviso { font: 600 var(--fs-small)/1.2 var(--mono); color: var(--ink-2); }
+</style>

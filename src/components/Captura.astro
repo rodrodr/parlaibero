@@ -1,0 +1,75 @@
+---
+/**
+ * Una captura del explorador (copy §8.9): <figure> con su pie, la imagen en formatos modernos y un enlace a la
+ * versión grande, que es como se amplía SIN JavaScript.
+ *  · Texto alternativo: el copy no trae claves de `alt` propias para estas imágenes, así que vale el texto plano del
+ *    pie. NUNCA se enumera en él lo que la captura enseña con nombre propio (la red de menciones dibuja personas).
+ *  · Las capturas son de interfaz CLARA: van sobre placa clara y con un filete también en tema oscuro, igual que la
+ *    banda de la AEI, para que no floten sobre el fondo.
+ *  · La versión grande es la captura a su tamaño real (1× del LÉAME): a 360 px una ventana de 1.440 no se lee, y el
+ *    enlace es lo que la hace legible en el móvil.
+ *  · El enlace abre otra pestaña, y lo dice: `explorador.img.ampliar` va dentro de él, para el lector de pantalla, y a
+ *    la vista queda la flecha del sitio. Si la clave faltara, la falta se declara con `data-todo-copy`.
+ */
+import { Picture, getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { t, plano, existe } from '../lib/i18n';
+import type { Lang } from '../lib/idiomas';
+
+interface Props {
+  lang: Lang;
+  src: ImageMetadata;
+  /** clave del pie: `explorador.img.<cual>.pie` */
+  pie: string;
+  /** `ancha`: todo el ancho del contenedor · `media`: una columna de la sección */
+  talla?: 'ancha' | 'media';
+  /** Solo la primera imagen de la página: las demás cargan al acercarse. */
+  primera?: boolean;
+  class?: string;
+}
+// `resto` trae el atributo de ámbito de la página que la usa: sin él, los estilos con que la página COLOCA la figura
+// (su columna, su margen) no la alcanzarían.
+const { lang, src, pie, talla = 'ancha', primera = false, class: clase, ...resto } = Astro.props;
+
+// El contenedor mide 78rem como mucho; una «media» ocupa siete de doce columnas en escritorio y todo el ancho en móvil.
+const SIZES = {
+  ancha: '(min-width: 86rem) 1248px, 92vw',
+  media: '(min-width: 86rem) 720px, (min-width: 60rem) 56vw, 92vw',
+};
+const grande = await getImage({ src, format: 'webp', quality: 90 });
+const AMPLIAR = 'explorador.img.ampliar';
+---
+<figure class:list={['captura', talla, clase]} {...resto}>
+  <a class="marco" href={grande.src} target="_blank" data-todo-copy={existe(AMPLIAR) ? undefined : AMPLIAR}>
+    <Picture
+      src={src}
+      formats={['avif', 'webp']}
+      widths={[480, 800, 1120, 1440]}
+      sizes={SIZES[talla]}
+      quality={80}
+      alt={plano(lang, pie)}
+      loading={primera ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+    <span class="flecha" aria-hidden="true">↗</span>
+    {existe(AMPLIAR) && <span class="sr-only">. {plano(lang, AMPLIAR)}</span>}
+  </a>
+  <figcaption class="nota" set:html={t(lang, pie)} />
+</figure>
+
+<style>
+  .captura { margin: 0; min-width: 0; }
+  .marco {
+    position: relative; display: block; line-height: 0; text-decoration: none;
+    background: var(--placa); border: 1px solid var(--hair); border-radius: var(--radio);
+    padding: clamp(.3rem, .9vw, .7rem);
+  }
+  .marco :global(img) { display: block; width: 100%; height: auto; }
+  /* La flecha del sitio para «se abre en otra pestaña», en la línea del pie y a su derecha: no tapa la captura. */
+  .flecha {
+    position: absolute; right: 0; top: calc(100% + .55rem);
+    font: 600 var(--fs-small)/1 var(--mono); color: var(--accent);
+  }
+  .marco:hover { border-color: var(--ink); }
+  figcaption { margin: .55rem 0 0; padding-right: 2rem; max-width: 40rem; }
+</style>

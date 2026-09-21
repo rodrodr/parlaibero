@@ -1,0 +1,156 @@
+{
+ "@context": "https://schema.org/",
+ "@type": "Dataset",
+ "name": "ParlaIbero — PT",
+ "description": "Parliamentary interventions of the Assembleia da República of Portugal: 1,559,320 rows across 4,939 sessions, 1976-06-03 to 2025-12-12, each attributed to the speaker as printed and, where resolved, to a member of the companion register, which carries party, district and a derived sex variable.",
+ "url": "https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/VRPUFU",
+ "license": "https://creativecommons.org/licenses/by/4.0/",
+ "creator": [
+  {
+   "@type": "Person",
+   "name": "Rodrigues-Silveira, Rodrigo",
+   "identifier": "https://orcid.org/0000-0002-6912-7689",
+   "affiliation": {
+    "@type": "Organization",
+    "name": "Universidad de Salamanca"
+   }
+  }
+ ],
+ "datePublished": "2026-09-07",
+ "dateModified": "2026-09-07",
+ "inLanguage": "pt",
+ "variableMeasured": [
+  {
+   "@type": "PropertyValue",
+   "name": "id_session",
+   "description": "Stable WITHIN this edition, not across editions: the ordinals are derived from position, so adding or removing sessions in a later edition shifts every identifier after the change. Cite the edition, and do not use these identifiers as a key against another edition. Format: {ISO2}{legislature:03d}{session:04d}. The ordinals are DERIVED (legislature by earliest session date, session by date and number within it), because `legislature` and `session_number` are country-specific text and not always present."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "id_int",
+   "description": "Stable WITHIN this edition, not across editions, for the same reason as `id_session`. Format: id_session + intervention_order as 5 digits. Unique across the corpus. Prolegomena rows (intervention_order = 0) end in 00000. Duplicate front matter within a session is disambiguated upstream by suffixing session_number (104 -> 104B), which yields a distinct id_session -- never by special id_int ranges."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "legislature",
+   "description": "Legislature identifier as printed in the source. Format is country-specific and NOT comparable across countries (roman numerals, year ranges, ordinals)."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "legislative_session",
+   "description": "Legislative session or period within the legislature, where the source records one."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "session_number",
+   "description": "Session number. Usually an integer, but may be alphanumeric where the chamber appends a session-type suffix."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "date",
+   "description": "Session date in ISO 8601 format."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "session_type",
+   "description": "Session type, normalised to five values across the collection: ordinaria, extraordinaria, solemne, instalación, otros (the record's own wording is mapped to these; the values are Spanish literals in every country, Brazil and Portugal included). «otros» covers both a type outside the four named and a sitting whose record states no type at all; the column is never empty."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "intervention_order",
+   "description": "Position of the intervention within its session (1-based, in order of record). **0 = front matter**: cover page, summary, index or roll call preceding the first intervention. These precede WITHOUT displacing the numbering of the rest."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "speaker_raw",
+   "description": "Speaker designation exactly as it appears in the parliamentary record."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "id_dep",
+   "description": "Deputy identifier in the national roster. Empty where the speaker could not be linked, or where the speaker is not a member (minister, clerk, guest)."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "speaker_name",
+   "description": "Normalised full name of the deputy. Empty when id_dep is empty."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "sex",
+   "description": "Sex of the deputy: M / F. Empty when id_dep is empty, or when the roster does not record the member's sex. DERIVED variable — the provenance of every value is recorded in `sex_source` of the companion roster file, so users can restrict to the higher-precision levels."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "party",
+   "description": "Political party of the deputy. Whether this varies with the session date depends on how each national roster is built; see the `notes` field of corpus_info.json."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "district",
+   "description": "Electoral district of the deputy."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "dm_speech",
+   "description": "1 if the row is parliamentary speech, 0 if it is not (front matter, summary, vote tally, reproduced document). Filters the corpus to speech with a single condition. Populated with evidence: 0 is set only where demonstrated, so 1 means «not shown to be non-speech»."
+  },
+  {
+   "@type": "PropertyValue",
+   "name": "text",
+   "description": "Full text of the intervention."
+  }
+ ],
+ "distribution": [
+  {
+   "@type": "DataDownload",
+   "name": "PT_interventions.csv",
+   "encodingFormat": "text/csv",
+   "contentUrl": "PT_interventions.csv"
+  },
+  {
+   "@type": "DataDownload",
+   "name": "PT_deputies.csv",
+   "description": "Companion roster of members, joinable to the interventions file on id_dep and, where the roster is in long format, on the legislature or the mandate window as well.",
+   "encodingFormat": "text/csv",
+   "contentUrl": "PT_deputies.csv"
+  }
+ ],
+ "size": "1,559,320 interventions",
+ "temporalCoverage": "1976-06-03/2025-12-12",
+ "@id": "https://doi.org/10.7910/DVN/VRPUFU",
+ "identifier": "https://doi.org/10.7910/DVN/VRPUFU",
+ "isPartOf": {
+  "@type": "Collection",
+  "name": "ParlaIbero: Parliamentary Speeches from Latin America, Portugal and Spain",
+  "url": "https://dataverse.harvard.edu/dataverse/parlaibero"
+ },
+ "funder": {
+  "@type": "Organization",
+  "name": "Ministerio de Ciencia, Innovación y Universidades, Agencia Española de Investigación",
+  "@id": "https://ror.org/05r0vyz12"
+ },
+ "funding": {
+  "@type": "Grant",
+  "identifier": "PID2022-141706NB-C22",
+  "name": "Legislative Behavior and Democratic Erosion in Latin America",
+  "funder": {
+   "@type": "Organization",
+   "@id": "https://ror.org/05r0vyz12"
+  }
+ },
+ "keywords": [
+  "parliamentary debates",
+  "legislative speech",
+  "political text",
+  "text corpus",
+  "Portugal",
+  "ParlaIbero",
+  "legislatures"
+ ],
+ "publisher": {
+  "@type": "Organization",
+  "name": "Harvard Dataverse",
+  "url": "https://dataverse.harvard.edu"
+ }
+}

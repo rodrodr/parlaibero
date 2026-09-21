@@ -1,0 +1,111 @@
+# Compila, audita y publica en GitHub Pages. Publica SOLO desde main; en una rama o un PR hace todo lo demás,
+# para que las puertas se vean en rojo antes de fusionar.
+#
+# El build es el de PUBLICACIÓN (STRICT=1): falla si queda un marcador sin resolver, un texto sin traducir o un
+# dato pendiente del investigador (src/config/enlaces.ts). Que el despliegue falle mientras eso siga abierto es
+# el comportamiento buscado, no una avería.
+name: Publicar el sitio
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # `npm run i18n` regenera los diccionarios desde el copy con scripts/copy2i18n.py.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - run: npm ci
+
+      # Origen y base del despliegue, de la configuración real de Pages: con dominio propio no hay que tocar
+      # nada aquí. En un PR no se consulta (puede no haber permiso) y valen los valores de astro.config.mjs.
+      - name: Origen y base de Pages
+        id: pages
+        if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+
+      - name: Exportar SITE_URL y BASE_PATH
+        if: steps.pages.outputs.origin != ''
+        run: |
+          echo "SITE_URL=${{ steps.pages.outputs.origin }}" >> "$GITHUB_ENV"
+          echo "BASE_PATH=${{ steps.pages.outputs.base_path }}" >> "$GITHUB_ENV"
+
+      - name: Diccionarios desde el copy
+        run: npm run i18n
+
+      - name: Puerta de los diccionarios (tres lenguas, completas)
+        run: node scripts/check-i18n.mjs --strict
+
+      - name: Tipos
+        run: npx astro check
+
+      - name: Imágenes sociales
+        run: node scripts/og.mjs
+
+      - name: Build de publicación
+        run: npm run build
+        env:
+          STRICT: '1'
+
+      - name: Auditoría de dist/ (cifras con procedencia y mención de la AEI)
+        run: npm run audit
+        env:
+          STRICT: '1'
+
+      # La mención de la AEI en el primer pantallazo solo se puede medir con un navegador.
+      - name: Navegador para las pruebas
+        run: npx playwright install --with-deps chromium
+
+      - name: Pruebas (AEI en el primer pantallazo, humo, sin JavaScript)
+        run: npm test
+
+      - name: Informe de las pruebas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright
+          path: test-results/
+          retention-days: 7
+
+      - name: Artefacto de Pages
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publicar:
+    needs: construir
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

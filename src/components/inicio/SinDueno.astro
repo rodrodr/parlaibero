@@ -1,0 +1,56 @@
+---
+/**
+ * 2.5 · Cuatro preguntas sin dueño. Cuatro cajas VACÍAS con nombre: contorno, sin relleno y sin iconos.
+ * El vacío es el contenido: el nombre arriba, lo que falta abajo, y en medio el hueco que alguien tiene que
+ * llenar. Nunca prometen una funcionalidad: dicen qué no trae la base.
+ * El copy escribe cada caja como «**Nombre.** lo que falta»; el nombre se separa solo con CSS.
+ */
+import { t } from '../../lib/i18n';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const cajas = ['tema', 'tono', 'posicion', 'voto'].map((c) => t(lang, `inicio.sindueno.${c}`));
+---
+<section class="seccion sindueno" aria-labelledby="sindueno-titulo">
+  <div class="contenedor reja">
+    <h2 id="sindueno-titulo" set:html={t(lang, 'inicio.sindueno.titulo')} />
+    <p class="lede entrada" set:html={t(lang, 'inicio.sindueno.entrada')} />
+  </div>
+  <div class="contenedor">
+    <ul class="cajas" role="list">
+      {cajas.map((html) => <li class="caja"><p set:html={html} /></li>)}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .entrada { margin: 0; }
+  .cajas {
+    list-style: none; margin: clamp(2rem, 5vw, 4rem) 0 0; padding: 0;
+    display: grid; gap: clamp(.75rem, 1.6vw, 1.5rem); grid-template-columns: minmax(0, 1fr);
+  }
+  .caja {
+    display: flex; min-height: clamp(10.5rem, 24vw, 20rem);
+    border: 1.5px dashed var(--ink-2); border-radius: var(--radio); background: transparent;
+    padding: clamp(1rem, 1.8vw, 1.5rem);
+  }
+  /* El nombre arriba y lo que falta abajo: el texto suelto tras <strong> es un elemento flexible anónimo.
+     Lo mismo vale mientras la unidad esté sin traducir y llegue envuelta en su <span> de aviso. */
+  .caja p, .caja p > :global(span[data-sin-traducir]) { flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 2rem; }
+  .caja p { margin: 0; max-width: none; font-size: var(--fs-small); line-height: 1.45; color: var(--ink-2); }
+  .caja :global(strong) { font: 800 clamp(1.6rem, 1.1rem + 1.6vw, 2.5rem)/1 var(--display); letter-spacing: -.025em; font-stretch: 88%; color: var(--ink); }
+
+  @media (min-width: 36rem) { .cajas { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 60rem) {
+    .sindueno h2 { grid-column: 1 / span 7; }
+    .entrada { grid-column: 9 / -1; align-self: end; margin-bottom: clamp(.9rem, 1.8vw, 1.8rem); }
+  }
+  @media (min-width: 64rem) {
+    /* Cuatro en fila y en escalera leve: cada caja baja un peldaño, para que cuatro huecos no parezcan cuatro tarjetas. */
+    .cajas { grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; }
+    .caja:nth-child(2) { margin-top: 1.5rem; }
+    .caja:nth-child(3) { margin-top: 3rem; }
+    .caja:nth-child(4) { margin-top: 4.5rem; }
+  }
+</style>

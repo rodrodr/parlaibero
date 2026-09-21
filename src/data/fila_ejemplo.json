@@ -1,0 +1,70 @@
+{
+ "iso": "sv",
+ "texto_truncado": true,
+ "celdas": [
+  {
+   "columna": "id_session",
+   "valor": "SV0010058"
+  },
+  {
+   "columna": "id_int",
+   "valor": "SV001005800070"
+  },
+  {
+   "columna": "legislature",
+   "valor": "2018-2021"
+  },
+  {
+   "columna": "legislative_session",
+   "valor": "AÑO LEGISLATIVO 2020"
+  },
+  {
+   "columna": "session_number",
+   "valor": "60"
+  },
+  {
+   "columna": "date",
+   "valor": "2019-07-24"
+  },
+  {
+   "columna": "session_type",
+   "valor": "ordinaria"
+  },
+  {
+   "columna": "intervention_order",
+   "valor": "70"
+  },
+  {
+   "columna": "speaker_raw",
+   "valor": null
+  },
+  {
+   "columna": "id_dep",
+   "valor": null
+  },
+  {
+   "columna": "speaker_name",
+   "valor": null
+  },
+  {
+   "columna": "sex",
+   "valor": "M"
+  },
+  {
+   "columna": "party",
+   "valor": "PCN"
+  },
+  {
+   "columna": "district",
+   "valor": "Sonsonate"
+  },
+  {
+   "columna": "dm_speech",
+   "valor": "1"
+  },
+  {
+   "columna": "text",
+   "valor": "Gracias   señor presidente, compañeros y compañeras diputados, también para unirme a la celebración digamos de aquella ciudad que de solo mencionarlo nos recordamos de El Principito, cosa que no muchos salvadoreños saben, que Armenia, una mujer de Armenia de apellido Suncín, fue la inspiración  de  la  Rosa  de  El  Principito.  Así  que  me  uno  a  la celebración como dije de Armenia, gracias […]"
+  }
+ ]
+}

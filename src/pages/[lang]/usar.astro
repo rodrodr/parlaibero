@@ -1,0 +1,474 @@
+---
+/**
+ * USAR LOS DATOS (copy §6). Del «por dónde empiezo» a la cita, en el orden en que se usa la base.
+ *  · Anclas estables (otras páginas enlazan aquí): #empezar · #camino · #descargas · #paquete · #columnas ·
+ *    #padron · #codigo · #citar · #contacto.
+ *  · El aviso del formulario va SIEMPRE por encima de cualquier enlace a Dataverse: por eso la lista de las
+ *    cámaras con su DOI cuelga del paso 3 («Descargue un archivo»), después del paso 2 («Antes del clic»).
+ *  · Las citas (texto, BibTeX y RIS) se generan en el build desde PAISES; aquí no se teclea ninguna.
+ */
+import Base from '../../layouts/Base.astro';
+import Salidas from '../../components/Salidas.astro';
+import Columnas from '../../components/Columnas.astro';
+import Cita from '../../components/Cita.astro';
+import { t, plano, rotulo, tBloques, existe, sinTraducir } from '../../lib/i18n';
+import { PAISES, resuelve, type Pais } from '../../lib/cifras';
+import { url, PAGINAS } from '../../lib/rutas';
+import { rutasPorIdioma, type Lang } from '../../lib/idiomas';
+import { ENLACES, PENDIENTES_DEL_INVESTIGADOR, hrefContacto } from '../../config/enlaces';
+import { paginaDe, type Figura } from '../../lib/figuras';
+import CIFRAS from '../../data/cifras.json';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+const ESTRICTO = process.env.STRICT === '1';
+const cifra = (clave: string) => (CIFRAS as Record<string, { v: unknown }>)[clave]?.v;
+const sinEtiquetas = (html: string) => html.replace(/<[^>]+>/g, '').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').trim();
+
+/**
+ * Una unidad del copy puede cerrar con un párrafo que solo trae botones («[A] [B]»): se separa el texto de sus
+ * rótulos para darles destino y forma de botón. Solo para unidades sin bloques de código.
+ */
+function conBotones(clave: string): { html: string; botones: string[] } {
+  const bloques = tBloques(lang, clave).split('\n');
+  const dentro = (bloques[bloques.length - 1] ?? '').replace(/^<p>|<\/p>$/g, '');
+  const soloBotones = bloques.length > 1 && /^(\s*\[[^\]]+\]\s*)+$/.test(sinEtiquetas(dentro));
+  return soloBotones
+    ? { html: bloques.slice(0, -1).join('\n'), botones: [...dentro.matchAll(/\[([^\]]+)\]/g)].map((m) => m[1] ?? '') }
+    : { html: bloques.join('\n'), botones: [] };
+}
+
+// ── 6.2 · el camino ───────────────────────────────────────────────────────────────────────
+const paso3 = conBotones('usar.camino.p3');
+const PESO_MAX = Math.max(...PAISES.map((p) => p.csv_bytes));
+const PESO_MIN = Math.min(...PAISES.map((p) => p.csv_bytes));
+const MOTIVO = 'comun.fija.formulario.motivo';
+const avisoIdioma = lang === 'es' ? null : t(lang, `comun.idioma.aviso.${lang}`);
+
+// ── 6.3 · los archivos de cada descarga, con sus nombres reales (comprobados en el depósito) ──
+const DATOS = ['XX_interventions.csv', 'XX_deputies.csv'];
+const DOCUMENTOS = ['README', 'data_dictionary', 'known_limitations', 'process_report'];
+const SUFIJOS = ['', '_es', '_pt'];
+const PROGRAMAS = ['corpus_info.json', 'dataset.jsonld', 'match_methods.json'];
+const nArchivos = DATOS.length + DOCUMENTOS.length * SUFIJOS.length + PROGRAMAS.length;
+// El copy dice «dos… cuatro documentos en tres lenguas… y tres»: si el recuento del depósito cambia, que falle aquí.
+if (nArchivos !== Number(cifra('paquete.ficheros')))
+  throw new Error(`El listado de «Qué hay en cada descarga» suma ${nArchivos} archivos y paquete.ficheros dice ${cifra('paquete.ficheros')}.`);
+
+// ── 6.4 · avisos de las columnas, en el orden del copy ──────────────────────────────────────
+// La entradilla promete que «la tabla lo dice» (cuánto se pudo llenar cada columna en cada cámara): lo cumple <Columnas>,
+// que pinta la disponibilidad MEDIDA de `columnas.json` con su base y los rótulos de §1.11 (`usar.columnas.col.*`).
+const avisos = ['sex', 'dm_speech', 'legislature', 'ids'].map((k) => `usar.columnas.aviso.${k}`).filter(existe);
+
+// ── 6.6 · fragmentos ──────────────────────────────────────────────────────────────────────
+// `tBloques` parte el texto por líneas en blanco ANTES de reconocer el bloque de código, y los dos fragmentos las
+// traen: saldrían troceados en párrafos. Por eso se leen del diccionario tal cual (solo lectura) y se pintan aquí.
+// Los comentarios del código se traducen; el código, no: por eso la lengua importa también en esta unidad.
+const DIC = import.meta.glob<{ default: Record<string, string> }>('../../i18n/*.json', { eager: true });
+const deLengua = (l: string, clave: string) => Object.entries(DIC).find(([ruta]) => ruta.endsWith(`/${l}.json`))?.[1].default[clave];
+function codigo(clave: string): { lenguaje: string; texto: string } | null {
+  let crudo = deLengua(lang, clave);
+  if (crudo === undefined) {
+    sinTraducir.add(`${lang}:${clave}`);
+    if (ESTRICTO) throw new Error(`Falta «${clave}» en ${lang}.`);
+    crudo = deLengua('es', clave);
+  }
+  const m = crudo?.match(/^```(\w*)\n([\s\S]*?)\n```\s*$/);
+  return m ? { lenguaje: m[1] ?? '', texto: m[2] ?? '' } : null;
+}
+const fragmentos = ['usar.codigo.r', 'usar.codigo.python'].filter(existe).map(codigo).filter((f) => f !== null);
+
+// ── 6.7 · citas ───────────────────────────────────────────────────────────────────────────
+const ROT = [...t(lang, 'usar.cita.rotulos').matchAll(/\[([^\]]+)\]/g)].map((m) => m[1] ?? '');
+const [rotConjunto = '', rotColeccion = '', rotFigura = '', rotTexto = '', rotBibtex = '', rotRis = ''] = ROT;
+
+interface Referencia { id: string; texto: string; autores: string[]; titulo: string; ano: string; editor: string; version?: string; doi?: string; url: string }
+
+/** La cita de Dataverse tiene forma fija —autores, año, "título", URL, editor, versión—: de ahí salen los campos. */
+function dePais(p: Pais): Referencia | null {
+  const m = p.cita.match(/^(.*?), (\d{4}), "(.+)", (\S+), (.+?), (V[\d.]+)\s*$/);
+  if (!m) {
+    const aviso = `La cita de ${p.iso.toUpperCase()} no tiene la forma de Dataverse: no se generan su BibTeX ni su RIS.`;
+    if (ESTRICTO) throw new Error(aviso);
+    console.warn('⚠ ' + aviso);
+    return null;
+  }
+  return { id: p.iso, texto: p.cita, autores: p.autores, ano: m[2] ?? '', titulo: m[3] ?? '', editor: m[5] ?? '', version: m[6], doi: p.doi, url: ENLACES.doi(p.doi) };
+}
+// BibTeX y RIS nombran a los AUTORES del conjunto: sus <pre> van con `data-autoria`, como <Cita>, para que el control
+// de nombres de `audit-cifras` los exima (la directiva veta a quien figura en los datos, no a quien los firma).
+const bibtex = (r: Referencia) => [
+  `@data{parlaibero_${r.id}_${r.ano},`,
+  `  author    = {${r.autores.join(' and ')}},`,
+  `  title     = {${r.titulo}},`,
+  `  year      = {${r.ano}},`,
+  ...(r.version ? [`  version   = {${r.version}},`] : []),
+  `  publisher = {${r.editor}},`,
+  ...(r.doi ? [`  doi       = {${r.doi}},`] : []),
+  `  url       = {${r.url}}`,
+  '}',
+].join('\n');
+const ris = (r: Referencia) => [
+  'TY  - DATA', `T1  - ${r.titulo}`, ...r.autores.map((a) => `AU  - ${a}`), `PY  - ${r.ano}`,
+  ...(r.version ? [`ET  - ${r.version}`] : []), `PB  - ${r.editor}`, ...(r.doi ? [`DO  - ${r.doi}`] : []), `UR  - ${r.url}`, 'ER  - ',
+].join('\n');
+
+const porPais = PAISES.map((p) => ({ p, ref: dePais(p) }));
+
+// La colección: autoría y cita son datos pendientes del investigador (anexo C, duda 3). Se pintan como pendientes.
+const autoria = sinEtiquetas(resuelve('cita.autoria', lang));
+// A <Cita> le llega el HTML tal cual, para que lo pendiente se vea como pendiente; a BibTeX y RIS, texto plano.
+const coleccion: Referencia = {
+  id: 'coleccion', texto: resuelve('coleccion.cita', lang),
+  autores: PENDIENTES_DEL_INVESTIGADOR['cita.autoria'] ? autoria.split(/\s*;\s*/) : [autoria],
+  titulo: plano(lang, 'comun.cabecera.nombre'), ano: String(cifra('edicion_datos') ?? '').slice(0, 4),
+  editor: porPais.find((x) => x.ref)?.ref?.editor ?? '', url: ENLACES.coleccion,
+};
+
+// Una figura: el modelo del copy. La fecha de consulta es del lector, así que va el hueco literal del LÉAME tipo.
+const huecoFecha = t(lang, 'comun.leame.citar', { vars: { 'fig.titulo': '', 'fig.url': '' } }).match(/\[[^\]]+\]/)?.[0];
+// La URL es la MISMA que imprime el LÉAME de la figura, con su ancla (lib/figuras.ts): una cita, una dirección.
+const citaFigura = (clave: string, figura: Figura) => t(lang, 'instituciones.organismo.citar.modelo', {
+  vars: { 'fig.titulo': plano(lang, clave), 'fig.url': new URL(url(lang, paginaDe(figura)), Astro.site).href, ...(huecoFecha ? { 'fig.fecha_consulta': huecoFecha } : {}) },
+});
+const figuras = [
+  { id: 'voz', titulo: t(lang, 'fig.voz.titulo'), texto: citaFigura('fig.voz.titulo', 'voz') },
+  { id: 'cobertura', titulo: t(lang, 'fig.cobertura.titulo'), texto: citaFigura('fig.cobertura.titulo', 'cobertura') },
+];
+
+// ── 6.8 · contacto ────────────────────────────────────────────────────────────────────────
+const contacto = conBotones('usar.contacto.texto');
+const destinosContacto = [ENLACES.erratas, hrefContacto()];
+// [Escribirnos] lo exige el copy: sin vía de contacto (anexo C, duda 5) no se publica. En la vista previa se ve el hueco.
+if (ESTRICTO && contacto.botones.some((_b, i) => !destinosContacto[i])) throw new Error('«usar.contacto.texto»: [Escribirnos] no tiene destino (falta `contacto` en src/config/enlaces.ts).');
+---
+<Base lang={lang} ruta={PAGINAS.usar} titulo={plano(lang, 'usar.meta.titulo')} descripcion={plano(lang, 'usar.meta.descripcion')}>
+  <header class="contenedor portada">
+    <h1 set:html={t(lang, 'usar.titulo')} />
+  </header>
+
+  {/* 6.1 · Por dónde empezar. Las tres salidas, con el aviso del formulario encima, son del componente Salidas. */}
+  <section class="seccion primera" id="empezar" aria-labelledby="empezar-t">
+    <div class="contenedor">
+      <h2 id="empezar-t" set:html={t(lang, 'usar.empezar.titulo')} />
+      <p class="lede" set:html={t(lang, 'usar.empezar.entrada')} />
+      <div class="salidas-marco"><Salidas lang={lang} familia="usar" /></div>
+      <p class="cierre" set:html={t(lang, 'usar.empezar.cierre')} />
+    </div>
+  </section>
+
+  {/* 6.2 · El camino, paso a paso */}
+  <section class="seccion" id="camino" aria-labelledby="camino-t">
+    <div class="contenedor">
+      <h2 id="camino-t" set:html={t(lang, 'usar.camino.titulo')} />
+      <ol class="pasos" role="list">
+        <li><p set:html={t(lang, 'usar.camino.p1')} /></li>
+        <li>
+          <p set:html={t(lang, 'usar.camino.p2')} />
+          {existe(MOTIVO) && <p class="nota" set:html={t(lang, MOTIVO)} />}
+        </li>
+        <li>
+          <Fragment set:html={paso3.html} />
+          <div class="descargas-marco" id="descargas">
+            <p class="descargas-t" id="descargas-t">
+              <strong set:html={paso3.botones[0] ?? rotulo(lang, 'ficha.descarga.boton')} />
+              <span class="nota" set:html={t(lang, 'comun.enlace.dataverse')} />
+            </p>
+            <ul class="descargas" aria-labelledby="descargas-t">
+              {PAISES.map((p) => (
+                <li class:list={[{ prueba: p.csv_bytes === PESO_MIN }]}>
+                  {/* El espacio es texto de verdad: sin él, quien copia la lista o la oye con un lector recibe «PanamáAsamblea Nacional». */}
+                  <a href={ENLACES.doi(p.doi)} rel="noopener external">{p.nombre[lang]}</a>{' '}
+                  <span class="camara">{p.camara}</span>{' '}
+                  <span class="peso" set:html={resuelve(`pais.${p.iso}.csv`, lang)} />
+                  <span class="via" aria-hidden="true"><span style={`width: ${(100 * p.csv_bytes / PESO_MAX).toFixed(1)}%`} /></span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </li>
+        <li>
+          <p set:html={t(lang, 'usar.camino.p4')} />
+          <p class="acciones">
+            {/* La nota va a la vista y es la que describe a este botón; la del pie (`nota-explorador`) es para los enlaces que no la tienen al lado. */}
+            <a class="boton" href={ENLACES.explorador} target="_blank" rel="noopener external" aria-describedby="nota-explorador-camino" set:html={rotulo(lang, 'comun.nav.cta.explorador')} />
+            <span class="nota" id="nota-explorador-camino" set:html={t(lang, 'comun.enlace.explorador')} />
+          </p>
+          {avisoIdioma && <p class="nota" set:html={avisoIdioma} />}
+          <p class="nota" set:html={t(lang, 'usar.camino.requisitos')} />
+          {existe('usar.camino.tiempos') && <p class="nota" set:html={t(lang, 'usar.camino.tiempos')} />}
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  {/* 6.3 · Qué hay en cada descarga */}
+  <section class="seccion" id="paquete" aria-labelledby="paquete-t">
+    <div class="contenedor dos">
+      <div>
+        <h2 id="paquete-t" set:html={t(lang, 'usar.paquete.titulo')} />
+        <Fragment set:html={tBloques(lang, 'usar.paquete.texto')} />
+      </div>
+      {/* El listado tal como se ve en Dataverse: dos archivos de datos, cuatro documentos en tres lenguas, tres para programas. */}
+      <figure class="listado entra" aria-labelledby="paquete-t">
+        <ul class="grupo datos">{DATOS.map((a, i) => <li class:list={[{ necesario: i === 0 }]}>{a}</li>)}</ul>
+        <ul class="grupo documentos">{DOCUMENTOS.map((d) => <li>{SUFIJOS.map((s) => <span>{`${d}${s}.md`}</span>)}</li>)}</ul>
+        <ul class="grupo">{PROGRAMAS.map((a) => <li>{a}</li>)}</ul>
+      </figure>
+    </div>
+  </section>
+
+  {/* 6.4 · Las columnas: el diccionario a la izquierda; los cuatro avisos, a la vista mientras se lee */}
+  <section class="seccion" id="columnas" aria-labelledby="columnas-t">
+    <div class="contenedor">
+      <h2 id="columnas-t" set:html={t(lang, 'usar.columnas.titulo')} />
+      <p class="lede" set:html={t(lang, 'usar.columnas.entradilla')} />
+      <div class="diccionario">
+        <Columnas lang={lang} />
+        {/* Un div y no un aside: dentro de una sección, un complementario sin nombre solo añade ruido al lector de pantalla. */}
+        <div class="avisos">
+          {avisos.map((k) => <p set:html={t(lang, k)} />)}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* 6.5 · El padrón */}
+  <section class="seccion" id="padron" aria-labelledby="padron-t">
+    <div class="contenedor dos">
+      <h2 id="padron-t" set:html={t(lang, 'usar.padron.titulo')} />
+      <div>
+        <Fragment set:html={tBloques(lang, 'usar.padron.texto')} />
+        {existe('usar.padron.brasil') && <p class="nota ejemplo" set:html={t(lang, 'usar.padron.brasil')} />}
+      </div>
+    </div>
+  </section>
+
+  {/* 6.6 · Dos fragmentos */}
+  <section class="seccion" id="codigo" aria-labelledby="codigo-t">
+    <div class="contenedor">
+      <h2 id="codigo-t" set:html={t(lang, 'usar.codigo.titulo')} />
+      <p class="lede" set:html={t(lang, 'usar.codigo.entradilla')} />
+      {fragmentos.map((f) => (
+        <div class="fragmento">
+          <p class="lenguaje mono" aria-hidden="true">{f.lenguaje}</p>
+          {/* Un bloque que se desplaza en horizontal tiene que poder recibir el foco del teclado; y lo que recibe el foco, tener rol y nombre. */}
+          <pre tabindex="0" role="region" aria-label={f.lenguaje}><code class={`language-${f.lenguaje}`}>{f.texto}</code></pre>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {/* 6.7 · Cómo citar. Sin JS todo es texto seleccionable; el selector por país es un desplegable nativo (details). */}
+  <section class="seccion" id="citar" aria-labelledby="citar-t">
+    <div class="contenedor">
+      <h2 id="citar-t" set:html={t(lang, 'usar.cita.titulo')} />
+      <p class="lede" set:html={t(lang, 'usar.cita.entradilla')} />
+      <p class="nota" set:html={t(lang, 'usar.cita.licencia')} />
+
+      <h3 set:html={rotConjunto} />
+      <ul class="citas-pais">
+        {porPais.map(({ p, ref }) => (
+          <li>
+            <details>
+              <summary>
+                <span class="pais" id={`cita-${p.iso}`}>{p.nombre[lang]}</span>
+                <span class="edicion mono" set:html={`${p.iso.toUpperCase()} · ${resuelve(`pais.${p.iso}.version`, lang)}`} />
+              </summary>
+              <div class="formatos">
+                <div class="formato">
+                  <h4 class="kicker" set:html={rotTexto} />
+                  <Cita lang={lang} texto={p.cita} lenguaTexto="en" />
+                </div>
+                {ref && (
+                  <div class="formato">
+                    <h4 class="kicker" id={`bibtex-${p.iso}-t`} set:html={rotBibtex} />
+                    <pre tabindex="0" role="region" aria-labelledby={`cita-${p.iso} bibtex-${p.iso}-t`} id={`bibtex-${p.iso}`} data-autoria><code>{bibtex(ref)}</code></pre>
+                    <button type="button" class="boton secundario copiar" data-copia={`bibtex-${p.iso}`} hidden set:html={rotulo(lang, 'comun.cita.copiar')} />
+                    <span class="hecho nota" role="status" />
+                  </div>
+                )}
+                {ref && (
+                  <div class="formato">
+                    <h4 class="kicker" id={`ris-${p.iso}-t`} set:html={rotRis} />
+                    <pre tabindex="0" role="region" aria-labelledby={`cita-${p.iso} ris-${p.iso}-t`} id={`ris-${p.iso}`} data-autoria><code>{ris(ref)}</code></pre>
+                    <button type="button" class="boton secundario copiar" data-copia={`ris-${p.iso}`} hidden set:html={rotulo(lang, 'comun.cita.copiar')} />
+                    <span class="hecho nota" role="status" />
+                  </div>
+                )}
+              </div>
+            </details>
+          </li>
+        ))}
+      </ul>
+
+      <h3 id="cita-coleccion" set:html={rotColeccion} />
+      <div class="formatos">
+        <div class="formato">
+          <h4 class="kicker" set:html={rotTexto} />
+          <Cita lang={lang} texto={coleccion.texto} />
+        </div>
+        <div class="formato">
+          <h4 class="kicker" id="bibtex-coleccion-t" set:html={rotBibtex} />
+          <pre tabindex="0" role="region" aria-labelledby="cita-coleccion bibtex-coleccion-t" id="bibtex-coleccion" data-autoria><code>{bibtex(coleccion)}</code></pre>
+          <button type="button" class="boton secundario copiar" data-copia="bibtex-coleccion" hidden set:html={rotulo(lang, 'comun.cita.copiar')} />
+          <span class="hecho nota" role="status" />
+        </div>
+        <div class="formato">
+          <h4 class="kicker" id="ris-coleccion-t" set:html={rotRis} />
+          <pre tabindex="0" role="region" aria-labelledby="cita-coleccion ris-coleccion-t" id="ris-coleccion" data-autoria><code>{ris(coleccion)}</code></pre>
+          <button type="button" class="boton secundario copiar" data-copia="ris-coleccion" hidden set:html={rotulo(lang, 'comun.cita.copiar')} />
+          <span class="hecho nota" role="status" />
+        </div>
+      </div>
+
+      <h3 set:html={rotFigura} />
+      <div class="formatos figuras">
+        {figuras.map((f) => (
+          <div class="formato">
+            <h4 class="kicker" set:html={f.titulo} />
+            <Cita lang={lang} texto={f.texto} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* 6.8 · Contacto y erratas */}
+  <section class="seccion" id="contacto" aria-labelledby="contacto-t">
+    <div class="contenedor dos">
+      <h2 id="contacto-t" set:html={t(lang, 'usar.contacto.titulo')} />
+      <div>
+        <Fragment set:html={contacto.html} />
+        <p class="acciones">
+          {contacto.botones.map((b, i) => {
+            const href = destinosContacto[i];
+            // Sin vía de contacto decidida (anexo C, duda 5), en la vista previa se ve lo que falta (en publicación, el build ya falló arriba).
+            return href
+              ? <a class:list={['boton', { secundario: i > 0 }]} href={href} rel={/^https?:/.test(href) ? 'noopener external' : undefined} set:html={b} />
+              : <mark class="pendiente" set:html={b} />;
+          })}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* Solo añade «copiar» a BibTeX y RIS: sin JS los botones ni aparecen y el texto se selecciona a mano. Va dentro del layout para no caer después del cierre del documento. */}
+  <script is:inline define:vars={{ hecho: plano(lang, 'comun.cita.copiada') }}>
+    if (navigator.clipboard) {
+      document.querySelectorAll('button[data-copia]').forEach((b) => {
+        b.hidden = false;
+        b.addEventListener('click', () => {
+          const origen = document.getElementById(b.dataset.copia);
+          if (!origen) return;
+          navigator.clipboard.writeText(origen.textContent).then(() => {
+            const aviso = b.nextElementSibling;
+            if (!aviso) return;
+            aviso.textContent = hecho;
+            setTimeout(() => { aviso.textContent = ''; }, 2500);
+          }, () => {});
+        });
+      });
+    }
+  </script>
+</Base>
+
+<style>
+  .portada { padding-block: clamp(2.5rem, 7vw, 6.5rem) clamp(1.5rem, 4vw, 3rem); }
+  .portada h1 { font-stretch: 84%; }
+  .seccion.primera { border-top: 1px solid var(--ink); padding-top: clamp(2rem, 5vw, 4rem); }
+  .lede { margin-bottom: 2rem; }
+  .seccion h3 { margin: 3rem 0 1.1rem; }
+  .acciones { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem 1.1rem; max-width: none; margin: 1.1rem 0; }
+
+  /* Lo que pinte <Salidas> va a ancho del contenedor, traiga o no su propia sección. */
+  .salidas-marco { margin-block: 2rem; min-width: 0; }
+  .salidas-marco :global(.contenedor) { width: 100%; }
+  .salidas-marco :global(.seccion) { padding-block: 0; border-top: 0; }
+  .cierre { border-left: 2px solid var(--ink); padding-left: 1.1rem; max-width: 34rem; margin: 0; }
+
+  /* título a la izquierda, texto a la derecha: el ritmo de las secciones de solo texto */
+  .dos { display: grid; gap: 1.5rem 3.5rem; }
+  .dos > * { min-width: 0; }
+  .dos h2 { margin-bottom: .5em; }
+  @media (min-width: 60rem) { .dos { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
+  .ejemplo { border-top: 1px solid var(--hair); padding-top: .9rem; }
+
+  /* ── el camino: numerales grandes, puestos por CSS ── */
+  .pasos { list-style: none; margin: 2rem 0 0; padding: 0; counter-reset: paso; }
+  .pasos > li { counter-increment: paso; position: relative; padding: 1.5rem 0 1.75rem; border-top: 1px solid var(--hair); min-width: 0; }
+  .pasos > li::before { content: counter(paso); display: block; font: 800 clamp(2.4rem, 1.6rem + 3vw, 4.2rem)/.9 var(--display); font-stretch: 78%; color: var(--ink); margin-bottom: .7rem; }
+  .pasos > li > :global(p) { margin-bottom: .7em; }
+  @media (min-width: 60rem) {
+    .pasos > li { padding-left: 9rem; }
+    .pasos > li::before { position: absolute; left: 0; top: 1.4rem; margin: 0; }
+  }
+
+  .descargas-marco { margin-top: 1.5rem; scroll-margin-top: 1rem; }
+  .descargas-t { display: flex; flex-wrap: wrap; align-items: baseline; gap: .2rem 1rem; max-width: none; margin: 0; padding-bottom: .6rem; border-bottom: 1px solid var(--ink); }
+  .descargas-t strong { font: 700 1rem/1.2 var(--display); }
+  .descargas { list-style: none; margin: 0; padding: 0; }
+  .descargas li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .1rem 1rem; align-items: baseline; padding: .6rem 0 .65rem; border-bottom: 1px solid var(--hair); }
+  .descargas a { font: 700 1rem/1.25 var(--display); }
+  .descargas .camara { grid-column: 1; grid-row: 2; font-size: var(--fs-small); color: var(--ink-2); }
+  .descargas .peso { grid-column: 2; grid-row: 1; text-align: right; }
+  /* El peso, dibujado: de un vistazo se ve cuál es el archivo pequeño. */
+  .via { grid-column: 1 / -1; height: 3px; margin-top: .35rem; }
+  .via span { display: block; height: 100%; background: var(--dato); min-width: 2px; }
+  /* La única fila resaltada, en granate de marca: el archivo más pequeño, por donde el copy aconseja empezar. */
+  .descargas li.prueba { border-left: 3px solid var(--accent); padding-left: .8rem; }
+  @media (min-width: 60rem) {
+    .descargas li { grid-template-columns: 12rem minmax(0, 1fr) 6rem 12rem; }
+    .descargas .camara { grid-column: 2; grid-row: 1; }
+    .descargas .peso { grid-column: 3; }
+    .via { grid-column: 4; grid-row: 1; align-self: center; margin: 0; }
+  }
+
+  /* ── el listado de la descarga, como se ve en el depósito ── */
+  .listado { margin: 0; border: 1px solid var(--ink); border-radius: var(--radio); font: 500 .8rem/1.5 var(--mono); overflow-wrap: anywhere; }
+  .grupo { list-style: none; margin: 0; padding: .8rem 1rem; border-top: 1px solid var(--hair); color: var(--ink-2); }
+  .grupo:first-child { border-top: 0; }
+  .grupo.datos { color: var(--ink); font-weight: 700; }
+  .grupo.datos li.necesario::after { content: '←'; content: '←' / ''; margin-left: .6em; color: var(--accent); }
+  .grupo.documentos li { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .25rem .8rem; }
+  @media (max-width: 30rem) { .grupo.documentos li { grid-template-columns: 1fr; margin-bottom: .4rem; } }
+
+  /* ── diccionario + avisos ── */
+  .diccionario { display: grid; gap: 2.5rem 3.5rem; }
+  .diccionario > :global(*) { min-width: 0; }
+  .avisos { order: -1; display: grid; gap: .9rem; align-content: start; }
+  .avisos p { margin: 0; max-width: 34rem; font-size: .94em; line-height: 1.45; padding: .85rem 0 0; border-top: 1px solid var(--ink); }
+  @media (min-width: 72rem) {
+    .diccionario { grid-template-columns: minmax(0, 1fr) 21rem; }
+    .avisos { order: 0; position: sticky; top: 1.5rem; }
+  }
+
+  /* ── fragmentos ── */
+  .fragmento { margin-top: 2rem; min-width: 0; }
+  .fragmento .lenguaje { margin: 0; display: inline-block; padding: .3em .7em; background: var(--ink); color: var(--bg); text-transform: uppercase; letter-spacing: .08em; font-size: .72rem; border-radius: var(--radio) var(--radio) 0 0; }
+  .fragmento pre { margin: 0; border-top: 1px solid var(--ink); border-radius: 0 var(--radio) var(--radio) var(--radio); font-size: .8rem; }
+
+  /* ── citas ── */
+  .citas-pais { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+  .citas-pais li { border-bottom: 1px solid var(--hair); min-width: 0; }
+  summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 1rem; padding: .75rem 0; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; margin-left: auto; font: 400 1.3rem/1 var(--mono); }
+  details[open] > summary::after { content: '–'; }
+  summary .pais { font: 700 1.05rem/1.2 var(--display); }
+  summary .edicion { color: var(--mute); font-size: .78rem; }
+  summary:hover .pais { color: var(--accent); }
+  .formatos { display: grid; gap: 1.5rem 2.5rem; padding: .5rem 0 1.75rem; }
+  .formato { min-width: 0; }
+  .formato h4 { margin: 0 0 .6rem; }
+  .formato pre { margin: 0 0 .7rem; font-size: .78rem; white-space: pre; }
+  .formato .copiar { padding: .5em .85em; }
+  /* `.boton` fija `display` y eso anula el `hidden` del navegador: sin esta línea el botón se vería también sin JS. */
+  .formato .copiar[hidden] { display: none; }
+  .hecho { margin-left: .7rem; }
+  @media (min-width: 60rem) {
+    /* El texto, a lo ancho; debajo, BibTeX y RIS a la par: así ninguno de los dos se lee cortado. */
+    .formatos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .formatos:not(.figuras) .formato:first-child { grid-column: 1 / -1; }
+  }
+</style>

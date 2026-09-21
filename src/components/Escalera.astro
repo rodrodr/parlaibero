@@ -1,0 +1,35 @@
+---
+/**
+ * Wordmark «Escalera» (plan, «Identidad mínima»): dieciséis barras, una por cámara, con el arco temporal de su
+ * corpus sobre el eje común de la rejilla. Como las series empiezan cada vez más tarde, el conjunto baja en
+ * peldaños: es el mismo dibujo del favicon, pero generado desde `paises[]`. Nada se teclea: ni años ni orden.
+ *  · Es marca, no dato: por eso va en granate. Y es decorativa: el nombre del sitio lo dice el texto de al lado.
+ *  · Un hueco declarado se deja en blanco: la ausencia nunca es un color, tampoco aquí.
+ */
+import cifrasJson from '../data/cifras.json';
+import { PAISES } from '../lib/cifras';
+
+const CIFRAS = cifrasJson as unknown as Record<string, { v: number }>;
+const desde = CIFRAS['rejilla.desde'].v, hasta = CIFRAS['rejilla.hasta'].v;
+const columnas = hasta - desde + 1;
+// Geometría del dibujo, en unidades de viewBox: una barra y su aire por cámara.
+const PASO = 2, GROSOR = 1.2;
+
+/** Los tramos con serie de una cámara: su ventana, recortada a la rejilla, menos sus huecos declarados. */
+function tramos(inicio: number, fin: number, huecos: [number, number][]): [number, number][] {
+  let partes: [number, number][] = [[Math.max(inicio, desde), Math.min(fin, hasta)]];
+  for (const [h0, h1] of huecos) {
+    partes = partes.flatMap(([a, b]): [number, number][] => (h1 < a || h0 > b ? [[a, b]] : [[a, h0 - 1], [h1 + 1, b]]));
+  }
+  return partes.filter(([a, b]) => b >= a);
+}
+const barras = PAISES.flatMap((p, i) => tramos(p.inicio, p.fin, p.huecos).map(([a, b]) => ({ x: a - desde, w: b - a + 1, y: i * PASO })));
+---
+<svg class="escalera" viewBox={`0 0 ${columnas} ${PAISES.length * PASO}`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+  {barras.map((b) => <rect x={b.x} y={b.y} width={b.w} height={GROSOR} />)}
+</svg>
+
+<style>
+  /* Más baja que la banda de la AEI, siempre: ningún otro signo de la página puede ser más alto que ella. */
+  .escalera { display: block; width: 3rem; height: 2.2rem; max-width: none; flex: none; fill: var(--accent); }
+</style>

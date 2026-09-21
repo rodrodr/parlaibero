@@ -1,0 +1,224 @@
+---
+/**
+ * PARA PARLAMENTOS Y ORGANISMOS (copy §7). Dos columnas paralelas con cuatro bloques cada una, a la misma
+ * altura —pregunta · lo que se lleva · cómo usarlo bien · cómo citar—, y un cierre a ancho completo.
+ *  · La altura común la da `subgrid`: cada bloque de una columna comparte fila con su par de la otra. En móvil
+ *    se apilan, con el congreso primero (es el orden del documento).
+ *  · El aviso del formulario va dentro del paso 1, por ENCIMA de la lista de cámaras con su DOI.
+ *  · La referencia de la financiación NO se repite en el cierre: texto y logotipos son un bloque indivisible,
+ *    y ya van en el pie (nota de diseño del copy).
+ */
+import Base from '../../layouts/Base.astro';
+import Cita from '../../components/Cita.astro';
+import { t, plano, rotulo, tEnlaces } from '../../lib/i18n';
+import { PAISES, escapa } from '../../lib/cifras';
+import { url, recurso, PAGINAS } from '../../lib/rutas';
+import { rutasPorIdioma, type Lang } from '../../lib/idiomas';
+import { ENLACES, hrefContacto } from '../../config/enlaces';
+import { remata, SIN_DESTINO } from '../../lib/remata';
+import { paginaDe } from '../../lib/figuras';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+// Los remates de los enlaces son los de todo el sitio (lib/remata.ts): el explorador, en otra pestaña; y un botón sin
+// destino se ve como pendiente en la vista previa y TUMBA el build de
+// publicación: el copy los exige, así que no se suprimen en silencio.
+
+/** Si la unidad cierra con una tanda de botones («… [A] [B]»), se separan del texto para pintarlos como botones. */
+function conCola(clave: string, destinos: string[]): { texto: string; botones: string } {
+  const html = t(lang, clave);
+  const m = html.match(/((?:\s*\[[^\]]+\])+)\s*(<\/span>)?$/);
+  if (!m || m.index === undefined) return { texto: remata(tEnlaces(lang, clave, destinos)), botones: '' };
+  let i = 0;
+  const botones = (m[1] ?? '').replace(/\[([^\]]+)\]/g, (_todo, etiqueta: string) => {
+    const href = destinos[i++] ?? SIN_DESTINO;
+    return `<a class="boton${i > 1 ? ' secundario' : ''}" href="${escapa(href)}">${etiqueta}</a>`;
+  });
+  return { texto: html.slice(0, m.index) + (m[2] ?? ''), botones: remata(botones) };
+}
+
+// ── columna 1 · el congreso ───────────────────────────────────────────────────────────────
+const PESO = 'instituciones.parlamento.peso';
+const avisoIdioma = lang === 'es' ? null : t(lang, `comun.idioma.aviso.${lang}`);
+
+// ── columna 2 · el organismo ──────────────────────────────────────────────────────────────
+// La «tabla de indicadores» es el Excel de la figura de apertura; el CSV va al lado, por su nombre de archivo.
+// El LÉAME lo genera el build por figura y lengua (src/pages/datos/leame-[fig]-[lang].txt.ts).
+const TABLA = ['datos/voz_por_camara.xlsx', 'datos/voz_por_camara.csv', `datos/leame-voz_por_camara-${lang}.txt`];
+// La imagen de la figura la compone el build, por lengua, con la geometría y los textos del sitio (viz/figuraVoz.ts):
+// PNG para pegar en un informe y SVG para imprenta. Van también en la lista de archivos, por su nombre.
+const IMAGEN = [`datos/voz_por_camara-${lang}.png`, `datos/voz_por_camara-${lang}.svg`];
+const lleva = conCola('instituciones.organismo.sellleva', [recurso(TABLA[0] ?? ''), recurso(IMAGEN[0] ?? '')]);
+
+// La cita de la figura: el modelo del copy. La fecha de consulta es del lector: va el hueco literal del LÉAME tipo.
+const huecoFecha = t(lang, 'comun.leame.citar', { vars: { 'fig.titulo': '', 'fig.url': '' } }).match(/\[[^\]]+\]/)?.[0];
+// A <Cita> le llega el HTML de `t()`, para que la autoría pendiente se vea como pendiente.
+// La URL es la MISMA que imprime el LÉAME de la figura, con su ancla (lib/figuras.ts).
+const citaFigura = t(lang, 'instituciones.organismo.citar.modelo', {
+  vars: {
+    'fig.titulo': plano(lang, 'fig.voz.titulo'),
+    'fig.url': new URL(url(lang, paginaDe('voz')), Astro.site).href,
+    ...(huecoFecha ? { 'fig.fecha_consulta': huecoFecha } : {}),
+  },
+});
+
+// ── cierre ────────────────────────────────────────────────────────────────────────────────
+const destinoContacto = hrefContacto() ?? SIN_DESTINO;
+---
+<Base lang={lang} ruta={PAGINAS.instituciones} titulo={plano(lang, 'instituciones.meta.titulo')} descripcion={plano(lang, 'instituciones.meta.descripcion')}>
+  <header class="contenedor portada">
+    <h1 set:html={t(lang, 'instituciones.titulo')} />
+    <p class="lede" set:html={t(lang, 'instituciones.entradilla')} />
+  </header>
+
+  <div class="contenedor caminos">
+    {/* Columna 1 · la biblioteca o el servicio de investigación de un congreso */}
+    <section class="camino" aria-labelledby="parlamento-t">
+      <div class="bloque">
+        <h2 id="parlamento-t" set:html={t(lang, 'instituciones.parlamento.rotulo')} />
+        <p class="pregunta" set:html={t(lang, 'instituciones.parlamento.pregunta')} />
+        <p set:html={t(lang, 'instituciones.parlamento.entrada')} />
+      </div>
+
+      <div class="resto">
+      <div class="bloque">
+        <h3 set:html={t(lang, 'instituciones.parlamento.pasos.titulo')} />
+        <ol class="pasos" role="list">
+          <li>
+            <p set:html={t(lang, 'instituciones.parlamento.paso1')} />
+            <p class="camaras-t" id="camaras-t">
+              <strong set:html={rotulo(lang, 'ficha.descarga.boton')} />
+              <span class="nota" set:html={t(lang, 'comun.enlace.dataverse')} />
+            </p>
+            <ul class="camaras" aria-labelledby="camaras-t">
+              {PAISES.map((p) => (
+                <li>
+                  <a href={ENLACES.doi(p.doi)} rel="noopener external">{p.nombre[lang]}</a>{' '}
+                  <span class="camara">{p.camara}</span>{' '}
+                  {/* El peso, a la vista y como texto (copy §1.11, `instituciones.parlamento.peso`): en su propia línea, porque al lado del
+                      nombre lo estrujaba y partía «Costa Rica» o «República Dominicana» en dos. */}
+                  <span class="peso mono" set:html={t(lang, PESO, { iso: p.iso })} />
+                </li>
+              ))}
+            </ul>
+          </li>
+          <li>
+            <p set:html={remata(tEnlaces(lang, 'instituciones.parlamento.paso2', [ENLACES.explorador]))} />
+            <p class="nota" set:html={t(lang, 'comun.fija.explorador')} />
+            {avisoIdioma && <p class="nota" set:html={avisoIdioma} />}
+          </li>
+          <li><p set:html={t(lang, 'instituciones.parlamento.paso3')} /></li>
+        </ol>
+        <p class="garantia" set:html={t(lang, 'instituciones.parlamento.garantia')} />
+      </div>
+
+      <div class="bloque">
+        <h3 set:html={t(lang, 'instituciones.parlamento.noes.titulo')} />
+        <p set:html={t(lang, 'instituciones.parlamento.noes')} />
+      </div>
+
+      <div class="bloque">
+        <p set:html={tEnlaces(lang, 'instituciones.parlamento.nocubre', [url(lang, PAGINAS.paises)])} />
+      </div>
+      </div>
+    </section>
+
+    {/* Columna 2 · el organismo internacional */}
+    <section class="camino" aria-labelledby="organismo-t">
+      <div class="bloque">
+        <h2 id="organismo-t" set:html={t(lang, 'instituciones.organismo.rotulo')} />
+        <p class="pregunta" set:html={t(lang, 'instituciones.organismo.pregunta')} />
+      </div>
+
+      <div class="resto">
+      <div class="bloque">
+        <h3 set:html={t(lang, 'instituciones.organismo.sellleva.titulo')} />
+        <p set:html={lleva.texto} />
+        {lleva.botones && <p class="acciones" set:html={lleva.botones} />}
+        <p class="archivos mono">
+          {[...TABLA, ...IMAGEN].map((a) => <a href={recurso(a)}>{a.split('/').pop()}</a>)}
+        </p>
+      </div>
+
+      <div class="bloque">
+        <h3 set:html={t(lang, 'instituciones.organismo.leer.titulo')} />
+        <p set:html={t(lang, 'instituciones.organismo.leer')} />
+      </div>
+
+      <div class="bloque">
+        <h3 set:html={t(lang, 'instituciones.organismo.citar.titulo')} />
+        <p set:html={t(lang, 'instituciones.organismo.citar')} />
+        <Cita lang={lang} texto={citaFigura} />
+      </div>
+      </div>
+    </section>
+  </div>
+
+  {/* Cierre, a ancho completo */}
+  <section class="seccion cierre" aria-labelledby="cierre-t">
+    <div class="contenedor dos">
+      <h2 id="cierre-t" set:html={t(lang, 'instituciones.cierre.titulo')} />
+      <div>
+        <p class="lede" set:html={t(lang, 'instituciones.cierre.que')} />
+        <p set:html={t(lang, 'instituciones.cierre.quien')} />
+        <p set:html={t(lang, 'instituciones.cierre.licencia')} />
+        <p set:html={t(lang, 'instituciones.cierre.estabilidad')} />
+        <p class="contacto" set:html={remata(tEnlaces(lang, 'instituciones.cierre.contacto', [destinoContacto]))} />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .portada { padding-block: clamp(2.5rem, 7vw, 6.5rem) clamp(2rem, 5vw, 4rem); }
+  .portada h1 { font-stretch: 84%; max-width: 12em; }
+  .portada .lede { margin: 1.5rem 0 0; }
+
+  /* Dos columnas. Solo la PRIMERA fila va emparejada (rótulo y pregunta de cada público, a la misma altura); debajo,
+     cada columna fluye por su cuenta. Emparejar los cuatro bloques dejaba en la columna del organismo un hueco de casi
+     mil píxeles (los pasos y las dieciséis cámaras de la izquierda son mucho más altos que su par), y el `sticky` con
+     que se disimulaba montaba un bloque encima de los siguientes al desplazarse. */
+  .caminos { display: grid; gap: 3.5rem 0; }
+  .camino { border-top: 1px solid var(--ink); min-width: 0; }
+  .resto { min-width: 0; }
+  .bloque { padding-block: 1.6rem 1.9rem; border-top: 1px solid var(--hair); min-width: 0; }
+  .camino > .bloque:first-child { border-top: 0; }
+  @media (min-width: 62rem) {
+    .caminos { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto auto; column-gap: 0; }
+    .camino { display: grid; grid-row: 1 / span 2; grid-template-rows: subgrid; row-gap: 0; }
+    .resto { align-self: start; }
+    .camino:first-of-type { padding-right: clamp(1.5rem, 3vw, 3.5rem); }
+    .camino:last-of-type { padding-left: clamp(1.5rem, 3vw, 3.5rem); border-left: 1px solid var(--hair); }
+  }
+
+  .camino h2 { font-size: clamp(1.45rem, 1.1rem + 1.4vw, 2.3rem); line-height: 1.05; max-width: 16em; }
+  .camino h3 { font-size: clamp(1.1rem, 1rem + .5vw, 1.4rem); margin-bottom: .8rem; }
+  /* La pregunta tipo es lo que alguien dice: va en la itálica que el sitio reserva para eso. */
+  .pregunta { font-style: italic; font-size: clamp(1.3rem, 1.1rem + 1vw, 1.95rem); line-height: 1.22; margin: 1.1rem 0 1.2rem; max-width: 22em; text-wrap: balance; }
+  .bloque > :global(:last-child) { margin-bottom: 0; }
+
+  .pasos { list-style: none; margin: 0; padding: 0; counter-reset: paso; }
+  .pasos > li { counter-increment: paso; position: relative; padding: .2rem 0 1.1rem 2.9rem; min-width: 0; }
+  .pasos > li::before { content: counter(paso); position: absolute; left: 0; top: -.1rem; font: 800 2.3rem/1 var(--display); font-stretch: 78%; }
+  .pasos p { margin-bottom: .55em; }
+  .garantia { border-left: 2px solid var(--ink); padding-left: 1rem; font-weight: 600; }
+
+  .camaras-t { display: flex; flex-wrap: wrap; align-items: baseline; gap: .15rem .9rem; max-width: none; margin: 1rem 0 0; padding-bottom: .5rem; border-bottom: 1px solid var(--ink); }
+  .camaras-t strong { font: 700 .98rem/1.2 var(--display); }
+  .camaras { list-style: none; margin: 0 0 .4rem; padding: 0; columns: 2 11rem; column-gap: 1.75rem; }
+  .camaras li { break-inside: avoid; display: grid; gap: .1rem 0; padding: .5rem 0; border-bottom: 1px solid var(--hair); }
+  .camaras a { font: 700 .98rem/1.25 var(--display); justify-self: start; }
+  .camaras .camara { font-size: .76rem; line-height: 1.3; color: var(--ink-2); }
+  .camaras .peso { font-size: .72rem; line-height: 1.4; color: var(--mute); }
+
+  .acciones { display: flex; flex-wrap: wrap; gap: .6rem .8rem; align-items: center; max-width: none; margin: 1.1rem 0 .8rem; }
+  .bloque .archivos { display: flex; flex-wrap: wrap; gap: .3rem 1.2rem; margin: 0; font-size: .8rem; }
+
+  .dos { display: grid; gap: 1.5rem 3.5rem; }
+  .dos > * { min-width: 0; }
+  .dos h2 { margin-bottom: .5em; }
+  @media (min-width: 60rem) { .dos { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
+  .cierre { margin-top: clamp(3rem, 7vw, 6rem); }
+  .cierre .lede { margin-bottom: 1.2rem; max-width: 36rem; }
+  .contacto { margin-top: 1.5rem; font: 600 1rem/1.4 var(--display); }
+</style>

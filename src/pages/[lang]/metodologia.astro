@@ -1,0 +1,492 @@
+---
+/**
+ * METODOLOGÍA (copy §5). Lectura larga: índice pegajoso, banda fija con los dos botones y sus dos avisos, y diez
+ * apartados que terminan, cada uno, en un «Pruébelo» enlazado a una acción real.
+ *  · Los apartados y sus párrafos los numera el COPY (`metodologia.indice.N`, `metodologia.N.pK`): la página los
+ *    recorre con `claves()`, de modo que quitar un párrafo opcional (5.p6, la novedad) no exige tocar código.
+ *  · Anclas: `#apartado-N` por apartado (Inicio enlaza a `#apartado-4`) y `#por-pais` en la tabla por cámara.
+ *  · El recuento de decisiones no aparece en ningún lugar de la página (nota de diseño del copy).
+ */
+import Base from '../../layouts/Base.astro';
+import IndiceLateral from '../../components/IndiceLateral.astro';
+import BandaCTA from '../../components/BandaCTA.astro';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { t, plano, tEnlaces, tBloques, existe, claves } from '../../lib/i18n';
+import { PAISES, pais, resuelve, escapa, fmt, type Contexto } from '../../lib/cifras';
+import { url, recurso, PAGINAS } from '../../lib/rutas';
+import { rutasPorIdioma, type Lang } from '../../lib/idiomas';
+import { ENLACES } from '../../config/enlaces';
+import { remata, SIN_DESTINO } from '../../lib/remata';
+import CIFRAS from '../../data/cifras.json';
+import COLUMNAS from '../../data/columnas.json';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+const ESTRICTO = process.env.STRICT === '1';
+
+// ── apartados ─────────────────────────────────────────────────────────────────────────────
+const apartados = claves('metodologia.indice.')
+  .map((k) => k.split('.').pop() ?? '')
+  .filter((x) => /^\d+$/.test(x))
+  .map((x) => ({ n: Number(x), id: `apartado-${x}`, rotulo: t(lang, `metodologia.indice.${x}`) }));
+const id = (n: number) => `apartado-${n}`;
+
+/** Párrafos `metodologia.N.pK` entre dos cotas, en el orden del copy. */
+const parrafos = (n: number, desde = 1, hasta = Infinity, ctx: Contexto = {}) =>
+  claves(`metodologia.${n}.p`)
+    .filter((k) => { const m = k.match(/\.p(\d+)$/); return m !== null && Number(m[1]) >= desde && Number(m[1]) <= hasta; })
+    .map((k) => tBloques(lang, k, ctx))
+    .join('\n');
+
+// ── destinos de los «Pruébelo» ────────────────────────────────────────────────────────────
+/** URL que aún no está en `ENLACES` (monografía y registro de decisiones: anexo C, duda 5). */
+const opcional = (clave: string) => { const v = (ENLACES as Record<string, unknown>)[clave]; return typeof v === 'string' ? v : SIN_DESTINO; };
+
+// Los datos de la tabla por cámara los escribe el EXPORTADOR, como los de las otras figuras (CSV y XLSX): la página no
+// fabrica un CSV ni teclea sus cabeceras. Si el archivo faltara, el botón del «Pruébelo» queda como pendiente (y el
+// build de publicación falla) en vez de enlazar a un 404.
+const VINCULACION = 'datos/vinculacion_por_camara';
+const hayVinculacion = existsSync(join(process.cwd(), 'public', `${VINCULACION}.csv`));
+const hayVinculacionXlsx = existsSync(join(process.cwd(), 'public', `${VINCULACION}.xlsx`));
+
+const D = {
+  salidas: url(lang, `${PAGINAS.usar}#empezar`),
+  diccionario: url(lang, `${PAGINAS.usar}#columnas`),
+  paises: url(lang, PAGINAS.paises),
+  ecuador: url(lang, `${PAGINAS.paises}/ec`),
+  explorador: ENLACES.explorador,
+  voz: recurso('datos/voz_por_camara.csv'),
+};
+const DESTINOS: Record<number, string[]> = {
+  1: [D.salidas, D.explorador], 2: [D.paises], 3: [D.explorador], 4: [hayVinculacion ? recurso(`${VINCULACION}.csv`) : SIN_DESTINO], 5: [D.voz],
+  6: [D.ecuador], 7: [D.paises], 8: [D.diccionario], 9: [D.paises], 10: [D.diccionario, D.salidas],
+};
+
+// Los remates de los enlaces (explorador en otra pestaña; botón sin destino) son los de todo el sitio: lib/remata.ts.
+// Solo los dos primeros botones del apartado 10 pueden faltar en publicación: lo dice la nota de diseño del copy.
+
+/** «Pruébelo.» es, en las tres lenguas, la primera frase de la unidad: se rotula sin tocar el texto. */
+const pruebelo = (n: number) =>
+  remata(tEnlaces(lang, `metodologia.${n}.pruebelo`, DESTINOS[n] ?? []))
+    .replace(/^(<span[^>]*>)?([^.<]{1,30}\.)\s/, '$1<strong class="voz">$2</strong> ');
+
+// ── apartado 1 · la fila real ─────────────────────────────────────────────────────────────
+// `fila_ejemplo.json` trae `{ iso, texto_truncado, celdas: [{ columna, valor }] }`, con las columnas en su orden. Las dos
+// `speaker_*` llegan con `null` A PROPÓSITO (en divulgación no se nombra a nadie que figure en los datos) y, por
+// construcción, aquí no se pintan aunque vinieran con valor: son celdas en blanco, papel con contorno.
+interface FilaEjemplo { iso: string; texto_truncado?: boolean; celdas: { columna: string; valor: string | null }[] }
+const filaMod = import.meta.glob<{ default: FilaEjemplo }>('../../data/fila_ejemplo.json', { eager: true });
+const fila = Object.values(filaMod)[0]?.default;
+// La fila real la EXIGE el copy (nota de diseño del apartado 1): sin ella no se publica. En la vista previa se ve el hueco.
+if (ESTRICTO && !fila) throw new Error('Falta src/data/fila_ejemplo.json (filas_ejemplo[SV]): el apartado 1 de Metodología exige la fila real.');
+// Una fila son las columnas del diccionario, todas y en su orden: si el exportador y `columnas.json` se separan, que se vea aquí.
+const ordenColumnas = [...COLUMNAS].sort((a, b) => a.orden - b.orden).map((c) => c.nombre).join(' ');
+if (fila && fila.celdas.map((c) => c.columna).join(' ') !== ordenColumnas)
+  throw new Error('src/data/fila_ejemplo.json no trae las columnas de columnas.json, en su orden: la fila de Metodología no sería una fila del corpus.');
+// El texto de la fila es literal del Diario: su lengua es la de su cámara, no la de la página.
+const lenguaFila = pais(fila?.iso ?? '')?.lenguas.includes('Portuguese') ? 'pt' : 'es';
+const celdasFila = (fila?.celdas ?? []).map((c) => {
+  const esOrador = /^speaker_/.test(c.columna);
+  const valor = esOrador || c.valor === null ? '' : String(c.valor);
+  return { nombre: c.columna, valor, esOrador, esTexto: c.columna === 'text', esCifra: /\d/.test(valor) && c.columna !== 'text' };
+});
+// TODO-COPY: dos notas al pie de la fila que el copy aún no trae. Sin ellas, una celda en blanco parece un dato que
+// falta y un texto cortado parece entero: se declaran, y la publicación espera por ellas.
+const NOTA_ORADOR = 'metodologia.1.fila.sin_orador';
+const NOTA_TRUNCADO = 'metodologia.1.fila.truncado';
+const notasFila = [NOTA_ORADOR, ...(fila?.texto_truncado ? [NOTA_TRUNCADO] : [])];
+const notasFilaSinCopy = notasFila.filter((k) => !existe(k));
+
+// ── apartado 4 · la barra de las tres partes y la tabla por cámara ─────────────────────────
+const valor = (clave: string) => Number((CIFRAS as Record<string, { v: unknown }>)[clave]?.v);
+const ANCHO = 1000, HUECO = 3;
+let cursor = 0;
+const partes = ['noescano', 'colectiva', 'laguna'].map((k) => {
+  const w = valor(`novinc.${k}.pct`) * ANCHO;
+  const seg = { k, x: cursor, w: Math.max(w - HUECO, 0), rotulo: `metodologia.4.barra.${k}` };
+  cursor += w;
+  return seg;
+});
+const CAPTION = 'metodologia.4.tabla';
+/** Término de una entrada del glosario («**Término.** definición»), para rotular columnas con el mismo léxico. */
+const termino = (clave: string) => (t(lang, clave).match(/<strong>(.*?)<\/strong>/)?.[1] ?? '').replace(/\.\s*$/, '');
+// La leyenda de la barra NO puede entenderse solo por el color. TODO-COPY: tres rótulos breves propios
+// (`metodologia.4.barra.*`). Mientras lleguen, dos de las tres partes tienen su término en el glosario y se rotulan
+// con él; la voz colectiva no lo tiene, y queda declarada con `data-todo-copy` (bloquea la publicación).
+const TERMINO_DE: Record<string, string> = { noescano: 'glosario.noescano', laguna: 'glosario.laguna' };
+const leyenda = partes.map((s) => {
+  const delGlosario = TERMINO_DE[s.k];
+  return { ...s, texto: existe(s.rotulo) ? t(lang, s.rotulo) : delGlosario ? termino(delGlosario) : '' };
+});
+const barraRotulada = leyenda.every((s) => s.texto);
+
+// ── apartado 9 · las cámaras que aún no van por la edición mayoritaria ─────────────────────
+// `dois.rezagados` llega del exportador YA compuesto por lengua («Perú (v1.0)») y lo resuelve `resuelve()` como
+// cualquier otra cifra: aquí no se compone nada. Solo se vigila que exista: el día que ningún conjunto vaya por
+// detrás, `metodologia.9.p1` diría «…; .» y necesita otra redacción.
+const rezagados = (CIFRAS as Record<string, { v: unknown }>)['dois.rezagados']?.v as Partial<Record<Lang, string>> | undefined;
+if (!rezagados?.[lang]?.trim()) throw new Error(`«dois.rezagados» llega vacío en ${lang}: o ningún conjunto va por detrás de la edición mayoritaria («metodologia.9.p1» necesita otra redacción) o falta en src/data/cifras.json.`);
+
+// ── apartado 7 · el intervalo de la fuga ───────────────────────────────────────────────────
+// Llega del exportador como texto suelto («0,09–2,78»): sin corchetes, y con coma decimal en las tres lenguas.
+// Se recompone con `fmt` para que el rótulo se lea entero. Que es de Wilson y su nivel de confianza tiene que
+// decirlo el marcador (nota de diseño del copy): eso NO se teclea aquí y queda declarado a los cimientos.
+const icCrudo = String((CIFRAS as Record<string, { v: unknown }>)['validacion.fuga.ic']?.v ?? '');
+const cotas = icCrudo.split('–').map((x) => Number(x.trim().replace(',', '.')));
+const [icMin, icMax] = cotas;
+const intervalo = cotas.length === 2 && icMin !== undefined && icMax !== undefined && Number.isFinite(icMin) && Number.isFinite(icMax)
+  // `value` es el dato TAL CUAL llega (audit-cifras lo coteja con cifras.json); lo que cambia por lengua es el texto.
+  ? `<data class="cifra" value="${escapa(icCrudo)}" data-k="validacion.fuga.ic">[${escapa(fmt.porcentaje(icMin / 100, lang, 2))}–${escapa(fmt.porcentaje(icMax / 100, lang, 2))}]</data>`
+  : null;
+
+const avisoIdioma = lang === 'es' ? null : t(lang, `comun.idioma.aviso.${lang}`);
+---
+<Base lang={lang} ruta={PAGINAS.metodologia} titulo={plano(lang, 'metodologia.meta.titulo')} descripcion={plano(lang, 'metodologia.meta.descripcion')}>
+  <article class="metodo">
+    <header class="contenedor portada">
+      <h1 set:html={t(lang, 'metodologia.titulo')} />
+      <p class="lede subtitulo" set:html={t(lang, 'metodologia.subtitulo')} />
+      <div class="entradilla">
+        <p set:html={t(lang, 'metodologia.entradilla.1')} />
+        <p set:html={t(lang, 'metodologia.entradilla.2')} />
+      </div>
+      {existe('metodologia.familia') && <p class="familia" set:html={t(lang, 'metodologia.familia')} />}
+      {existe('metodologia.novedad') && <p class="novedad nota" set:html={t(lang, 'metodologia.novedad')} />}
+    </header>
+
+    <div class="contenedor cuerpo" style={`timeline-scope: ${apartados.map((a) => `--${a.id}`).join(', ')}`}>
+      <IndiceLateral lang={lang} titulo={t(lang, 'metodologia.indice.titulo')} entradas={apartados} />
+
+      <div class="apartados">
+        {/* 1 · Qué es una fila */}
+        <section class="apartado" id={id(1)} aria-labelledby={`${id(1)}-t`} style={`view-timeline-name: --${id(1)}`}>
+          <h2 id={`${id(1)}-t`} set:html={t(lang, 'metodologia.1.titulo')} />
+          <Fragment set:html={parrafos(1, 1, 2)} />
+          {fila ? (
+            <figure class="fila-real ancha entra" aria-label={plano(lang, 'metodologia.1.titulo')} data-todo-copy={notasFilaSinCopy.join(' ') || undefined}>
+              {/* Dos columnas, nombre → valor: la fila se lee de arriba abajo, en el orden del diccionario. Es una lista de
+                  pares y no una <table>: no necesita rótulos de cabecera (que el copy no trae) y en el móvil el texto baja bajo su nombre. */}
+              <dl>
+                {celdasFila.map((c) => (
+                  <div class:list={['celda', { texto: c.esTexto }]}>
+                    <dt><code>{c.nombre}</code></dt>
+                    <dd>
+                      {c.esTexto ? <q lang={lenguaFila}>{c.valor}</q>
+                        : c.esCifra ? <data class="cifra" value={c.valor} data-k={`fila_ejemplo.${c.nombre}`}>{c.valor}</data>
+                        : c.esOrador ? <span class="en-blanco" />
+                        : c.valor}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              {notasFila.some(existe) && (
+                <figcaption class="nota">{notasFila.filter(existe).map((k) => <p set:html={t(lang, k)} />)}</figcaption>
+              )}
+            </figure>
+          ) : <p><mark class="pendiente">⟦src/data/fila_ejemplo.json⟧</mark></p>}
+          <Fragment set:html={parrafos(1, 3)} />
+          <p class="pruebelo" set:html={pruebelo(1)} />
+          {avisoIdioma && <p class="nota aviso-idioma" set:html={avisoIdioma} />}
+        </section>
+
+        {/* 2 · De dieciséis tradiciones a una tabla: el esquema de cinco pasos */}
+        <section class="apartado" id={id(2)} aria-labelledby={`${id(2)}-t`} style={`view-timeline-name: --${id(2)}`}>
+          <h2 id={`${id(2)}-t`} set:html={t(lang, 'metodologia.2.titulo')} />
+          <Fragment set:html={parrafos(2, 1, 1)} />
+          <ol class="esquema ancha" role="list">
+            {claves('metodologia.2.paso').map((k, i) => <li style={`--i: ${i}`} set:html={t(lang, k)} />)}
+          </ol>
+          <Fragment set:html={parrafos(2, 2)} />
+          <p class="pruebelo" set:html={pruebelo(2)} />
+        </section>
+
+        {/* 3 · Habla y no habla */}
+        <section class="apartado" id={id(3)} aria-labelledby={`${id(3)}-t`} style={`view-timeline-name: --${id(3)}`}>
+          <h2 id={`${id(3)}-t`} set:html={t(lang, 'metodologia.3.titulo')} />
+          <Fragment set:html={parrafos(3)} />
+          <p class="pruebelo" set:html={pruebelo(3)} />
+          {avisoIdioma && <p class="nota aviso-idioma" set:html={avisoIdioma} />}
+        </section>
+
+        {/* 4 · Quién habla: barra de las tres partes y tabla por cámara */}
+        <section class="apartado" id={id(4)} aria-labelledby={`${id(4)}-t`} style={`view-timeline-name: --${id(4)}`}>
+          <h2 id={`${id(4)}-t`} set:html={t(lang, 'metodologia.4.titulo')} />
+          <Fragment set:html={parrafos(4, 1, 4)} />
+
+          {/* La barra repite, en el mismo orden, las tres partes que acaba de decir el párrafo. El dibujo va siempre oculto al
+              lector de pantalla; la leyenda se le enseña solo cuando sus tres partes llevan nombre (a medias confundiría). */}
+          <figure class="barra ancha entra" aria-hidden={barraRotulada ? undefined : 'true'}>
+            <svg viewBox={`0 0 ${ANCHO} 44`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+              <defs>
+                <pattern id="barra-trama" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+                  <rect class="trama-tinta" width="4" height="9" />
+                </pattern>
+              </defs>
+              {/* El relleno de trama va como atributo: una referencia url() escrita en la hoja de estilos se resolvería contra la hoja, no contra la página. */}
+              {partes.map((s) => <rect class={`seg ${s.k}`} x={s.x} y="0" width={s.w} height="44" fill={s.k === 'colectiva' ? 'url(#barra-trama)' : undefined} />)}
+            </svg>
+            <ul class="barra-leyenda" role="list">
+              {leyenda.map((s) => (
+                <li data-todo-copy={existe(s.rotulo) ? undefined : s.rotulo}>
+                  <span class={`muestra ${s.k}`} />
+                  <span class="pct" set:html={resuelve(`novinc.${s.k}.pct`, lang)} />
+                  <span class="n" set:html={resuelve(`novinc.${s.k}.n`, lang)} />
+                  {s.texto && <span class="rot" set:html={s.texto} />}
+                </li>
+              ))}
+            </ul>
+          </figure>
+
+          <Fragment set:html={parrafos(4, 5)} />
+
+          <div class="tabla-marco ancha" id="por-pais" role="region" aria-labelledby="por-pais-titulo" tabindex="0">
+            <table>
+              {/* TODO-COPY: título propio de la tabla (clave metodologia.4.tabla). Mientras no exista, nombra la tabla el título del apartado, solo para lectores de pantalla. */}
+              <caption id="por-pais-titulo" class:list={[{ 'sr-only': !existe(CAPTION) }]} data-todo-copy={existe(CAPTION) ? undefined : CAPTION} set:html={t(lang, existe(CAPTION) ? CAPTION : 'metodologia.4.titulo')} />
+              <thead>
+                <tr>
+                  <th scope="col" set:html={t(lang, 'paises.tabla.col.pais')} />
+                  <th scope="col" class="camara" set:html={t(lang, 'paises.tabla.col.camara')} />
+                  <th scope="col" class="num" set:html={t(lang, 'paises.tabla.col.habla')} />
+                  {/* La marca de la leyenda va cosida a su rótulo (&#8288; impide el salto): si no, en móvil queda un círculo suelto en su propia línea. */}
+                  <th scope="col" class="num"><span class="punto hueco" aria-hidden="true" />&#8288;<Fragment set:html={termino('glosario.vinculacion.bruta')} /></th>
+                  <th scope="col" class="num"><span class="punto lleno" aria-hidden="true" />&#8288;<Fragment set:html={termino('glosario.vinculacion.efectiva')} /></th>
+                  <th scope="col" class="num" set:html={termino('glosario.noescano')} />
+                </tr>
+              </thead>
+              <tbody>
+                {PAISES.map((p) => (
+                  <tr>
+                    <th scope="row"><a href={url(lang, `${PAGINAS.paises}/${p.iso}`)}>{p.nombre[lang]}</a></th>
+                    <td class="camara">{p.camara}</td>
+                    <td class="num" set:html={resuelve(`pais.${p.iso}.habla.L`, lang)} />
+                    <td class="num" set:html={resuelve(`pais.${p.iso}.bruta`, lang)} />
+                    <td class="num efectiva">
+                      {/* La distancia entre las dos tasas, dibujada: es propiedad del Diario, no del procesamiento. */}
+                      <span class="pesa" aria-hidden="true" style={`--a: ${(100 * p.vinculados / p.habla).toFixed(2)}; --b: ${(100 * p.vinculados / p.den_efectivo).toFixed(2)}`}><i class="hueco" /><i class="lleno" /></span>
+                      <Fragment set:html={resuelve(`pais.${p.iso}.efectiva`, lang)} />
+                    </td>
+                    <td class="num" set:html={resuelve(`pais.${p.iso}.noescano`, lang)} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <p class="pruebelo" set:html={pruebelo(4)} />
+          {/* El «Pruébelo» lleva al CSV; la misma tabla, para Excel, va debajo con su nombre de archivo, como en las figuras. */}
+          {hayVinculacion && hayVinculacionXlsx && (
+            <p class="nota otros-archivos"><a href={recurso(`${VINCULACION}.xlsx`)} download>{`${VINCULACION.split('/').pop()}.xlsx`}</a></p>
+          )}
+        </section>
+
+        {/* 5 · El sexo es una variable derivada · la auditoría de género */}
+        <section class="apartado" id={id(5)} aria-labelledby={`${id(5)}-t`} style={`view-timeline-name: --${id(5)}`}>
+          <h2 id={`${id(5)}-t`} set:html={t(lang, 'metodologia.5.titulo')} />
+          <Fragment set:html={parrafos(5, 1, 3)} />
+          {/* Qué padrones están auditados, con la misma idea gráfica que la figura de apertura: el no auditado lleva otro trazo. El párrafo de arriba ya los nombra. */}
+          <ul class="padrones" aria-hidden="true">
+            {PAISES.map((p) => <li class:list={[{ 'sin-auditar': !p.sexo.auditado }]}>{p.iso.toUpperCase()}</li>)}
+          </ul>
+          <h3 set:html={t(lang, 'metodologia.5.subtitulo')} />
+          <Fragment set:html={parrafos(5, 4)} />
+          <p class="pruebelo" set:html={pruebelo(5)} />
+        </section>
+
+        {/* 6 · El reconocimiento óptico */}
+        <section class="apartado" id={id(6)} aria-labelledby={`${id(6)}-t`} style={`view-timeline-name: --${id(6)}`}>
+          <h2 id={`${id(6)}-t`} set:html={t(lang, 'metodologia.6.titulo')} />
+          <Fragment set:html={parrafos(6)} />
+          <p class="pruebelo" set:html={pruebelo(6)} />
+        </section>
+
+        {/* 7 · Validación y revisión humana: rótulo, p2 y p3 son un bloque indivisible */}
+        <section class="apartado" id={id(7)} aria-labelledby={`${id(7)}-t`} style={`view-timeline-name: --${id(7)}`}>
+          <h2 id={`${id(7)}-t`} set:html={t(lang, 'metodologia.7.titulo')} />
+          <Fragment set:html={parrafos(7, 1, 1)} />
+          <div class="fuga">
+            <p class="fuga-rotulo" set:html={t(lang, 'metodologia.7.rotulo', intervalo ? { vars: { 'validacion.fuga.ic': intervalo } } : {})} />
+            <Fragment set:html={parrafos(7, 2, 3)} />
+          </div>
+          <Fragment set:html={parrafos(7, 4)} />
+          <p class="pruebelo" set:html={pruebelo(7)} />
+        </section>
+
+        {/* 8 · Lo que el corpus no afirma */}
+        <section class="apartado" id={id(8)} aria-labelledby={`${id(8)}-t`} style={`view-timeline-name: --${id(8)}`}>
+          <h2 id={`${id(8)}-t`} set:html={t(lang, 'metodologia.8.titulo')} />
+          <Fragment set:html={parrafos(8)} />
+          <p set:html={t(lang, 'comun.ausentes.prosa')} />
+          <p class="pruebelo" set:html={pruebelo(8)} />
+        </section>
+
+        {/* 9 · Ediciones, identificadores y reproducibilidad */}
+        <section class="apartado" id={id(9)} aria-labelledby={`${id(9)}-t`} style={`view-timeline-name: --${id(9)}`}>
+          <h2 id={`${id(9)}-t`} set:html={t(lang, 'metodologia.9.titulo')} />
+          <Fragment set:html={parrafos(9, 0)} />
+          <p class="pruebelo" set:html={pruebelo(9)} />
+        </section>
+
+        {/* 10 · La documentación completa */}
+        <section class="apartado" id={id(10)} aria-labelledby={`${id(10)}-t`} style={`view-timeline-name: --${id(10)}`}>
+          <h2 id={`${id(10)}-t`} set:html={t(lang, 'metodologia.10.titulo')} />
+          <Fragment set:html={parrafos(10)} />
+          <ul class="documentos">
+            {/* Nota de diseño del copy: sin destino público, estos dos NO se pintan. Aparecen solos cuando `ENLACES` traiga `monografia` o `registro`. */}
+            {opcional('monografia') !== SIN_DESTINO && <li set:html={remata(tEnlaces(lang, 'metodologia.10.monografia', [opcional('monografia')]), true)} />}
+            {opcional('registro') !== SIN_DESTINO && <li set:html={remata(tEnlaces(lang, 'metodologia.10.registro', [opcional('registro')]), true)} />}
+            <li set:html={tEnlaces(lang, 'metodologia.10.pais', [D.paises])} />
+          </ul>
+          <p class="pruebelo" set:html={pruebelo(10)} />
+        </section>
+      </div>
+    </div>
+  </article>
+
+  <BandaCTA lang={lang} />
+</Base>
+
+<style>
+  /* ── portada: titular a la izquierda, entradilla descolgada a la derecha ── */
+  .portada { padding-block: clamp(2.5rem, 7vw, 6.5rem) clamp(2rem, 5vw, 4rem); display: grid; gap: 1.25rem 3rem; }
+  .portada h1 { font-stretch: 84%; }
+  .portada .subtitulo { margin: 0; max-width: 26rem; }
+  .entradilla p { margin: 0 0 .6em; max-width: 32rem; }
+  .familia { margin: 0 0 1.4rem; max-width: 46rem; }
+  .novedad { margin: 0; padding-top: 1rem; border-top: 1px solid var(--hair); max-width: 46rem; }
+  @media (min-width: 64rem) {
+    .portada { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: end; }
+    .portada h1 { grid-column: 1 / -1; }
+    .familia, .novedad { grid-column: 2; }
+  }
+
+  /* ── cuerpo: índice + apartados ── */
+  .cuerpo { display: grid; gap: 2rem 3.5rem; border-top: 1px solid var(--ink); padding-top: 1.5rem; }
+  .apartados { min-width: 0; counter-reset: apartado; }
+  @media (min-width: 64rem) {
+    .cuerpo { grid-template-columns: 14.5rem minmax(0, 1fr); padding-top: 2.5rem; }
+  }
+
+  .apartado {
+    counter-increment: apartado; padding-block: clamp(2.5rem, 6vw, 5rem); border-top: 1px solid var(--hair);
+    scroll-margin-top: 1rem; view-timeline-axis: block; view-timeline-inset: 30% 65%;
+  }
+  .apartado:first-of-type { border-top: 0; padding-top: 0; }
+  .apartado::before {
+    content: counter(apartado, decimal-leading-zero); display: block; margin-bottom: .9rem;
+    font: 500 var(--fs-small)/1 var(--mono); letter-spacing: .08em; color: var(--mute); font-variant-numeric: tabular-nums;
+  }
+  .apartado h2 { font-size: clamp(1.7rem, 1.15rem + 2.4vw, 3.1rem); max-width: 17em; margin-bottom: .75em; }
+  .apartado h3 { margin: 2.2em 0 .7em; }
+  .ancha { max-width: none; margin: clamp(1.75rem, 4vw, 3rem) 0; }
+
+  /* ── Pruébelo: el cierre de cada apartado, en la grotesca, para que no se lea como un párrafo más ── */
+  .pruebelo {
+    margin: 2.25rem 0 0; padding: 1rem 0 1.1rem; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--hair);
+    font: 500 var(--fs-small)/1.5 var(--display); color: var(--ink-2);
+  }
+  .pruebelo :global(.voz) { font: 700 .82em/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin-right: .35em; }
+  .pruebelo :global(a) { font-weight: 700; }
+  .apartado .aviso-idioma { margin: .6rem 0 0; color: var(--mute); }
+  .apartado .otros-archivos { margin: .6rem 0 0; font-family: var(--mono); }
+
+  /* ── 1 · la fila real, en dos columnas: nombre → valor ── */
+  .fila-real dl { margin: 0; max-width: 46rem; border-top: 1px solid var(--ink); }
+  .celda { display: grid; grid-template-columns: minmax(0, 1fr); gap: .15rem 1.25rem; padding: .5rem 0 .55rem; border-bottom: 1px solid var(--hair); align-items: baseline; }
+  .celda dt { font-size: .8rem; color: var(--mute); }
+  .celda dd { margin: 0; min-width: 0; font: 500 var(--fs-small)/1.35 var(--mono); overflow-wrap: anywhere; }
+  .celda.texto dd { font: italic 400 1.02rem/1.5 var(--text); }
+  @media (min-width: 30rem) { .celda { grid-template-columns: 11.5rem minmax(0, 1fr); } }
+  /* Lo que no viaja al sitio no es un color: papel con contorno, del alto de una línea. */
+  .en-blanco { display: block; max-width: 12rem; height: 1.35em; border: 1px dashed var(--ausencia); border-radius: var(--radio); }
+  .fila-real figcaption { margin-top: .7rem; max-width: var(--measure); }
+  .fila-real figcaption p { margin: 0 0 .3em; }
+
+  /* ── 2 · el esquema de cinco pasos: cajas numeradas con flecha; en columna hasta que caben en fila ── */
+  .esquema { list-style: none; padding: 0; counter-reset: paso; display: grid; gap: 2.1rem; }
+  .esquema li {
+    counter-increment: paso; position: relative; border: 1px solid var(--ink); border-radius: var(--radio);
+    padding: 1rem 1.1rem 1.15rem; font-size: .92em; line-height: 1.45; color: var(--ink-2); background: var(--bg);
+    hyphens: auto; overflow-wrap: break-word;
+  }
+  .esquema li::before { content: counter(paso); display: block; font: 800 2.1rem/1 var(--display); font-stretch: 80%; color: var(--ink); margin-bottom: .55rem; }
+  .esquema li :global(strong) { display: block; font: 800 1.04rem/1.15 var(--display); letter-spacing: -.01em; color: var(--ink); margin-bottom: .45rem; }
+  .esquema li:not(:last-child)::after {
+    content: '↓'; content: '↓' / ''; position: absolute; left: 1.1rem; bottom: -1.85rem;
+    font: 400 1.35rem/1 var(--mono); color: var(--ink);
+  }
+  @media (min-width: 84rem) {
+    /* En fila baja en escalera: cada paso descansa sobre el anterior, de la fuente al depósito. */
+    .esquema { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 1.5rem; align-items: start; }
+    /* El ancho del contenedor está acotado, así que cada caja mide lo mismo en cualquier pantalla grande (unos 170 px):
+       dentro va la grotesca estrecha, que mete una frase donde la serif metería media. */
+    .esquema li { margin-top: calc(var(--i) * 1.4rem); padding: .85rem .8rem 1rem; font: 400 .82rem/1.42 var(--display); font-stretch: 86%; }
+    .esquema li :global(strong) { font-size: .98rem; font-stretch: 90%; }
+    .esquema li:not(:last-child)::after { content: '→'; content: '→' / ''; left: auto; right: -1.3rem; bottom: auto; top: 1.2rem; }
+  }
+
+  /* ── 4 · barra de las tres partes ── */
+  .barra svg { display: block; width: 100%; height: 2.75rem; }
+  .seg.noescano { fill: var(--rampa-1); }
+  .seg.colectiva { stroke: var(--cat-6); stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .seg.laguna { fill: var(--rampa-4); }
+  .trama-tinta { fill: var(--cat-6); }
+  .barra-leyenda { list-style: none; margin: .8rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .6rem 2rem; }
+  .barra-leyenda li { display: grid; grid-template-columns: auto auto; column-gap: .55rem; align-items: baseline; }
+  .muestra { width: .8rem; height: .8rem; border-radius: var(--radio); align-self: center; grid-row: span 3; }
+  .muestra.noescano { background: var(--rampa-1); }
+  .muestra.colectiva { background: repeating-linear-gradient(45deg, var(--cat-6) 0 2px, transparent 2px 5px); border: 1px solid var(--cat-6); }
+  .muestra.laguna { background: var(--rampa-4); }
+  .barra-leyenda .pct :global(data.cifra) { font-size: 1.15rem; font-weight: 600; }
+  .barra-leyenda .n, .barra-leyenda .rot { grid-column: 2; font-size: var(--fs-small); color: var(--ink-2); }
+
+  /* ── 4 · tabla por cámara: en el orden fijo de la rejilla, sin orden de mérito ── */
+  .tabla-marco { overflow-x: auto; scroll-margin-top: 1rem; border-top: 1px solid var(--ink); }
+  table { border-collapse: collapse; width: 100%; min-width: 38rem; font: 400 var(--fs-small)/1.3 var(--display); }
+  caption { text-align: left; padding: .8rem 0; font: 700 1rem/1.2 var(--display); }
+  th, td { padding: .55rem .9rem .55rem 0; border-bottom: 1px solid var(--hair); text-align: left; vertical-align: baseline; }
+  thead th { font: 600 .74rem/1.25 var(--mono); letter-spacing: .03em; text-transform: uppercase; color: var(--mute); vertical-align: bottom; max-width: 11rem; }
+  tbody th { font-weight: 700; white-space: nowrap; }
+  tbody th a { color: var(--ink); text-decoration-color: var(--hair); }
+  tbody th a:hover { color: var(--accent); }
+  .camara { color: var(--ink-2); min-width: 12rem; }
+  .num { text-align: right; white-space: nowrap; }
+  thead .num { white-space: normal; }
+  tbody tr:hover { background: var(--bg-2); }
+  .efectiva { min-width: 13rem; }
+  /* La pesa: ○ bruta ——— ● efectiva, sobre una vía de cero a cien. Duplica las dos cifras de la fila; por eso va oculta a la lectura. */
+  .pesa {
+    display: inline-block; position: relative; width: 7.5rem; height: .7rem; margin-right: .8rem; vertical-align: middle;
+    background: linear-gradient(var(--hair), var(--hair)) no-repeat 0 50% / 100% 1px;
+  }
+  .pesa::before {
+    content: ''; position: absolute; top: 50%; height: 2px; margin-top: -1px; background: var(--dato);
+    left: calc(var(--a) * 1%); width: calc((var(--b) - var(--a)) * 1%);
+  }
+  .pesa i { position: absolute; top: 50%; width: .5rem; height: .5rem; margin: -.25rem 0 0 -.25rem; border-radius: 50%; border: 1.5px solid var(--dato); }
+  .pesa .hueco { left: calc(var(--a) * 1%); background: var(--bg); }
+  .pesa .lleno { left: calc(var(--b) * 1%); background: var(--dato); }
+  tbody tr:hover .pesa .hueco { background: var(--bg-2); }
+  .punto { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-right: .4em; border: 1.5px solid var(--dato); }
+  .punto.lleno { background: var(--dato); }
+  @media (max-width: 47.99rem) { .camara { display: none; } table { min-width: 31rem; } .pesa { width: 4.5rem; } .efectiva { min-width: 9.5rem; } }
+
+  /* ── 5 · padrones auditados y sin auditar ── */
+  .padrones { list-style: none; margin: 1.5rem 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: .35rem; max-width: var(--measure); }
+  .padrones li { font: 600 .74rem/1 var(--mono); padding: .4em .5em; border: 1.5px solid var(--dato); color: var(--dato); border-radius: var(--radio); }
+  /* El gris del trazo no llega a 4,5:1 como TEXTO a este cuerpo: la letra va en tinta y el gris se queda en el contorno. */
+  .padrones li.sin-auditar { border: 1.5px dashed var(--dato-sin-auditar); color: var(--ink-2); }
+
+  /* ── 7 · la fuga, con su rótulo entero: ficha en mono, inseparable de su muestra y de su fecha ── */
+  .fuga { border: 1px solid var(--ink); border-radius: var(--radio); padding: 1.2rem 1.3rem .4rem; margin-block: 1.75rem; max-width: calc(var(--measure) + 2.6rem); }
+  .fuga-rotulo { font: 600 1.02rem/1.35 var(--mono); letter-spacing: -.01em; padding-bottom: .9rem; margin-bottom: .9rem; border-bottom: 1px solid var(--hair); }
+  .fuga-rotulo :global(data.cifra) { font-size: 1em; }
+  .fuga :global(p:not(.fuga-rotulo)) { font-size: .95em; }
+
+  /* ── 10 · documentos ── */
+  .documentos { list-style: none; margin: 0 0 1em; padding: 0; max-width: var(--measure); }
+  .documentos li { padding: .85rem 0; border-top: 1px solid var(--hair); }
+  .documentos li:last-child { border-bottom: 1px solid var(--hair); }
+  .documentos :global(a) { font: 700 var(--fs-small)/1.3 var(--display); white-space: nowrap; }
+</style>

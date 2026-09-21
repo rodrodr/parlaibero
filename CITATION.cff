@@ -1,0 +1,39 @@
+# Cita del SITIO y de su código. Para los DATOS se cita el conjunto de cada país, con su DOI: la cita está en su
+# ficha y en Harvard Dataverse.
+#
+# ⚠ La autoría de la cita de la colección y de las figuras sigue abierta (anexo C del copy, duda 3:
+# `cita.autoria` en src/config/enlaces.ts). Aquí figura el investigador principal, que es el primer autor de todos
+# los conjuntos depositados; cuando esa duda se cierre, este archivo debe decir lo mismo.
+cff-version: 1.2.0
+message: >-
+  Si usa este sitio, sus textos o sus figuras, cítelo así. Si usa los datos de un país,
+  cite además su conjunto, con su DOI.
+type: software
+title: "ParlaIbero: sitio de presentación"
+abstract: >-
+  Sitio de presentación de ParlaIbero: las intervenciones en el pleno de las cámaras bajas o únicas de
+  América Latina, España y Portugal, con un conjunto de datos y un DOI por país en Harvard Dataverse.
+authors:
+  - family-names: Rodrigues-Silveira
+    given-names: Rodrigo
+    affiliation: "Instituto de Iberoamérica, Universidad de Salamanca"
+version: "0.1"
+license: MIT
+url: "https://rodrodr.github.io/parlaibero/"
+repository-code: "https://github.com/rodrodr/parlaibero"
+keywords:
+  - parliamentary speeches
+  - legislative debates
+  - Latin America
+  - Spain
+  - Portugal
+  - open data
+references:
+  - type: data
+    title: "ParlaIbero: Parliamentary Speeches from Latin America, Portugal and Spain"
+    authors:
+      - name: ParlaIbero
+    publisher:
+      name: Harvard Dataverse
+    url: "https://dataverse.harvard.edu/dataverse/parlaibero"
+    notes: "Colección. Cada país es un conjunto con su propio DOI, su autoría y su versión."

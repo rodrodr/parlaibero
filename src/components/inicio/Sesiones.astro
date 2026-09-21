@@ -1,0 +1,106 @@
+---
+/**
+ * 2.4 · ¿Qué se dijo aquel día? A la izquierda, la prosa aprobada; a la derecha, el registro de los ocho días,
+ * en orden de calendario (no es un ranking). Las dos sesiones de Paraguay caen en un hueco declarado y se dibujan
+ * como lo que son: papel con contorno en su sitio del calendario, sin cifra y sin tono de error.
+ * Lo que pasó cada día sale de la clave `eventos.<iso>-<fecha>` del copy, no de los datos: cuenta el hecho por cargo,
+ * país y fecha, en las tres lenguas. Directiva del 2026-09-21: en divulgación no se nombra a nadie que figure en los
+ * datos, tampoco a un jefe de Estado. Un evento sin su clave para el build (`t()` no la encuentra).
+ */
+import { t, tEnlaces } from '../../lib/i18n';
+import { EVENTOS_TODOS, pais, resuelve } from '../../lib/cifras';
+import { url, PAGINAS } from '../../lib/rutas';
+import { ENLACES } from '../../config/enlaces';
+import { enOtraPestana } from '../../lib/remata';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+
+const dias = [...EVENTOS_TODOS].sort((a, b) => a.date.localeCompare(b.date)).map((e) => {
+  const id = `${e.iso}-${e.date}`;
+  const p = pais(e.iso);
+  if (!p) throw new Error(`eventos.json nombra «${e.iso}», que no está en paises.json.`);
+  return {
+    ...e,
+    nombre: p.nombre[lang],
+    ficha: url(lang, `${PAGINAS.paises}/${e.iso}`),
+    fecha: resuelve(`evento.${id}.fecha|fecha_larga`, lang),
+    filasHtml: resuelve(`evento.${id}.filas`, lang),
+    quePaso: t(lang, `eventos.${id}`),
+  };
+});
+---
+<section class="seccion sesiones" aria-labelledby="sesiones-titulo">
+  <div class="contenedor reja">
+    <div class="relato">
+      <h2 id="sesiones-titulo" set:html={t(lang, 'inicio.sesiones.titulo')} />
+      <p class="lede en-letra" set:html={t(lang, 'inicio.sesiones.entrada')} />
+      <p set:html={t(lang, 'inicio.sesiones.lista')} />
+      <p set:html={t(lang, 'comun.fija.novalida')} />
+      <p set:html={t(lang, 'inicio.sesiones.ausentes')} />
+    </div>
+
+    <div class="registro">
+      <ol class="dias" role="list">
+        {dias.map((d) => (
+          <li class:list={['dia', { hueco: !d.presente }]}>
+            <time class="cuando" datetime={d.date} set:html={d.fecha} />
+            <p class="que">
+              <a class="donde" href={d.ficha}>{d.nombre}</a>
+              <span class="paso" set:html={d.quePaso} />
+            </p>
+            {d.presente && (
+              <p class="cuanto"><Fragment set:html={d.filasHtml} /> <span class="unidad" set:html={t(lang, 'paises.tabla.col.filas')} /></p>
+            )}
+          </li>
+        ))}
+      </ol>
+
+      <p class="lede invitacion" set:html={enOtraPestana(tEnlaces(lang, 'inicio.sesiones.invitacion', [ENLACES.explorador]))} />
+      <p class="nota" set:html={t(lang, 'comun.fija.citar_pasaje')} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .reja { row-gap: clamp(2rem, 5vw, 3rem); }
+  .relato h2 { margin-bottom: .5em; }
+  .relato p:last-child { margin-bottom: 0; }
+
+  .dias { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); }
+  .dia {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start;
+    gap: .2rem 1.25rem; padding: 1rem 0 1.1rem; border-bottom: 1px solid var(--hair);
+  }
+  .cuando { grid-column: 1 / -1; font: 500 .8rem/1.35 var(--mono); color: var(--mute); letter-spacing: .01em; }
+  .cuando :global(data.cifra) { font-size: 1em; letter-spacing: inherit; white-space: normal; }
+  .que { margin: 0; max-width: none; line-height: 1.35; }
+  /* El país es un enlace a su ficha, pero en tinta: seis nombres en granate convertirían el registro en un menú. */
+  .donde {
+    display: block; width: fit-content; margin-bottom: .2em; color: var(--ink);
+    font: 800 var(--fs-h3)/1.1 var(--display); letter-spacing: -.012em; font-stretch: 92%;
+    text-decoration-color: var(--accent); text-decoration-thickness: .08em;
+  }
+  .donde:hover { color: var(--accent); }
+  .paso { color: var(--ink-2); font-size: .95em; }
+  .cuanto { margin: 0; text-align: right; line-height: 1.1; font-size: var(--fs-h3); color: var(--dato); }
+  .cuanto :global(data.cifra) { font-size: 1em; font-weight: 600; }
+  .unidad { display: block; margin-top: .3em; font: 500 .74rem/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+
+  /* El hueco declarado: ni color ni cifra. Papel con contorno, en su día del calendario; lo que falta lo dice el texto. */
+  .dia.hueco { margin: .6rem 0; padding: 1rem; border: 1px dashed var(--ausencia); border-radius: var(--radio); }
+
+  .invitacion { margin: clamp(1.75rem, 3.5vw, 2.75rem) 0 .6em; }
+
+  @media (min-width: 40rem) {
+    /* Con sitio, la fecha pasa a su propia columna y el registro se lee como una tabla de tres. */
+    /* 12rem: cabe «21 de diciembre de 2001» en una línea, que es la fecha más larga que da el calendario. */
+    .dia { grid-template-columns: 12rem minmax(0, 1fr) auto; column-gap: 1.25rem; }
+    .cuando { grid-column: auto; padding-top: .45em; }
+  }
+  @media (min-width: 60rem) {
+    .relato { grid-column: 1 / span 5; }
+    .registro { grid-column: 7 / -1; }
+  }
+</style>

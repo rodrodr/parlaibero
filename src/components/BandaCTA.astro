@@ -1,0 +1,84 @@
+---
+/**
+ * Banda fija «Descargar los datos · Abrir el explorador» (copy §5, «Banda fija»).
+ *  · Los DOS avisos van siempre a la vista, pegados a su botón: el formulario de Dataverse queda anunciado
+ *    ANTES de cualquier clic, y nunca en una nota emergente.
+ *  · [Descargar los datos] lleva a las tres salidas de «Usar los datos», no directamente a Dataverse.
+ *  · [Abrir el explorador] abre en otra pestaña, y lo dice (texto para lectores de pantalla).
+ *  · Va FIJA y no pegajosa para que funcione la ponga donde la ponga quien la use; a cambio reserva su hueco
+ *    al final del documento (`:has`) para no tapar la última línea del pie ni el elemento con el foco.
+ *  · En EN y PT no repite `comun.idioma.aviso.*`: la frase fija del explorador ya dice que está solo en español,
+ *    y una banda fija no admite dos frases para lo mismo. El aviso completo va en el cuerpo de cada página.
+ */
+import { t, rotulo, existe } from '../lib/i18n';
+import { url, PAGINAS } from '../lib/rutas';
+import { ENLACES } from '../config/enlaces';
+import type { Lang } from '../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+// El motivo del formulario es un dato pendiente del investigador (anexo C, duda 5). Mientras lo sea se pinta
+// como «pendiente», para que la vista previa enseñe lo que falta; si la clave se retira, no se pinta nada.
+const MOTIVO = 'comun.fija.formulario.motivo';
+---
+<div class="banda-cta no-imprimir">
+  <div class="contenedor banda-fila">
+    <div class="banda-accion">
+      <a class="boton" href={url(lang, `${PAGINAS.usar}#empezar`)} aria-describedby="banda-aviso-formulario" set:html={rotulo(lang, 'comun.nav.cta.descargar')} />
+      <p class="banda-aviso" id="banda-aviso-formulario">
+        <span set:html={t(lang, 'comun.fija.formulario')} />
+        {existe(MOTIVO) && <span set:html={' ' + t(lang, MOTIVO)} />}
+      </p>
+    </div>
+    <div class="banda-accion">
+      <a class="boton secundario" href={ENLACES.explorador} target="_blank" rel="noopener external" aria-describedby="banda-aviso-explorador" set:html={rotulo(lang, 'comun.nav.cta.explorador')} />
+      <p class="banda-aviso" id="banda-aviso-explorador">
+        <span set:html={t(lang, 'comun.fija.explorador')} />
+        <span class="sr-only" set:html={' ' + t(lang, 'comun.enlace.explorador')} />
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .banda-cta {
+    position: fixed; inset: auto 0 0 0; z-index: 20;
+    background: var(--bg); border-top: 1px solid var(--ink);
+    padding-block: .6rem calc(.6rem + env(safe-area-inset-bottom, 0px));
+  }
+  /* Móvil: dos columnas iguales, botón arriba y aviso debajo. Nada se oculta: los avisos son la razón de ser de la banda. */
+  .banda-fila { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem .9rem; align-items: start; }
+  .banda-accion { display: grid; gap: .35rem; min-width: 0; }
+  .banda-accion .boton { justify-content: center; text-align: center; padding: .55em .6em; font-size: .8rem; }
+  /* La grotesca estrecha, no la serif: cabe una frase entera en tres líneas a 360 px. */
+  .banda-aviso { margin: 0; max-width: none; font: 500 .69rem/1.28 var(--display); font-stretch: 80%; color: var(--ink-2); text-wrap: pretty; }
+  .banda-aviso :global(mark.pendiente) { font-size: .9em; }
+
+  @media (min-width: 56rem) {
+    .banda-cta { padding-block: .7rem; }
+    .banda-fila { gap: 1rem 2.5rem; }
+    .banda-accion { grid-template-columns: auto minmax(0, 24rem); align-items: center; gap: .9rem; }
+    .banda-accion .boton { font-size: var(--fs-small); padding: .62em 1em; white-space: nowrap; }
+    .banda-aviso { font-size: .76rem; font-stretch: 88%; }
+  }
+
+  /* El hueco de la banda: sin él taparía la última línea del pie y cualquier elemento enfocado al final (WCAG 2.4.11). */
+  :global(body:has(.banda-cta)) { padding-bottom: 10.5rem; }
+  :global(html:has(.banda-cta)) { scroll-padding-bottom: 11rem; }
+  @media (min-width: 56rem) {
+    :global(body:has(.banda-cta)) { padding-bottom: 5.25rem; }
+    :global(html:has(.banda-cta)) { scroll-padding-bottom: 6rem; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .banda-cta { animation: banda-sube .24s var(--ease) both; }
+    @keyframes banda-sube { from { transform: translateY(100%); } to { transform: none; } }
+  }
+  /* Donde la banda no cabe —pantallas de 320 px, o el equivalente a un zoom del 400 %, en que ocuparía dos tercios
+     del alto— deja de ir fija y se queda al final del documento: nada tapa el foco ni el pie (WCAG 1.4.10 y 2.4.11).
+     Va la ÚLTIMA para ganar también a la regla de escritorio en una ventana ancha y baja. */
+  @media (max-width: 21.5rem), (max-height: 34rem) {
+    .banda-cta { position: static; animation: none; }
+    :global(body:has(.banda-cta)) { padding-bottom: 0; }
+    :global(html:has(.banda-cta)) { scroll-padding-bottom: 0; }
+  }
+</style>

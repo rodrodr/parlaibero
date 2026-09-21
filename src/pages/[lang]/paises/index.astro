@@ -1,0 +1,108 @@
+---
+/**
+ * PAÍSES · índice (copy §3, claves `paises.*`). La figura de cobertura ES el índice: una fila por cámara, y cada
+ * fila abre su ficha. Por eso aquí NO se repite nada de lo que `FigRejilla` ya trae consigo —leyenda, pestañas
+ * Gráfico · Tabla · Datos, la tabla con su pie, la descarga sin formulario y los cinco Estados sin corpus—.
+ *
+ * Debajo va el aviso de comparabilidad. Y, SOLO en pantallas estrechas, un directorio tipográfico de las dieciséis
+ * fichas en el mismo orden fijo de la rejilla: ahí la rejilla rotula con el código ISO, y un nombre entero que se pueda
+ * tocar no sobra. En ancho la rejilla ya nombra cada cámara y el directorio la duplicaría, así que no se pinta.
+ * ⚠ TODO-COPY · DECISIÓN DEL INVESTIGADOR: esta sección NO está en el copy (§3) y toma prestado su título de Inicio
+ * (`inicio.cobertura.busque`). O se aprueba con título propio (`paises.directorio.titulo`) o se borra: queda
+ * declarada con `data-todo-copy`, que bloquea la publicación hasta que se decida.
+ */
+import Base from '../../../layouts/Base.astro';
+import FigRejilla from '../../../components/FigRejilla.astro';
+import { t, plano, rotulo, existe } from '../../../lib/i18n';
+import { fmt, PAISES } from '../../../lib/cifras';
+import { url, PAGINAS } from '../../../lib/rutas';
+import { rutasPorIdioma, type Lang } from '../../../lib/idiomas';
+import { ctxPais } from '../../../components/ficha/contexto';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+
+const camaras = PAISES.map((p) => ({
+  p,
+  href: url(lang, `${PAGINAS.paises}/${p.iso}`),
+  periodo: `${fmt.dato(p.inicio, String(p.inicio), `pais.${p.iso}.inicio`)}–${fmt.dato(p.fin, String(p.fin), `pais.${p.iso}.fin`)}`,
+  // La salvedad de los huecos es la misma frase aprobada de la ficha: «(salvo 1991–2000)».
+  huecos: p.huecos.length ? t(lang, 'ficha.tareas.buscar.huecos', ctxPais(p.iso, lang)) : '',
+}));
+const TITULO_DIRECTORIO = 'paises.directorio.titulo';
+---
+<Base lang={lang} ruta={PAGINAS.paises} titulo={plano(lang, 'paises.meta.titulo')} descripcion={plano(lang, 'paises.meta.descripcion')}>
+  <header class="contenedor portada">
+    <p class="kicker" set:html={rotulo(lang, 'comun.nav.paises')} />
+    <h1 set:html={t(lang, 'paises.titulo')} />
+    <p class="lede" set:html={t(lang, 'paises.entradilla')} />
+  </header>
+
+  <div class="contenedor figura">
+    <FigRejilla lang={lang} />
+  </div>
+
+  <section class="seccion" aria-labelledby="t-aviso">
+    <div class="contenedor aviso">
+      <h2 id="t-aviso" set:html={t(lang, 'paises.aviso.titulo')} />
+      <p class="lede" set:html={t(lang, 'paises.aviso.comparabilidad')} />
+    </div>
+  </section>
+
+  <section class="seccion solo-estrecho" aria-labelledby="t-directorio" data-todo-copy={existe(TITULO_DIRECTORIO) ? undefined : TITULO_DIRECTORIO}>
+    <div class="contenedor">
+      {/* Mientras no tenga título propio, lo titula «Busque su cámara.», la instrucción aprobada de Inicio sobre esta misma rejilla. */}
+      <h2 id="t-directorio" set:html={t(lang, existe(TITULO_DIRECTORIO) ? TITULO_DIRECTORIO : 'inicio.cobertura.busque')} />
+      <ul class="directorio" role="list">
+        {camaras.map(({ p, href, periodo, huecos }) => (
+          <li>
+            <a class="nombre" href={href}>{p.nombre[lang]}</a>
+            <p class="ventana"><span class="iso">{p.iso.toUpperCase()}</span> <span set:html={periodo} /> {huecos && <span class="salvo" set:html={huecos} />}</p>
+            <p class="camara">{p.camara}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Portada asimétrica: el titular ocupa la izquierda; la entradilla cuelga a la derecha, más abajo. */
+  .portada { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(1rem, 2.5vw, 1.75rem); padding-block: clamp(2.5rem, 7vw, 6rem) clamp(1.75rem, 4vw, 3.25rem); }
+  .portada > * { margin: 0; }
+  @media (min-width: 60rem) {
+    .portada { grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2vw, 2rem); }
+    .portada .kicker { grid-column: 1 / -1; }
+    .portada h1 { grid-column: 1 / span 9; }
+    .portada .lede { grid-column: 7 / -1; max-width: none; margin-top: clamp(.5rem, 2vw, 1.5rem); }
+  }
+
+  .figura { margin-bottom: clamp(1rem, 3vw, 2.5rem); }
+
+  .aviso { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.25rem clamp(2rem, 5vw, 5rem); }
+  .aviso > * { margin: 0; }
+  @media (min-width: 60rem) {
+    .aviso { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; }
+    .aviso .lede { max-width: 36rem; }
+  }
+
+  /* Directorio: tipografía y filetes. Ni tarjetas ni iconos; el orden es el fijo de la rejilla, no un ranking. */
+  .directorio {
+    list-style: none; margin: clamp(1.5rem, 4vw, 3rem) 0 0; padding: 0;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr)); gap: 0 clamp(1.5rem, 3vw, 3rem);
+  }
+  /* Solo donde la rejilla rotula con el ISO (por debajo de 40rem, el mismo corte que `FigRejilla`). */
+  @media (min-width: 40rem) { .solo-estrecho { display: none; } }
+  /* Toda la celda es el objetivo táctil del enlace, no solo las letras del nombre. */
+  .directorio li { position: relative; border-top: 1px solid var(--ink); padding: .9rem 0 1.6rem; min-width: 0; }
+  .nombre::after { content: ''; position: absolute; inset: 0; }
+  .nombre {
+    display: inline-block; color: var(--ink); text-decoration: none; overflow-wrap: anywhere;
+    font: 800 var(--fs-h3)/1.05 var(--display); letter-spacing: -.018em; font-stretch: 90%;
+  }
+  .nombre:hover { color: var(--accent); text-decoration: underline; text-decoration-thickness: .08em; text-underline-offset: .15em; }
+  .ventana { margin: .45rem 0 .3rem; max-width: none; font: 500 var(--fs-small)/1.35 var(--mono); color: var(--ink-2); }
+  .iso { color: var(--mute); margin-right: .35em; }
+  .salvo { color: var(--mute); }
+  .camara { margin: 0; max-width: none; font-size: var(--fs-small); line-height: 1.35; color: var(--ink-2); }
+</style>

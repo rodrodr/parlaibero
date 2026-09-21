@@ -1,0 +1,226 @@
+---
+/**
+ * FICHA DE PAÍS — plantilla única para las dieciséis (copy §4, claves `ficha.*`).
+ *
+ * El orden es el del copy aprobado y no se reordena por comodidad: qué se puede hacer hoy → qué es → de dónde
+ * sale → cifras con su denominador → voz → límites → y SOLO ENTONCES la descarga. Los límites van antes del botón
+ * a propósito. Todo marcador `pais.<iso>.*` se resuelve pasando a `t()` el contexto del país (`ctxPais`).
+ *
+ * De los textos DEPOSITADOS en `corpus_info.json` solo llega la fuente, que nombra instituciones: se pinta sin
+ * reescribir, dentro de `ficha.fuente.texto`. La transformación y las limitaciones NO se reproducen, porque nombran a
+ * parlamentarios (directiva del 2026-09-21: en divulgación no se nombra a nadie que figure en los datos): la ficha
+ * dice cuántas limitaciones declara el corpus y ENLAZA los dos documentos en Dataverse (<EnDataverse>).
+ */
+import Base from '../../../layouts/Base.astro';
+import Cita from '../../../components/Cita.astro';
+import Tareas from '../../../components/ficha/Tareas.astro';
+import TiraAnual from '../../../components/ficha/TiraAnual.astro';
+import VozDecadas from '../../../components/ficha/VozDecadas.astro';
+import Descarga from '../../../components/ficha/Descarga.astro';
+import EnDataverse from '../../../components/ficha/EnDataverse.astro';
+import Vecinas from '../../../components/ficha/Vecinas.astro';
+import { t, plano, rotulo } from '../../../lib/i18n';
+import { escapa, pais, PAISES } from '../../../lib/cifras';
+import { url, PAGINAS } from '../../../lib/rutas';
+import { LANGS, type Lang } from '../../../lib/idiomas';
+import { ENLACES } from '../../../config/enlaces';
+import { ctxPais } from '../../../components/ficha/contexto';
+
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => PAISES.map((p) => ({ params: { lang, iso: p.iso } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const iso = String(Astro.params.iso);
+const p = pais(iso);
+if (!p) throw new Error(`No hay país «${iso}» en src/data/paises.json.`);
+const ctx = ctxPais(iso, lang);
+
+// JSON-LD `Dataset`: el depositado, tal cual. El DOI va como `identifier` porque una página estática no puede
+// enviar la cabecera `Link: rel="cite-as"`; así la cita canónica queda al menos en los datos estructurados.
+const DEPOSITADOS = import.meta.glob<{ default: Record<string, unknown> }>('../../../data/jsonld/*.json', { eager: true });
+const ld = DEPOSITADOS[`../../../data/jsonld/${iso}.json`]?.default;
+if (!ld) throw new Error(`Falta src/data/jsonld/${iso}.json (lo escribe exportar_sitio.py).`);
+const jsonld = { ...ld, identifier: ld.identifier ?? ENLACES.doi(p.doi) };
+
+/**
+ * «Cifras» es una lista tipográfica con la cifra en mono ABRIENDO la línea. Si la frase empieza por su cifra, esta
+ * se separa para componerla grande; si no (la vinculación empieza por «En el…»), la frase se deja entera: partirla
+ * rompería el orden de lectura.
+ */
+function abre(html: string): { cifra: string; resto: string } {
+  const m = html.match(/^(\s*(?:<span\b[^>]*>)?\s*)(<data\b[^>]*>[^<]*<\/data>)([\s\S]*)$/);
+  return m ? { cifra: m[2], resto: m[1] + m[3] } : { cifra: '', resto: html };
+}
+const lineas = [
+  { ...abre(t(lang, 'ficha.cifras.sesiones', ctx)), extra: p.sesiones_sin_habla > 0 ? t(lang, 'ficha.cifras.sin_habla', ctx) : '' },
+  { ...abre(t(lang, 'ficha.cifras.filas', ctx)), extra: '' },
+  { ...abre(t(lang, 'ficha.cifras.vinculacion', ctx)), extra: '' },
+];
+
+// El crédito sale entero del copy; el DOI y la licencia se hacen enlace sobre su propio texto.
+const credito = t(lang, 'ficha.credito', ctx)
+  .replace(escapa(p.doi), `<a href="${escapa(ENLACES.doi(p.doi))}" rel="noopener external">${escapa(p.doi)}</a>`)
+  .replace(escapa(p.licencia), `<a href="${escapa(ENLACES.licencia)}" rel="license noopener external">${escapa(p.licencia)}</a>`);
+
+// TODO-COPY: no existe `ficha.meta.descripcion`. Mientras tanto la descripción se compone con frases aprobadas.
+// Tope de 155 caracteres (nota de diseño del copy, §2; lo audita audit-cifras): se elige la composición más rica
+// que quepa. El nombre del Diario de algunas cámaras es largo, y entonces se cae a la frase de la rejilla
+// —país, cámara y periodo, con su hueco si lo hay—, que es la más corta de las aprobadas.
+const MAX_DESCRIPCION = 155;
+const queEs = plano(lang, 'ficha.que_es.texto', ctx);
+const periodo = plano(lang, p.huecos.length ? 'ficha.que_es.con_huecos' : 'ficha.que_es.sin_huecos', ctx);
+const candidatas = [
+  `${plano(lang, 'ficha.titulo', ctx)} · ${queEs} ${periodo}`,
+  `${plano(lang, 'ficha.titulo', ctx)} · ${queEs}`,
+  plano(lang, p.huecos.length ? 'comun.alt.rejilla.largo.fila.hueco' : 'comun.alt.rejilla.largo.fila', ctx),
+];
+const descripcion = candidatas.find((d) => [...d].length <= MAX_DESCRIPCION);
+if (!descripcion) throw new Error(`Ninguna descripción de la ficha de ${iso} cabe en ${MAX_DESCRIPCION} caracteres: hace falta «ficha.meta.descripcion» en el copy.`);
+---
+<Base lang={lang} ruta={`${PAGINAS.paises}/${iso}`} titulo={plano(lang, 'ficha.meta.titulo', ctx)} descripcion={descripcion} jsonld={jsonld}>
+  <article class="ficha">
+    <header class="contenedor cabeza">
+      <p class="kicker migas">
+        <a href={url(lang, PAGINAS.paises)} set:html={rotulo(lang, 'comun.nav.paises')} />
+        <span aria-hidden="true">/</span>
+        <span>{iso.toUpperCase()}</span>
+      </p>
+      <h1 set:html={t(lang, 'ficha.titulo', ctx)} />
+      <p class="subtitulo" set:html={t(lang, 'ficha.subtitulo', ctx)} />
+      <span class="iso-fantasma" aria-hidden="true">{iso.toUpperCase()}</span>
+    </header>
+
+    <section class="bloque" aria-labelledby="t-hoy">
+      <div class="contenedor">
+        <h2 id="t-hoy" set:html={t(lang, 'ficha.tareas.titulo')} />
+        <div class="cuerpo"><Tareas lang={lang} p={p} /></div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-que-es">
+      <div class="contenedor">
+        <h2 id="t-que-es" set:html={t(lang, 'ficha.que_es.titulo')} />
+        <div class="cuerpo">
+          <p class="lede" set:html={t(lang, 'ficha.que_es.texto', ctx)} />
+          <TiraAnual lang={lang} p={p} />
+          <p class="nota" set:html={t(lang, 'comun.fija.diario')} />
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-fuente">
+      <div class="contenedor">
+        <h2 id="t-fuente" set:html={t(lang, 'ficha.fuente.titulo')} />
+        <div class="cuerpo"><EnDataverse lang={lang} p={p} clave="ficha.fuente.texto" /></div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-cifras">
+      <div class="contenedor">
+        <h2 id="t-cifras" set:html={t(lang, 'ficha.cifras.titulo')} />
+        <div class="cuerpo">
+          <ul class="cifras">
+            {lineas.map((l) => (
+              <li>
+                {l.cifra && <span class="abre" set:html={l.cifra} />}
+                <span class="resto" set:html={l.resto} />
+                {l.extra && <span class="extra" set:html={l.extra} />}
+              </li>
+            ))}
+          </ul>
+          <p class="enlace-calculo"><a href={url(lang, `${PAGINAS.metodologia}#apartado-4`)} set:html={rotulo(lang, 'ficha.cifras.enlace')} /></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-voz">
+      <div class="contenedor">
+        <h2 id="t-voz" set:html={t(lang, 'ficha.voz.titulo')} />
+        <div class="cuerpo">
+          <p set:html={t(lang, 'ficha.voz.texto')} />
+          <VozDecadas lang={lang} p={p} />
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-antes">
+      <div class="contenedor">
+        <h2 id="t-antes" set:html={t(lang, 'ficha.antes.titulo')} />
+        <div class="cuerpo"><EnDataverse lang={lang} p={p} clave="ficha.antes.intro" entradilla /></div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-conjunto">
+      <div class="contenedor">
+        <h2 id="t-conjunto" set:html={t(lang, 'ficha.paquete.titulo')} />
+        <div class="cuerpo">
+          <p set:html={t(lang, 'ficha.paquete.texto')} />
+          <p set:html={t(lang, 'ficha.paquete.peso', ctx)} />
+          <Descarga lang={lang} p={p} />
+          <div class="colofon">
+            {/* La autoría del conjunto es de los investigadores, no de quien figura en los datos: el control de nombres la exime. */}
+            <p class="credito" data-autoria set:html={credito} />
+            <p class="nota" set:html={t(lang, 'comun.fija.identificadores')} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bloque" aria-labelledby="t-citar">
+      <div class="contenedor">
+        <h2 id="t-citar" set:html={t(lang, 'ficha.cita.titulo')} />
+        {/* La cita de Dataverse va en inglés en las tres lenguas: se declara, para que el lector de pantalla la pronuncie bien. */}
+        <div class="cuerpo"><Cita lang={lang} texto={p.cita} lenguaTexto="en" /></div>
+      </div>
+    </section>
+  </article>
+
+  <Vecinas lang={lang} p={p} />
+</Base>
+
+<style>
+  /* Cabecera: el nombre manda. El código ISO, enorme y solo en contorno, es papel con filete: no es un dato. */
+  /* Se recorta solo en vertical (el pie del ISO fantasma): en horizontal, el recorte se comía el anillo de foco de la miga. */
+  .cabeza { position: relative; isolation: isolate; padding-block: clamp(2.5rem, 7vw, 6rem) clamp(2.25rem, 6vw, 5rem); overflow: visible clip; }
+  .migas { display: flex; gap: .7em; align-items: baseline; margin: 0 0 clamp(1rem, 2.5vw, 1.75rem); max-width: none; }
+  .migas a { color: inherit; }
+  h1 { max-width: 12ch; overflow-wrap: anywhere; hyphens: manual; }
+  .subtitulo {
+    margin: clamp(1rem, 2.2vw, 1.6rem) 0 0; max-width: 40rem; text-wrap: balance;
+    font: 600 var(--fs-h3)/1.18 var(--display); font-stretch: 92%; letter-spacing: -.01em; color: var(--ink-2);
+  }
+  .subtitulo :global(data.cifra) { font-family: var(--mono); font-size: .86em; font-weight: 500; letter-spacing: -.03em; }
+  .iso-fantasma { display: none; }
+  @media (min-width: 64rem) {
+    .iso-fantasma {
+      display: block; position: absolute; right: 0; bottom: -.13em; z-index: -1; pointer-events: none; user-select: none;
+      font: 800 clamp(11rem, 21vw, 18rem)/.8 var(--display); font-stretch: 80%; letter-spacing: 0;
+      color: transparent; -webkit-text-stroke: 1px var(--hair);
+    }
+  }
+
+  /* Cada bloque: el título cuelga en el margen izquierdo y acompaña la lectura; el contenido ocupa dos tercios. */
+  .bloque { border-top: 1px solid var(--hair); padding-block: clamp(2.5rem, 6.5vw, 6rem); }
+  .bloque > .contenedor { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.4rem clamp(2rem, 5vw, 5rem); }
+  .bloque h2 { font-size: clamp(1.6rem, 1.1rem + 2.2vw, 2.9rem); }
+  .cuerpo { min-width: 0; }
+  .cuerpo > :global(:last-child) { margin-bottom: 0; }
+  @media (min-width: 60rem) {
+    .bloque > .contenedor { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+    .bloque h2 { position: sticky; top: 1.5rem; align-self: start; }
+  }
+
+  /* Cifras: lista tipográfica. La cifra que abre la línea se compone grande, en mono; la frase sigue a su lado. */
+  .cifras { list-style: none; margin: 0; padding: 0; max-width: 46rem; }
+  .cifras li { display: grid; gap: .35rem; padding-block: 1.3rem 1.45rem; border-top: 1px solid var(--hair); }
+  .cifras li:first-child { border-top-color: var(--ink); }
+  .abre :global(data.cifra) { font-size: clamp(2.3rem, 1.5rem + 3.6vw, 4.4rem); font-weight: 600; line-height: 1; letter-spacing: -.055em; }
+  .resto { font-size: var(--fs-lede); line-height: 1.32; text-wrap: pretty; }
+  .extra { font-size: var(--fs-body); color: var(--ink-2); }
+  .enlace-calculo { margin: 1.2rem 0 0; font: 700 var(--fs-small)/1.2 var(--display); }
+
+  .colofon { margin-top: clamp(1.5rem, 3vw, 2.25rem); padding-top: 1rem; border-top: 1px solid var(--hair); max-width: 44rem; }
+  .colofon p { margin: 0 0 .5em; }
+  .credito { font: 500 var(--fs-small)/1.5 var(--mono); color: var(--ink-2); overflow-wrap: anywhere; letter-spacing: -.01em; }
+</style>

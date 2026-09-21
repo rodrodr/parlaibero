@@ -1,0 +1,313 @@
+---
+/**
+ * EXPLORADOR (copy §8). Presenta la herramienta a quien no programa: primero encontrar, después enfocar —las
+ * bibliotecas, que son el centro de la página—, las dos vistas que se calculan sobre una biblioteca, cómo llevarse
+ * lo hallado, cómo empezar y lo que la herramienta no hace.
+ *  · El orden es el del copy, unidad por unidad; las figuras se intercalan junto al párrafo que ilustran.
+ *  · Las imágenes son capturas reales (src/assets/explorador/LEEME.md). La frase que dice de qué son
+ *    (`explorador.img.ejemplo`) se dice UNA vez, ante la primera. La red de coocurrencias no tiene imagen porque el
+ *    explorador no la dibuja: la calcula y la exporta.
+ *  · El aviso del formulario va dentro del paso 1, por ENCIMA de los botones: el primero lleva a Dataverse.
+ *  · Todo enlace a la herramienta abre en otra pestaña, y lo dice (lib/remata.ts); en EN y PT lleva al lado el aviso
+ *    de que su interfaz está solo en español (copy §1.6).
+ *  · Sin franja de la AEI: es solo de Inicio. La mención completa va en el pie, como en todas las páginas.
+ */
+import Base from '../../layouts/Base.astro';
+import BandaCTA from '../../components/BandaCTA.astro';
+import Captura from '../../components/Captura.astro';
+import { frases } from '../../components/inicio/frases';
+import { t, plano, rotulo, existe } from '../../lib/i18n';
+import { url, PAGINAS } from '../../lib/rutas';
+import { rutasPorIdioma, type Lang } from '../../lib/idiomas';
+import { ENLACES } from '../../config/enlaces';
+import { ID_NOTA_EXPLORADOR } from '../../lib/remata';
+import imgBibliotecas from '../../assets/explorador/bibliotecas.png';
+import imgLexico from '../../assets/explorador/lexico.png';
+import imgResumen from '../../assets/explorador/coocurrencias-resumen.png';
+import imgTemas from '../../assets/explorador/coocurrencias-temas.png';
+import imgRed from '../../assets/explorador/menciones-red.png';
+import imgPartidos from '../../assets/explorador/menciones-partidos.png';
+import imgTendencia from '../../assets/explorador/tendencia.png';
+
+export const getStaticPaths = rutasPorIdioma;
+const lang = Astro.params.lang as Lang;
+
+const PREGUNTAS = [1, 2, 3, 4].map((n) => ({ pregunta: `explorador.p${n}.pregunta`, texto: `explorador.p${n}.texto` }));
+const PASOS = [1, 2, 3].map((n) => `explorador.empezar.paso${n}`);
+const MOTIVO = 'comun.fija.formulario.motivo';
+const avisoIdioma = lang === 'es' ? null : t(lang, `comun.idioma.aviso.${lang}`);
+
+// ── los tres botones de «Cómo empezar» ────────────────────────────────────────────────────
+// El copy los trae en UNA unidad, «[A] [B] [C]», y el destino lo da el orden. Se separan los rótulos para pintar cada
+// botón con lo suyo: el de Dataverse señala su aviso; el del explorador abre en otra pestaña.
+const SIN_TRADUCIR = /^<span lang="es" data-sin-traducir>([\s\S]*)<\/span>$/;
+const htmlBotones = t(lang, 'explorador.empezar.botones');
+const prestado = htmlBotones.match(SIN_TRADUCIR);
+const rotulos = [...(prestado?.[1] ?? htmlBotones).matchAll(/\[([^\]]+)\]/g)]
+  .map((m) => (prestado ? `<span lang="es" data-sin-traducir>${m[1]}</span>` : m[1] ?? ''));
+if (rotulos.length !== 3) throw new Error(`«explorador.empezar.botones» (${lang}) trae ${rotulos.length} botones y la página coloca tres: Dataverse, países y explorador, en ese orden.`);
+const [aDataverse, aPaises, aExplorador] = rotulos;
+---
+<Base lang={lang} ruta={PAGINAS.explorador} titulo={plano(lang, 'explorador.meta.titulo')} descripcion={plano(lang, 'explorador.meta.descripcion')}>
+  <article class="explorador">
+    {/* 8.1 · Cabecera */}
+    <header class="contenedor portada">
+      <h1 set:html={frases(t(lang, 'explorador.titulo'))} />
+      <p class="lede entrada" set:html={t(lang, 'explorador.entrada')} />
+      <div class="abrir">
+        <p class="fija" set:html={t(lang, 'comun.fija.local')} />
+        <p class="acciones">
+          <a class="boton" href={ENLACES.explorador} target="_blank" rel="noopener external" aria-describedby={ID_NOTA_EXPLORADOR}>
+            <Fragment set:html={rotulo(lang, 'explorador.abrir')} /><span aria-hidden="true">↗</span>
+          </a>
+        </p>
+        {avisoIdioma && <p class="nota" set:html={avisoIdioma} />}
+      </div>
+    </header>
+
+    {/* 8.2 · Primero, encontrar: cuatro preguntas a dos columnas, y la tendencia bajo la cuarta */}
+    <section class="seccion encontrar" aria-labelledby="encontrar-t">
+      <div class="contenedor">
+        <h2 id="encontrar-t" set:html={t(lang, 'explorador.encontrar.titulo')} />
+        <div class="preguntas">
+          {PREGUNTAS.map((p) => (
+            <div class="pregunta">
+              <h3 set:html={t(lang, p.pregunta)} />
+              <p set:html={t(lang, p.texto)} />
+            </div>
+          ))}
+          <div class="bajo-la-cuarta">
+            {/* Se dice una vez, ante la primera imagen de la página: vale para las siete. */}
+            <p class="nota ejemplo" set:html={t(lang, 'explorador.img.ejemplo')} />
+            <Captura lang={lang} src={imgTendencia} pie="explorador.img.tendencia.pie" primera />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {/* 8.3 · Las bibliotecas: la sección central. Más aire, el titular mayor después del h1 y la frase destacada. */}
+    <section class="central" aria-labelledby="bibliotecas-t">
+      <div class="contenedor reja">
+        <h2 id="bibliotecas-t" set:html={t(lang, 'explorador.bibliotecas.titulo')} />
+        <p class="destacada" set:html={frases(t(lang, 'explorador.bibliotecas.entrada'))} />
+        <p class="lede que-es" set:html={t(lang, 'explorador.bibliotecas.que_es')} />
+        <p class="para-que" set:html={t(lang, 'explorador.bibliotecas.para_que')} />
+        <Captura lang={lang} src={imgBibliotecas} pie="explorador.img.bibliotecas.pie" class="fig-bibliotecas entra" />
+        <div class="unidad">
+          <p set:html={t(lang, 'explorador.bibliotecas.unidad')} />
+          <p set:html={t(lang, 'explorador.bibliotecas.guardar')} />
+        </div>
+        <Captura lang={lang} src={imgLexico} pie="explorador.img.lexico.pie" talla="media" class="fig-lexico entra" />
+      </div>
+    </section>
+
+    {/* 8.4 · Coocurrencias. No hay imagen de la red de términos: el explorador la calcula y la exporta, no la dibuja. */}
+    <section class="seccion vista" aria-labelledby="coocurrencias-t">
+      <div class="contenedor reja">
+        <h2 id="coocurrencias-t" set:html={t(lang, 'explorador.coocurrencias.titulo')} />
+        <p class="lede abre" set:html={t(lang, 'explorador.coocurrencias.que_es')} />
+        <Captura lang={lang} src={imgTemas} pie="explorador.img.temas.pie" class="fig-ancha entra" />
+        <p class="col-a" set:html={t(lang, 'explorador.coocurrencias.temas')} />
+        <p class="col-b" set:html={t(lang, 'explorador.coocurrencias.partidos')} />
+        <p class="cierra" set:html={t(lang, 'explorador.coocurrencias.metodo')} />
+        <Captura lang={lang} src={imgResumen} pie="explorador.img.coocurrencias.pie" talla="media" class="fig-media entra" />
+      </div>
+    </section>
+
+    {/* 8.5 · Menciones. La red va tal como la dibuja la herramienta (decisión del investigador: no es una cita textual). */}
+    <section class="seccion vista espejo" aria-labelledby="menciones-t">
+      <div class="contenedor reja">
+        <h2 id="menciones-t" set:html={t(lang, 'explorador.menciones.titulo')} />
+        <p class="lede abre" set:html={t(lang, 'explorador.menciones.que_es')} />
+        <Captura lang={lang} src={imgRed} pie="explorador.img.menciones.pie" class="fig-ancha entra" />
+        <p class="cierra" set:html={t(lang, 'explorador.menciones.vistas')} />
+        <Captura lang={lang} src={imgPartidos} pie="explorador.img.partidos.pie" talla="media" class="fig-media entra" />
+        <p class="limite" set:html={t(lang, 'explorador.menciones.limites')} />
+      </div>
+    </section>
+
+    {/* 8.6 · Y llevárselo, citado */}
+    <section class="seccion llevar" aria-labelledby="llevar-t">
+      <div class="contenedor reja">
+        <h2 id="llevar-t" set:html={t(lang, 'explorador.llevar.titulo')} />
+        <p class="lede" set:html={t(lang, 'explorador.llevar.texto')} />
+      </div>
+    </section>
+
+    {/* 8.7 · Cómo empezar: tres pasos numerados; el aviso del formulario, en el paso 1, por encima de los botones */}
+    <section class="seccion empezar" id="empezar" aria-labelledby="empezar-t">
+      <div class="contenedor">
+        <h2 id="empezar-t" set:html={t(lang, 'explorador.empezar.titulo')} />
+        <ol class="pasos" role="list">
+          {PASOS.map((clave, i) => (
+            <li>
+              <p set:html={t(lang, clave)} />
+              {i === 0 && (
+                <div class="aviso" id="aviso-formulario">
+                  <p set:html={t(lang, 'comun.fija.formulario')} />
+                  {/* El motivo es un dato pendiente del investigador: mientras falte, la vista previa lo enseña como pendiente. */}
+                  {existe(MOTIVO) && <p class="nota" set:html={t(lang, MOTIVO)} />}
+                </div>
+              )}
+            </li>
+          ))}
+        </ol>
+        <p class="nota tiempos" set:html={t(lang, 'explorador.empezar.tiempos')} />
+        <p class="acciones">
+          <a class="boton" href={ENLACES.coleccion} rel="noopener external" aria-describedby="aviso-formulario">
+            <Fragment set:html={aDataverse} /><span class="sr-only">. {plano(lang, 'comun.enlace.dataverse')}</span>
+          </a>
+          <a class="boton secundario" href={url(lang, PAGINAS.paises)} set:html={aPaises} />
+          <a class="boton secundario" href={ENLACES.explorador} target="_blank" rel="noopener external" aria-describedby={ID_NOTA_EXPLORADOR}>
+            <Fragment set:html={aExplorador} /><span aria-hidden="true">↗</span>
+          </a>
+        </p>
+        {avisoIdioma && <p class="nota" set:html={avisoIdioma} />}
+      </div>
+    </section>
+
+    {/* 8.8 · Lo que pide y lo que no hace · Lo que se queda en su equipo */}
+    <div class="seccion cierre">
+      <div class="contenedor dos">
+        <section class="limites" aria-labelledby="limites-t">
+          <h2 id="limites-t" set:html={t(lang, 'explorador.limites.titulo')} />
+          <p set:html={t(lang, 'explorador.limites.equipo')} />
+          <p set:html={t(lang, 'comun.fija.explorador')} />
+          <p set:html={t(lang, 'explorador.limites.no_hace')} />
+          <p set:html={t(lang, 'explorador.limites.texto')} />
+          <p set:html={t(lang, 'comun.fija.diario')} />
+        </section>
+        <section class="privacidad" aria-labelledby="privacidad-t">
+          <h2 id="privacidad-t" set:html={t(lang, 'explorador.privacidad.titulo')} />
+          <p class="lede" set:html={t(lang, 'explorador.privacidad.texto')} />
+        </section>
+      </div>
+    </div>
+  </article>
+
+  <BandaCTA lang={lang} />
+</Base>
+
+<style>
+  /* Rejilla editorial de doce columnas. En móvil cada pieza ocupa todo el ancho, en el orden del copy; los
+     desplazamientos asimétricos son cosa del escritorio. */
+  .reja { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: clamp(1rem, 2.4vw, 2.5rem); }
+  .reja > :global(*) { grid-column: 1 / -1; min-width: 0; }
+
+  /* Los titulares de sección ceden tamaño a propósito: después del h1, el mayor es el de las bibliotecas. */
+  .explorador h2 { font-size: clamp(1.65rem, 1.15rem + 2.3vw, 3rem); max-width: 15em; }
+  .acciones { display: flex; flex-wrap: wrap; gap: .7rem .9rem; align-items: center; max-width: none; margin: 0; }
+  .acciones .boton span[aria-hidden] { margin-left: .1em; }
+
+  /* ── 8.1 · portada: titular a todo lo ancho; debajo, la entradilla a la izquierda y la puerta a la derecha ── */
+  .portada { padding-block: clamp(2.5rem, 7vw, 6.5rem) clamp(2.5rem, 6vw, 5rem); display: grid; gap: 1.75rem 3rem; }
+  .portada h1 { font-stretch: 84%; max-width: 13em; }
+  .portada h1 :global(.frase) { display: block; }
+  /* La segunda frase es el remate: misma pesa, tinta más baja, para que la primera mande. */
+  .portada h1 :global(.frase + .frase) { color: var(--mute); }
+  .entrada { margin: 0; max-width: 36rem; }
+  .abrir { display: grid; gap: .9rem; align-content: end; justify-items: start; border-top: 1px solid var(--ink); padding-top: 1rem; }
+  .abrir p { margin: 0; }
+  .fija { font: 600 var(--fs-small)/1.4 var(--mono); letter-spacing: .01em; color: var(--ink-2); max-width: 24rem; }
+  @media (min-width: 60rem) {
+    .portada { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); align-items: end; column-gap: clamp(3rem, 8vw, 8rem); }
+    .portada h1 { grid-column: 1 / -1; }
+  }
+
+  /* ── 8.2 · cuatro preguntas a dos columnas: la pregunta en la grotesca pesada, la respuesta en serif ── */
+  .preguntas { display: grid; gap: clamp(2rem, 4vw, 3.25rem) clamp(2rem, 6vw, 6rem); margin-top: clamp(2rem, 4.5vw, 3.75rem); }
+  .pregunta { border-top: 2px solid var(--ink); padding-top: 1rem; min-width: 0; }
+  .pregunta h3 { font-size: clamp(1.45rem, 1.1rem + 1.6vw, 2.5rem); line-height: 1.04; letter-spacing: -.02em; margin-bottom: .6em; max-width: 12em; }
+  .pregunta p { margin: 0; max-width: 32rem; }
+  .bajo-la-cuarta { min-width: 0; }
+  .ejemplo { margin: 0 0 .8rem; color: var(--mute); }
+  @media (min-width: 52rem) {
+    .preguntas { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    /* La columna derecha baja un escalón: dos columnas que se leen en zigzag, no una cuadrícula de casillas. */
+    .pregunta:nth-child(even) { margin-top: clamp(2rem, 5vw, 4.5rem); }
+    .bajo-la-cuarta { grid-column: 1 / -1; margin-top: clamp(.5rem, 2vw, 1.5rem); }
+  }
+  @media (min-width: 72rem) {
+    /* La figura cuelga de la cuarta pregunta: arranca bajo la columna derecha y se sale hacia la izquierda. */
+    .bajo-la-cuarta { margin-left: calc(100% / 12 * 2); }
+  }
+
+  /* ── 8.3 · las bibliotecas: otra hoja de papel, entre dos filetes de tinta, con el doble de aire ── */
+  .central { background: var(--bg-2); border-block: 1px solid var(--ink); padding-block: clamp(5rem, 13vw, 12rem); }
+  .central h2 { font-size: clamp(2.05rem, 1.15rem + 4.4vw, 5.1rem); font-stretch: 84%; max-width: 11em; }
+  .destacada {
+    margin: clamp(2rem, 5vw, 4.5rem) 0 clamp(2.5rem, 6vw, 5.5rem); max-width: none;
+    font: 400 clamp(1.85rem, 1.1rem + 3.5vw, 4.3rem)/1.06 var(--text); letter-spacing: -.02em; text-wrap: balance;
+  }
+  .destacada :global(.frase) { display: block; }
+  .destacada :global(.frase + .frase) { font-weight: 700; }
+  .central .que-es { margin: 0 0 1.25rem; max-width: 34rem; }
+  .central .para-que { margin: 0; }
+  .fig-bibliotecas { margin-block: clamp(2.75rem, 6vw, 5.5rem); }
+  .unidad p:last-child { margin-bottom: 0; }
+  .fig-lexico { margin-top: 2rem; }
+  @media (min-width: 60rem) {
+    .central h2 { grid-column: 1 / span 10; }
+    .destacada { grid-column: 2 / -1; }
+    .central .que-es { grid-column: 1 / span 6; margin-bottom: 0; }
+    .central .para-que { grid-column: 8 / -1; align-self: end; }
+    .unidad { grid-column: 1 / span 5; align-self: center; }
+    .fig-lexico { grid-column: 6 / -1; margin-top: 0; }
+  }
+
+  /* ── 8.4 y 8.5 · las dos vistas: titular y entrada, la captura a todo el ancho, y el detalle con su segunda captura ── */
+  .vista h2 { margin-bottom: .6em; }
+  .vista .abre { margin: 0; max-width: 36rem; }
+  .fig-ancha { margin-block: clamp(2.25rem, 5vw, 4.5rem) clamp(1.75rem, 4vw, 3rem); }
+  .vista .fig-media { margin-block: 1rem 0; }
+  .vista p:not(.lede) { max-width: 34rem; }
+  /* Lo que la vista NO dice va con el filete de tinta de las advertencias del sitio. */
+  .limite { border-left: 3px solid var(--ink); padding-left: clamp(.9rem, 2vw, 1.4rem); margin: clamp(1.75rem, 4vw, 3rem) 0 0; }
+  @media (min-width: 60rem) {
+    .vista h2 { grid-column: 1 / span 6; margin-bottom: 0; }
+    .vista .abre { grid-column: 7 / -1; align-self: end; }
+    .col-a { grid-column: 1 / span 5; }
+    .col-b { grid-column: 7 / span 5; }
+    .vista .cierra { grid-column: 1 / span 4; align-self: start; margin-top: clamp(1.5rem, 3vw, 2.5rem); }
+    .vista .fig-media { grid-column: 6 / -1; margin-top: clamp(1.5rem, 3vw, 2.5rem); }
+    .vista .col-a, .vista .col-b { margin-bottom: 0; }
+    /* Menciones es el espejo de coocurrencias: el titular a la derecha y la segunda captura a la izquierda. */
+    .espejo h2 { grid-column: 6 / -1; grid-row: 1; }
+    .espejo .abre { grid-column: 1 / span 5; grid-row: 1; }
+    .espejo .fig-ancha { grid-row: 2; }
+    .espejo .fig-media { grid-column: 1 / span 7; grid-row: 3 / span 2; align-self: start; }
+    .espejo .cierra { grid-column: 9 / -1; grid-row: 3; }
+    .espejo .limite { grid-column: 9 / -1; grid-row: 4; }
+  }
+
+  /* ── 8.6 · llevárselo ── */
+  .llevar .lede { margin: 1.25rem 0 0; max-width: 36rem; }
+  @media (min-width: 60rem) {
+    .llevar h2 { grid-column: 1 / span 5; }
+    .llevar .lede { grid-column: 7 / -1; margin-top: 0; }
+  }
+
+  /* ── 8.7 · tres pasos numerados: en columna, y en fila donde caben ── */
+  .pasos { list-style: none; margin: clamp(2rem, 4.5vw, 3.5rem) 0 0; padding: 0; counter-reset: paso; display: grid; gap: 2rem clamp(1.5rem, 3vw, 3rem); }
+  .pasos > li { counter-increment: paso; border-top: 2px solid var(--ink); padding-top: .9rem; min-width: 0; }
+  .pasos > li::before { content: counter(paso); display: block; font: 800 clamp(2.6rem, 2rem + 2.6vw, 4.2rem)/1 var(--display); font-stretch: 78%; margin-bottom: .6rem; }
+  .pasos p { margin: 0; max-width: 30rem; }
+  .pasos li > p :global(strong) { display: block; font: 800 clamp(1.15rem, 1.02rem + .6vw, 1.5rem)/1.12 var(--display); letter-spacing: -.012em; margin-bottom: .5rem; }
+  .aviso { border-left: 3px solid var(--ink); padding: .15rem 0 .15rem 1rem; margin-top: 1.1rem; max-width: 30rem; }
+  .aviso p + p { margin-top: .5em; }
+  .tiempos { margin: clamp(1.75rem, 4vw, 2.75rem) 0 1.4rem; max-width: 44rem; }
+  .empezar .acciones + .nota { margin: .9rem 0 0; }
+  @media (min-width: 60rem) { .pasos { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; } }
+
+  /* ── 8.8 · límites y privacidad: un registro de frases entre filetes, y a su lado lo que se queda en el equipo ── */
+  .dos { display: grid; gap: clamp(3rem, 7vw, 5rem) clamp(2rem, 6vw, 6rem); }
+  .dos > * { min-width: 0; }
+  .cierre h2 { margin-bottom: .8em; }
+  .limites p { margin: 0; padding: .9rem 0 1rem; border-top: 1px solid var(--hair); max-width: 40rem; }
+  .limites h2 + p { border-top-color: var(--ink); }
+  .privacidad .lede { margin: 0; max-width: 28rem; }
+  @media (min-width: 60rem) {
+    .dos { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; }
+    .privacidad { position: sticky; top: 1.5rem; }
+  }
+</style>

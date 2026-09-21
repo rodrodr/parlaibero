@@ -1,0 +1,58 @@
+[
+ {
+  "iso": "br",
+  "date": "2016-04-17",
+  "filas": 1780,
+  "id_session": "BR0050590",
+  "presente": true
+ },
+ {
+  "iso": "ec",
+  "date": "1997-02-06",
+  "filas": 353,
+  "id_session": "EC0080072",
+  "presente": true
+ },
+ {
+  "iso": "ec",
+  "date": "2005-04-20",
+  "filas": 790,
+  "id_session": "EC0100390",
+  "presente": true
+ },
+ {
+  "iso": "pe",
+  "date": "2020-11-09",
+  "filas": 481,
+  "id_session": "PE0080044",
+  "presente": true
+ },
+ {
+  "iso": "ar",
+  "date": "2001-12-21",
+  "filas": 122,
+  "id_session": "AR0080044",
+  "presente": true
+ },
+ {
+  "iso": "es",
+  "date": "1981-02-23",
+  "filas": 28,
+  "id_session": "ES0020146",
+  "presente": true
+ },
+ {
+  "iso": "py",
+  "date": "2012-06-21",
+  "filas": 0,
+  "id_session": null,
+  "presente": false
+ },
+ {
+  "iso": "py",
+  "date": "2012-06-22",
+  "filas": 0,
+  "id_session": null,
+  "presente": false
+ }
+]

@@ -1,0 +1,158 @@
+---
+/**
+ * Cobertura anual de UNA cámara: una columna por año, de su inicio a su fin (la ventana de lo depositado). La
+ * altura dice cuántos turnos de habla hay ese año, en la escala de la propia cámara: cuánto material hay, no
+ * cuánto se debate. El hueco declarado se dibuja como papel con contorno y su etiqueta: la ausencia nunca es color.
+ *
+ * Las formas van en un SVG que se estira; TODO el texto va en HTML encima, para que no se encoja en el móvil y
+ * para que cada cifra lleve su envoltorio auditable. Sin JS se lee igual: la nota emergente es el `<title>` nativo
+ * y los mismos valores están en la tabla desplegable.
+ */
+import anualJson from '../../data/anual.json';
+import { t, plano } from '../../lib/i18n';
+import { fmt, type Pais } from '../../lib/cifras';
+import type { Lang } from '../../lib/idiomas';
+import { ctxPais } from './contexto';
+
+interface Props { lang: Lang; p: Pais }
+interface SerieAnual { iso: string; y0: number; ses: number[]; hab: number[] }
+const { lang, p } = Astro.props;
+const ctx = ctxPais(p.iso, lang);
+
+const serie = (anualJson as unknown as SerieAnual[]).find((a) => a.iso === p.iso);
+if (!serie) throw new Error(`Falta «${p.iso}» en src/data/anual.json.`);
+
+// La ventana es la de la ficha (inicio–fin), no la del archivo de trabajo: en Ecuador este trae un año de más.
+const n = p.fin - p.inicio + 1;
+const anos = Array.from({ length: n }, (_, i) => {
+  const y = p.inicio + i, j = y - serie.y0;
+  return { y, i, ses: serie.ses[j] ?? 0, hab: serie.hab[j] ?? 0, hueco: p.huecos.some(([a, b]) => y >= a && y <= b) };
+});
+// Nunca cero: una cámara sin un solo turno de habla daría alturas NaN en vez de una tira vacía.
+const tope = Math.max(1, ...anos.map((a) => a.hab));
+const pct = (x: number) => ((100 * x) / n).toFixed(3);
+const nombre = p.nombre[lang];
+
+const huecos = p.huecos.map(([a, b]) => ({ a, b, i0: a - p.inicio, ancho: b - a + 1, rango: fmt.rangos([[a, b]]) }))
+  .map((h) => ({ ...h, aviso: plano(lang, 'comun.fig.rejilla.hover.hueco', { vars: { pais: nombre, huecos_rangos: h.rango } }) }));
+const barras = anos.filter((a) => a.ses > 0).map((a) => ({
+  ...a,
+  alto: Math.max(1.5, (100 * a.hab) / tope), // un año con sesiones nunca desaparece del dibujo
+  aviso: plano(lang, 'comun.fig.rejilla.hover', { vars: { pais: nombre, 'año': String(a.y), ses: fmt.entero(a.ses, lang), hab: fmt.entero(a.hab, lang) } }),
+}));
+
+// Eje: los dos extremos y las décadas que no les pisan el sitio.
+const holgura = n * 0.15;
+const marcas = [
+  { y: p.inicio, x: '0', borde: 'ini' },
+  ...anos.filter((a) => a.y % 10 === 0 && a.y - p.inicio >= holgura && p.fin - a.y >= holgura).map((a) => ({ y: a.y, x: pct(a.i + 0.5), borde: '' })),
+  { y: p.fin, x: '100', borde: 'fin' },
+];
+
+// Tabla: un año por fila; cada hueco, UNA fila con su rango (no diez filas de ceros).
+type Fila = { tipo: 'ano'; y: number; ses: number; hab: number } | { tipo: 'hueco'; rango: string; a: number; aviso: string };
+const filas: Fila[] = [];
+for (const a of anos) {
+  const h = huecos.find((x) => a.y >= x.a && a.y <= x.b);
+  if (!h) filas.push({ tipo: 'ano', y: a.y, ses: a.ses, hab: a.hab });
+  else if (a.y === h.a) filas.push({ tipo: 'hueco', rango: h.rango, a: h.a, aviso: h.aviso });
+}
+
+const claveAlt = p.huecos.length ? 'comun.alt.rejilla.largo.fila.hueco' : 'comun.alt.rejilla.largo.fila';
+const alt = plano(lang, claveAlt, ctx);
+// El rótulo de la pestaña «Tabla» ya está aprobado en `comun.fig.pestanas`: es el segundo de los tres.
+const pestanas = [...t(lang, 'comun.fig.pestanas').matchAll(/\[([^\]]+)\]/g)].map((m) => m[1]);
+const rotuloTabla = pestanas[1] ?? pestanas[0] ?? '';
+const k = (campo: string) => `anual.${p.iso}.${campo}`;
+---
+<figure class="tira entra">
+  <p class="escala" aria-hidden="true">
+    <span class="kicker" set:html={t(lang, 'paises.tabla.col.habla')} />
+    <span class="tope" set:html={fmt.dato(tope, fmt.entero(tope, lang), k('hab.max'))} />
+  </p>
+  <div class="lienzo">
+    <svg class="formas" viewBox={`0 0 ${n} 100`} preserveAspectRatio="none" role="img" aria-label={alt}>
+      {huecos.map((h) => (
+        <rect class="hueco" x={h.i0 + 0.1} y="1" width={h.ancho - 0.2} height="98"><title>{h.aviso}</title></rect>
+      ))}
+      {barras.map((a) => (
+        <rect class="barra" x={a.i + 0.14} y={(100 - a.alto).toFixed(2)} width="0.72" height={a.alto.toFixed(2)}><title>{a.aviso}</title></rect>
+      ))}
+    </svg>
+    {huecos.map((h) => (
+      <span class:list={['rotulo-hueco', { vertical: h.ancho < 8 }]} style={`left:${pct(h.i0)}%;width:${pct(h.ancho)}%`} aria-hidden="true"
+        set:html={fmt.dato(h.a, h.rango, `pais.${p.iso}.huecos_rangos`)} />
+    ))}
+  </div>
+  <div class="eje" aria-hidden="true">
+    {marcas.map((m) => <span class={m.borde} style={`left:${m.x}%`} set:html={fmt.dato(m.y, String(m.y), 'eje.ano')} />)}
+  </div>
+
+  <figcaption set:html={t(lang, p.huecos.length ? 'ficha.que_es.con_huecos' : 'ficha.que_es.sin_huecos', ctx)} />
+
+  <details class="desplegable">
+    <summary>{rotuloTabla}</summary>
+    <table>
+      {/* Como HTML de `t()`, no como texto plano: los años del título llevan así su envoltorio auditable. */}
+      <caption set:html={t(lang, claveAlt, ctx)} />
+      <thead>
+        <tr>
+          <th scope="col" set:html={t(lang, 'paises.tabla.col.periodo')} />
+          <th scope="col" class="num" set:html={t(lang, 'paises.tabla.col.sesiones')} />
+          <th scope="col" class="num" set:html={t(lang, 'paises.tabla.col.habla')} />
+        </tr>
+      </thead>
+      <tbody>
+        {filas.map((f) => f.tipo === 'ano' ? (
+          <tr>
+            <th scope="row" set:html={fmt.dato(f.y, String(f.y), 'eje.ano')} />
+            <td class="num" set:html={fmt.dato(f.ses, fmt.entero(f.ses, lang), k(`${f.y}.ses`))} />
+            <td class="num" set:html={fmt.dato(f.hab, fmt.entero(f.hab, lang), k(`${f.y}.hab`))} />
+          </tr>
+        ) : (
+          <tr class="fila-hueco">
+            <th scope="row" set:html={fmt.dato(f.a, f.rango, `pais.${p.iso}.huecos_rangos`)} />
+            <td colspan="2">{f.aviso}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </details>
+</figure>
+
+<style>
+  .tira { margin: clamp(1.75rem, 4vw, 3rem) 0 1.5rem; }
+  .escala { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; margin: 0 0 .4rem; max-width: none; }
+  .escala .kicker { font-size: .72rem; }
+  .tope { font-size: .8rem; color: var(--mute); }
+
+  /* El filete de arriba ES el tope de la escala (la cifra de la derecha); el de abajo, el cero. */
+  .lienzo { position: relative; height: clamp(6.5rem, 15vw, 10.5rem); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--ink); }
+  .formas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; }
+  .barra { fill: var(--dato); }
+  .barra:hover { fill: var(--ink); }
+  /* Ausencia: papel con contorno. Transparente, no «sin relleno», para que la nota emergente responda en toda la caja. */
+  .hueco { fill: transparent; stroke: var(--ausencia); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+  .rotulo-hueco {
+    position: absolute; top: 0; bottom: 0; display: grid; place-items: center; overflow: hidden;
+    font: 500 .74rem/1 var(--mono); color: var(--ink-2); pointer-events: none;
+  }
+  .rotulo-hueco.vertical :global(data) { writing-mode: vertical-rl; transform: rotate(180deg); }
+
+  .eje { position: relative; height: 1.3rem; margin-top: .4rem; font: 500 .74rem/1 var(--mono); color: var(--mute); }
+  .eje span { position: absolute; top: 0; transform: translateX(-50%); }
+  .eje span.ini { transform: none; }
+  .eje span.fin { transform: translateX(-100%); }
+
+  figcaption { margin-top: 1.1rem; max-width: var(--measure); }
+
+  .desplegable { margin-top: .45rem; }
+  summary { cursor: pointer; width: fit-content; font: 700 var(--fs-small)/1.2 var(--display); font-stretch: 92%; color: var(--accent); padding-block: .9rem; }
+  table { border-collapse: collapse; margin-top: .8rem; font-size: var(--fs-small); min-width: min(100%, 24rem); }
+  caption { text-align: left; color: var(--ink-2); padding-bottom: .6rem; max-width: var(--measure); }
+  th, td { padding: .32rem 1.4rem .32rem 0; border-bottom: 1px solid var(--hair); text-align: left; vertical-align: baseline; }
+  thead th { font: 700 .78rem/1.2 var(--display); border-bottom-color: var(--ink); }
+  tbody th { font-weight: 400; }
+  .num { text-align: right; padding-right: 0; padding-left: 1.4rem; }
+  .fila-hueco td { color: var(--ink-2); font-style: normal; border: 1px dashed var(--ausencia); padding-inline: .6rem; }
+</style>

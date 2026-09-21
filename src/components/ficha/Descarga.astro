@@ -1,0 +1,40 @@
+---
+/**
+ * Los dos botones de la ficha. El aviso del formulario va SIEMPRE encima del botón que lleva a Dataverse, como
+ * texto visible y nunca en una nota emergente: quien hace clic ya sabe que le pedirán cinco datos.
+ * El motivo del formulario es un dato pendiente del investigador: mientras falte se enseña como pendiente (la vista
+ * previa debe mostrar lo que falta); si la clave se vacía o se retira, no se pinta nada.
+ */
+import { t, plano, rotulo, existe } from '../../lib/i18n';
+import { ENLACES } from '../../config/enlaces';
+import type { Pais } from '../../lib/cifras';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang; p: Pais }
+const { lang, p } = Astro.props;
+const motivo = existe('comun.fija.formulario.motivo') ? t(lang, 'comun.fija.formulario.motivo') : '';
+---
+<div class="descarga">
+  <div class="aviso">
+    <p set:html={t(lang, 'comun.fija.formulario')} />
+    {motivo.trim() && <p class="nota" set:html={motivo} />}
+  </div>
+  <p class="botones">
+    <a class="boton" href={ENLACES.doi(p.doi)} rel="noopener external">
+      <Fragment set:html={rotulo(lang, 'ficha.descarga.boton')} /><span class="sr-only">. {plano(lang, 'comun.enlace.dataverse')}</span>
+    </a>
+    <a class="boton secundario" href={ENLACES.explorador} target="_blank" rel="noopener external">
+      <Fragment set:html={rotulo(lang, 'ficha.descarga.explorador')} /><span aria-hidden="true">↗</span><span class="sr-only">. {plano(lang, 'comun.enlace.explorador')}</span>
+    </a>
+  </p>
+  {/* En EN y PT, junto a cada «Abrir el explorador»: su interfaz está solo en español. En ES no se pinta. */}
+  {lang !== 'es' && <p class="nota" set:html={t(lang, `comun.idioma.aviso.${lang}`)} />}
+</div>
+
+<style>
+  .descarga { margin-top: clamp(1.5rem, 3vw, 2.25rem); max-width: 44rem; }
+  .aviso { border-left: 3px solid var(--ink); padding-left: clamp(.9rem, 2vw, 1.4rem); }
+  .aviso p { margin: 0 0 .4em; }
+  .aviso p:last-child { margin-bottom: 0; }
+  .botones { display: flex; flex-wrap: wrap; gap: .75rem 1rem; margin: 1.1rem 0 .9rem; max-width: none; }
+</style>

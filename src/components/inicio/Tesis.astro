@@ -1,0 +1,74 @@
+---
+/**
+ * La tesis y su remate: el segundo golpe de la página, después de la pregunta. Es la ÚNICA banda invertida
+ * de Inicio (tinta sobre papel se vuelve papel sobre tinta), sin degradado ni imagen: solo tipografía.
+ * La tesis va en la grotesca pesada y el remate le contesta en la serif, desplazado a la derecha.
+ * Debajo, la línea-credencial en mono —que el copy baja aquí desde la cabecera— y la frase de la
+ * literatura, que va BAJO la tesis y nunca entre la figura y ella.
+ * No es una sección con título: es una afirmación. Por eso no lleva h2 ni <section>.
+ */
+import { t } from '../../lib/i18n';
+import { frases, piezas } from './frases';
+import type { Lang } from '../../lib/idiomas';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+---
+<div class="banda">
+  <div class="contenedor reja">
+    <p class="tesis entra" set:html={frases(t(lang, 'inicio.tesis'))} />
+    {/* Qué CLASE de cosa es, antes de decir lo que costó: el remate cierra. La familia, en el orden que fijó el investigador. */}
+    <div class="clase">
+      <p set:html={t(lang, 'inicio.tesis.laboratorio')} />
+      <p class="familia" set:html={t(lang, 'inicio.tesis.familia')} />
+    </div>
+    <p class="remate" set:html={frases(t(lang, 'inicio.tesis.remate'))} />
+  </div>
+  <div class="contenedor reja pie">
+    <p class="credencial" set:html={piezas(t(lang, 'inicio.credencial'))} />
+    <p class="literatura en-letra" set:html={t(lang, 'inicio.apertura.literatura')} />
+  </div>
+</div>
+
+<style>
+  .banda {
+    /* Los mismos tokens, cruzados: funciona igual en claro y en oscuro sin un solo color nuevo. */
+    --b-fondo: var(--ink); --b-tinta: var(--bg);
+    --b-tenue: color-mix(in srgb, var(--bg) 74%, var(--ink));
+    --b-filete: color-mix(in srgb, var(--bg) 26%, var(--ink));
+    background: var(--b-fondo); color: var(--b-tinta);
+    padding-block: clamp(4rem, 10.5vw, 10rem) clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .tesis {
+    margin: 0; max-width: none;
+    font: 800 clamp(1.9rem, 1rem + 3.9vw, 4.75rem)/1.02 var(--display);
+    letter-spacing: -.028em; word-spacing: .06em; font-stretch: 88%; text-wrap: balance;
+  }
+  /* Cada frase en su línea. En la tesis, la segunda («Ese coste ya está pagado») cae sola y con aire: es la que golpea. */
+  .tesis :global(.frase), .remate :global(.frase) { display: block; }
+  .tesis :global(.frase + .frase) { margin-top: .32em; }
+  .clase { margin: clamp(2rem, 4.5vw, 4rem) 0 0; max-width: 40rem; color: var(--b-tenue); font-size: clamp(1.05rem, .98rem + .4vw, 1.3rem); line-height: 1.5; }
+  .clase p { margin: 0; }
+  .clase .familia { margin-top: .7em; color: var(--b-tinta); font-weight: 600; }
+  .remate {
+    margin: clamp(2rem, 4.5vw, 4rem) 0 0; max-width: none; padding-top: 1.1rem;
+    border-top: 1px solid var(--b-filete);
+    font-size: clamp(1.3rem, 1.05rem + 1.25vw, 2.15rem); line-height: 1.24; letter-spacing: -.008em;
+  }
+
+  .pie { margin-top: clamp(3.5rem, 8vw, 7.5rem); padding-top: 1.1rem; border-top: 1px solid var(--b-filete); row-gap: 1.25rem; }
+  .credencial { margin: 0; max-width: none; font: 500 var(--fs-small)/1.7 var(--mono); letter-spacing: .02em; text-wrap: balance; }
+  .credencial :global(.pieza) { white-space: nowrap; }
+  .credencial :global(data.cifra) { font-size: 1em; letter-spacing: inherit; }
+  .literatura { margin: 0; font-size: var(--fs-small); line-height: 1.5; color: var(--b-tenue); max-width: 30rem; }
+
+  @media (min-width: 60rem) {
+    .tesis { grid-column: 1 / span 11; }
+    /* El remate y la literatura comparten eje: la página tiene una segunda vertical, a la derecha. */
+    .clase { grid-column: 1 / span 7; }
+    .remate { grid-column: 6 / -1; }
+    .credencial { grid-column: 1 / span 6; }
+    .literatura { grid-column: 7 / -1; }
+  }
+</style>

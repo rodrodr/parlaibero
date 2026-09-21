@@ -1,0 +1,64 @@
+---
+/**
+ * PÁGINA NO ENCONTRADA (copy §1.7). GitHub Pages sirve un solo `404.html`, que no sabe en qué lengua venía el
+ * lector: por eso lleva las tres lenguas apiladas, con el español primero.
+ *  · Usa el layout común, así que lleva la mención de la AEI como cualquier otra página.
+ *  · `ruta=""`: el selector de idioma de la cabecera lleva al Inicio de cada lengua. Con `ruta="404"` apuntaría a
+ *    tres páginas que no existen y rompería la comprobación de enlaces internos.
+ *  · Un solo h1 (el español); los otros dos títulos son h2, cada bloque con su atributo `lang`.
+ */
+import Base from '../layouts/Base.astro';
+import { t, plano, tEnlaces } from '../lib/i18n';
+import { url, PAGINAS } from '../lib/rutas';
+import { LANGS, HTML_LANG, type Lang } from '../lib/idiomas';
+import { ENLACES } from '../config/enlaces';
+
+const PRINCIPAL: Lang = 'es';
+const otras = LANGS.filter((l) => l !== PRINCIPAL);
+const salidas = (l: Lang) => tEnlaces(l, 'comun.404.salidas', [url(l), url(l, PAGINAS.paises), url(l, PAGINAS.usar)]);
+const errata = (l: Lang) => tEnlaces(l, 'comun.404.errata', [ENLACES.erratas]);
+---
+<Base lang={PRINCIPAL} ruta="" titulo={`${plano(PRINCIPAL, 'comun.404.titulo')} · ${plano(PRINCIPAL, 'comun.cabecera.nombre')}`} descripcion={plano(PRINCIPAL, 'comun.404.texto')}>
+  <div class="contenedor perdida">
+    <section class="principal" lang={HTML_LANG[PRINCIPAL]}>
+      <h1 set:html={t(PRINCIPAL, 'comun.404.titulo')} />
+      <p class="lede" set:html={t(PRINCIPAL, 'comun.404.texto')} />
+      <p class="salidas" set:html={salidas(PRINCIPAL)} />
+      <p class="nota" set:html={errata(PRINCIPAL)} />
+    </section>
+
+    <div class="otras">
+      {otras.map((l) => (
+        <section lang={HTML_LANG[l]}>
+          <h2 set:html={t(l, 'comun.404.titulo')} />
+          <p set:html={t(l, 'comun.404.texto')} />
+          <p class="salidas" set:html={salidas(l)} />
+          <p class="nota" set:html={errata(l)} />
+        </section>
+      ))}
+    </div>
+  </div>
+</Base>
+
+<style>
+  .perdida { padding-block: clamp(3rem, 9vw, 8rem) clamp(2rem, 5vw, 4rem); }
+  .perdida h1 { font-stretch: 82%; max-width: 9em; }
+  .principal .lede { margin: 1.75rem 0 2rem; }
+  .principal .nota { margin-top: 1.75rem; }
+
+  /* Los enlaces de salida llegan del copy como una sola tanda: aquí se les da cuerpo de botón. */
+  .salidas { display: flex; flex-wrap: wrap; gap: .6rem .8rem; max-width: none; margin: 0; }
+  .salidas :global(a) {
+    display: inline-flex; align-items: center; padding: .7em 1.1em; border: 2px solid var(--accent); border-radius: var(--radio);
+    font: 700 var(--fs-small)/1.1 var(--display); text-decoration: none; color: var(--accent);
+  }
+  .salidas :global(a:first-of-type) { background: var(--accent); color: var(--accent-ink); }
+  /* Si la lengua aún no está traducida, `t()` envuelve la tanda en un span: que siga siendo una fila de botones. */
+  .salidas :global([data-sin-traducir]) { display: flex; flex-wrap: wrap; gap: .6rem .8rem; }
+
+  .otras { display: grid; gap: 2.5rem 3.5rem; margin-top: clamp(3rem, 8vw, 6rem); padding-top: 2rem; border-top: 1px solid var(--ink); }
+  .otras h2 { font-size: var(--fs-h3); margin-bottom: .8rem; }
+  .otras .salidas { margin-top: 1.1rem; }
+  .otras .nota { margin-top: 1.1rem; }
+  @media (min-width: 56rem) { .otras { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+</style>

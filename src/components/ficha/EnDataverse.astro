@@ -1,0 +1,55 @@
+---
+/**
+ * Un texto de la ficha que ENLAZA un documento depositado en vez de reproducirlo (`ficha.fuente.texto`,
+ * `ficha.antes.intro`). Directiva del 2026-09-21: en divulgación no se nombra a nadie que figure en los datos, y las
+ * limitaciones y el informe del proceso nombran a parlamentarios. Se leen en Harvard Dataverse, junto al conjunto.
+ *
+ * El copy cierra la unidad con su enlace entre corchetes. Aquí se separa del texto para poner ENCIMA el aviso del
+ * formulario: descargar cualquier archivo del conjunto —también la documentación— pasa por él, y quien hace clic
+ * tiene que saberlo antes. Abre en otra pestaña: el lector viene a leer un documento y vuelve a la ficha.
+ */
+import { t, tEnlaces, plano, existe } from '../../lib/i18n';
+import { ENLACES } from '../../config/enlaces';
+import type { Pais } from '../../lib/cifras';
+import type { Lang } from '../../lib/idiomas';
+import { ctxPais } from './contexto';
+
+interface Props {
+  lang: Lang; p: Pais; clave: string;
+  /** El texto abre su bloque y es lo único que lleva: se compone como entradilla. */
+  entradilla?: boolean;
+}
+const { lang, p, clave, entradilla = false } = Astro.props;
+
+const destino = ENLACES.doi(p.doi);
+const html = tEnlaces(lang, clave, [destino], ctxPais(p.iso, lang));
+// El ÚLTIMO enlace de la unidad es el del depósito; lo que queda es el texto.
+const m = html.match(/\s*<a\b[^>]*>([^<]*)<\/a>(?![\s\S]*<a\b)/);
+if (!m) throw new Error(`«${clave}» (${lang}) no trae su enlace a Dataverse entre corchetes: sin él, el documento depositado ni se reproduce ni se enlaza.`);
+const texto = html.replace(m[0], '').trim();
+const etiqueta = m[1] ?? '';
+
+// TODO-COPY: `comun.enlace.dataverse` dice adónde se va, no que se abre otra pestaña. Mientras el copy no traiga la
+// frase, el lector de pantalla oye la que hay y la falta queda declarada.
+const PESTANA = 'comun.enlace.dataverse.pestana';
+const nota = plano(lang, existe(PESTANA) ? PESTANA : 'comun.enlace.dataverse');
+---
+<p class:list={['texto', { lede: entradilla }]} set:html={texto} />
+<div class="a-dataverse">
+  <p class="nota aviso" set:html={t(lang, 'comun.fija.formulario')} />
+  <p class="enlace">
+    <a href={destino} target="_blank" rel="noopener external" data-todo-copy={existe(PESTANA) ? undefined : PESTANA}>
+      <Fragment set:html={etiqueta} /><span aria-hidden="true">↗</span><span class="sr-only">. {nota}</span>
+    </a>
+  </p>
+</div>
+
+<style>
+  /* La fuente depositada trae su URL: una dirección larga no debe ensanchar la página. */
+  .texto { overflow-wrap: anywhere; }
+  .a-dataverse { margin-top: 1.1rem; max-width: 44rem; }
+  /* El mismo filete que el aviso de la descarga: es la misma advertencia, ante el mismo formulario. */
+  .aviso { margin: 0 0 .7rem; border-left: 3px solid var(--ink); padding-left: clamp(.9rem, 2vw, 1.4rem); }
+  .enlace { margin: 0; font: 700 var(--fs-small)/1.2 var(--display); }
+  .enlace span[aria-hidden] { margin-left: .25em; }
+</style>

@@ -1,0 +1,37 @@
+[
+ {
+  "iso": "bo",
+  "nombre_es": "Bolivia",
+  "nombre_en": "Bolivia",
+  "nombre_pt": "Bolívia",
+  "tipo": "capacidad estatal"
+ },
+ {
+  "iso": "ve",
+  "nombre_es": "Venezuela",
+  "nombre_en": "Venezuela",
+  "nombre_pt": "Venezuela",
+  "tipo": "régimen político"
+ },
+ {
+  "iso": "ni",
+  "nombre_es": "Nicaragua",
+  "nombre_en": "Nicaragua",
+  "nombre_pt": "Nicarágua",
+  "tipo": "régimen político"
+ },
+ {
+  "iso": "cu",
+  "nombre_es": "Cuba",
+  "nombre_en": "Cuba",
+  "nombre_pt": "Cuba",
+  "tipo": "régimen político"
+ },
+ {
+  "iso": "hn",
+  "nombre_es": "Honduras",
+  "nombre_en": "Honduras",
+  "nombre_pt": "Honduras",
+  "tipo": "fuente no transcriptiva"
+ }
+]

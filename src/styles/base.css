@@ -1,0 +1,116 @@
+/* ParlaIbero · sistema de diseño. Periodismo de datos: titular grotesco pesado, serif de lectura, mono para toda cifra.
+   El papel y el granate son los del explorador, para que los dos se lean como un solo proyecto.
+   El granate ES el color de los datos (decisión del investigador, 2026-09-21: son los colores de la Universidad de
+   Salamanca). La rampa conserva, clase a clase, la escalera de contraste de la petróleo a la que sustituye (3,4 · 4,6 ·
+   6,4 · 9,5 · 13,1 contra el papel). Como el acento también es granate, lo INTERACTIVO no se distingue por el color sino
+   por la forma: los enlaces van subrayados, los botones son cajas y el foco es azul. La ausencia NUNCA es un color. */
+
+:root {
+  --bg: #f7f6f3;   --bg-2: #efede8;
+  --ink: #1d1b18;  --ink-2: #45413a;  --mute: #6b655b;  --hair: rgba(29, 27, 24, .14);
+  --accent: #6a1a24;  --accent-ink: #fff;  --focus: #1558d6;
+  --ausencia: #8b857b;
+  --rampa-0: #be6e78; --rampa-1: #b94b58; --rampa-2: #a0323f; --rampa-3: #7a1f29; --rampa-4: #551119;
+  --cat-1: #2a78c2; --cat-2: #d96a08; --cat-3: #0a755c; --cat-4: #665800; --cat-5: #5a2d91; --cat-6: #6e7882;
+  --dato: #6a1a24;  --dato-sin-auditar: #6e7882;
+  --placa: #fff;
+
+  --display: 'Archivo Variable', 'Archivo', 'Helvetica Neue', Arial, sans-serif;
+  --text: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  --fs-body: clamp(1.06rem, .98rem + .38vw, 1.28rem);
+  --fs-small: clamp(.84rem, .8rem + .16vw, .95rem);
+  --fs-h1: clamp(2.3rem, 1.2rem + 5.4vw, 6.2rem);
+  --fs-h2: clamp(1.75rem, 1.1rem + 3vw, 3.6rem);
+  --fs-h3: clamp(1.25rem, 1.05rem + 1vw, 1.9rem);
+  --fs-lede: clamp(1.2rem, 1.05rem + .8vw, 1.75rem);
+  --gutter: clamp(1rem, 4.2vw, 4.5rem);
+  --measure: 38rem;
+  --ancho: 78rem;
+  --radio: 2px;
+  --ease: cubic-bezier(.4, 0, .2, 1);
+}
+
+:root[data-theme='dark'] {
+  --bg: #17171a;   --bg-2: #1e1e22;
+  --ink: #e9e7e3;  --ink-2: #c4c0b8;  --mute: #a5a19a;  --hair: rgba(233, 231, 227, .16);
+  --accent: #e89aa5;  --accent-ink: #17171a;  --focus: #9ec1ff;
+  --ausencia: #77736c;
+  --rampa-0: #b25b65; --rampa-1: #cc7b84; --rampa-2: #e4a2aa; --rampa-3: #f5ccd0; --rampa-4: #fce8ea;
+  --cat-1: #4f8fd8; --cat-2: #f08a3c; --cat-3: #35b890; --cat-4: #f0dc6a; --cat-5: #cdb0f2; --cat-6: #8a949e;
+  --dato: #e89aa5;  --dato-sin-auditar: #8a949e;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #17171a;   --bg-2: #1e1e22;
+    --ink: #e9e7e3;  --ink-2: #c4c0b8;  --mute: #a5a19a;  --hair: rgba(233, 231, 227, .16);
+    --accent: #e89aa5;  --accent-ink: #17171a;  --focus: #9ec1ff;
+    --ausencia: #77736c;
+    --rampa-0: #b25b65; --rampa-1: #cc7b84; --rampa-2: #e4a2aa; --rampa-3: #f5ccd0; --rampa-4: #fce8ea;
+    --cat-1: #4f8fd8; --cat-2: #f08a3c; --cat-3: #35b890; --cat-4: #f0dc6a; --cat-5: #cdb0f2; --cat-6: #8a949e;
+    --dato: #e89aa5;  --dato-sin-auditar: #8a949e;
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 var(--fs-body)/1.55 var(--text); font-optical-sizing: auto;
+  text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+img, svg { max-width: 100%; height: auto; }
+a { color: var(--accent); text-underline-offset: .18em; text-decoration-thickness: .06em; transition: text-decoration-thickness .12s var(--ease); }
+a:hover { text-decoration-thickness: .14em; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: var(--radio); }
+::selection { background: var(--accent); color: var(--accent-ink); }
+
+h1, h2, h3 { font-family: var(--display); font-weight: 800; line-height: 1.02; letter-spacing: -.022em; margin: 0; text-wrap: balance; font-stretch: 92%; }
+h1 { font-size: var(--fs-h1); } h2 { font-size: var(--fs-h2); } h3 { font-size: var(--fs-h3); line-height: 1.12; letter-spacing: -.012em; }
+p { margin: 0 0 1em; max-width: var(--measure); text-wrap: pretty; }
+em { font-style: italic; }
+code, pre, .mono { font-family: var(--mono); font-size: .86em; font-variant-ligatures: none; }
+pre { background: var(--bg-2); padding: 1.1rem 1.25rem; overflow-x: auto; border-radius: var(--radio); line-height: 1.5; max-width: 100%; }
+
+/* Toda cifra: mono, tabular. Es la firma visual del sitio. */
+data.cifra { font-family: var(--mono); font-variant-numeric: tabular-nums; font-size: .9em; letter-spacing: -.01em; white-space: nowrap; }
+h1 data.cifra, h2 data.cifra, h3 data.cifra { font-family: inherit; font-size: 1em; }
+/* Un número escrito en letra («dieciséis») es prosa: lleva el envoltorio auditable, no la mono. */
+data.cifra[data-fmt='letra'] { font: inherit; letter-spacing: inherit; white-space: normal; }
+mark.pendiente { background: repeating-linear-gradient(135deg, #ffe89a, #ffe89a 6px, #ffd75a 6px, #ffd75a 12px); color: #4a3c00; font: 600 .78em var(--mono); padding: .1em .35em; border-radius: var(--radio); }
+[data-sin-traducir] { outline: 1px dashed var(--cat-2); outline-offset: 2px; }
+
+.contenedor { width: min(100% - 2 * var(--gutter), var(--ancho)); margin-inline: auto; }
+.kicker { font: 600 var(--fs-small)/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+.lede { font-size: var(--fs-lede); line-height: 1.32; max-width: 34rem; }
+.nota { font-size: var(--fs-small); color: var(--ink-2); line-height: 1.45; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.boton {
+  display: inline-flex; align-items: center; gap: .5em; padding: .72em 1.15em; border-radius: var(--radio);
+  font: 700 var(--fs-small)/1.1 var(--display); letter-spacing: .01em; text-decoration: none;
+  background: var(--accent); color: var(--accent-ink); border: 2px solid var(--accent); cursor: pointer;
+  min-height: 2.75rem; /* objetivo táctil de 44 px: es `inline-flex` y centra su rótulo */
+  transition: background .12s var(--ease);
+}
+.boton.secundario { background: transparent; color: var(--accent); }
+
+.seccion { padding-block: clamp(3.5rem, 9vw, 8.5rem); border-top: 1px solid var(--hair); }
+.seccion > .contenedor > h2 { margin-bottom: .5em; }
+
+/* Todo lo que SE MUEVE vive aquí dentro: el salto suave de las anclas, el botón que sube y la entrada única. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+  .boton { transition: transform .12s var(--ease), background .12s var(--ease); }
+  .boton:hover { transform: translateY(-1px); }
+  .entra { opacity: 0; transform: translateY(14px); animation: entra .7s var(--ease) forwards; animation-timeline: view(); animation-range: entry 0% entry 35%; }
+  @supports not (animation-timeline: view()) { .entra { opacity: 1; transform: none; animation: none; } }
+  @keyframes entra { to { opacity: 1; transform: none; } }
+}
+@media print {
+  .no-imprimir { display: none !important; } body { background: #fff; color: #000; }
+  /* `.entra` nace transparente y la anima el scroll: en papel no hay scroll que la traiga. */
+  .entra { opacity: 1 !important; transform: none !important; animation: none !important; }
+}

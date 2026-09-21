@@ -1,0 +1,587 @@
+{
+ "corpus.n": {
+  "v": 16,
+  "t": "int",
+  "clave": "CALC",
+  "f": "parlaibero.data.json → paises[]",
+  "d": "2026-09-07"
+ },
+ "universo.n": {
+  "v": 21,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §2.2",
+  "d": "2026-09-07"
+ },
+ "ausentes.n": {
+  "v": 5,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §2.2",
+  "d": "2026-09-07"
+ },
+ "rejilla.desde": {
+  "v": 1976,
+  "t": "year",
+  "clave": "C",
+  "f": "parlaibero.data.json → meta.ano_rejilla",
+  "d": "2026-09-07"
+ },
+ "rejilla.hasta": {
+  "v": 2025,
+  "t": "year",
+  "clave": "C",
+  "f": "parlaibero.data.json → meta.ano_rejilla",
+  "d": "2026-09-07"
+ },
+ "rejilla.llenas": {
+  "v": 527,
+  "t": "int",
+  "clave": "CALC",
+  "f": "parlaibero.data.json → anual[].ses > 0 dentro de la rejilla",
+  "d": "2026-09-07"
+ },
+ "rejilla.total": {
+  "v": 800,
+  "t": "int",
+  "clave": "CALC",
+  "f": "cámaras × años de la rejilla",
+  "d": "2026-09-07"
+ },
+ "filas.P": {
+  "v": 10091060,
+  "t": "int",
+  "clave": "P",
+  "f": "cobertura_temporal.md",
+  "d": "2026-09-07",
+  "cabecera": true
+ },
+ "sesiones.P": {
+  "v": 52718,
+  "t": "int",
+  "clave": "P",
+  "f": "cobertura_temporal.md",
+  "d": "2026-09-07",
+  "cabecera": true
+ },
+ "primera.P": {
+  "v": "1976-06-03",
+  "t": "date",
+  "clave": "P",
+  "f": "cobertura_temporal.md",
+  "d": "2026-09-07",
+  "cabecera": true
+ },
+ "ultima.P": {
+  "v": "2026-01-14",
+  "t": "date",
+  "clave": "P",
+  "f": "cobertura_temporal.md",
+  "d": "2026-09-07",
+  "cabecera": true
+ },
+ "habla.L": {
+  "v": 9868087,
+  "t": "int",
+  "clave": "L",
+  "f": "Σ corpus_info.linkage.speech_rows",
+  "d": "2026-09-07"
+ },
+ "vinculados.L": {
+  "v": 8590210,
+  "t": "int",
+  "clave": "L",
+  "f": "Σ corpus_info.linkage.linked",
+  "d": "2026-09-07"
+ },
+ "vinc.bruta": {
+  "v": 0.8705040804767935,
+  "t": "pct",
+  "clave": "CALC",
+  "f": "vinculados / turnos de habla",
+  "d": "2026-09-07",
+  "n": 8590210,
+  "den": 9868087
+ },
+ "vinc.efectiva": {
+  "v": 0.981234211682113,
+  "t": "pct",
+  "clave": "CALC",
+  "f": "vinculados / (habla − sin escaño − voz colectiva)",
+  "d": "2026-09-07",
+  "n": 8590210,
+  "den": 8754495
+ },
+ "novinc.n": {
+  "v": 1277877,
+  "t": "int",
+  "clave": "CALC",
+  "f": "turnos de habla − vinculados",
+  "d": "2026-09-07"
+ },
+ "novinc.noescano.n": {
+  "v": 962878,
+  "t": "int",
+  "clave": "L",
+  "f": "Σ corpus_info.linkage",
+  "d": "2026-09-07"
+ },
+ "novinc.noescano.pct": {
+  "v": 0.7534981848800785,
+  "t": "pct",
+  "clave": "CALC",
+  "f": "sobre los turnos de habla sin diputado",
+  "d": "2026-09-07",
+  "n": 962878,
+  "den": 1277877
+ },
+ "novinc.colectiva.n": {
+  "v": 150714,
+  "t": "int",
+  "clave": "L",
+  "f": "Σ corpus_info.linkage",
+  "d": "2026-09-07"
+ },
+ "novinc.colectiva.pct": {
+  "v": 0.11794092858702364,
+  "t": "pct",
+  "clave": "CALC",
+  "f": "sobre los turnos de habla sin diputado",
+  "d": "2026-09-07",
+  "n": 150714,
+  "den": 1277877
+ },
+ "novinc.laguna.n": {
+  "v": 164285,
+  "t": "int",
+  "clave": "L",
+  "f": "Σ corpus_info.linkage",
+  "d": "2026-09-07"
+ },
+ "novinc.laguna.pct": {
+  "v": 0.12856088653289793,
+  "t": "pct",
+  "clave": "CALC",
+  "f": "sobre los turnos de habla sin diputado",
+  "d": "2026-09-07",
+  "n": 164285,
+  "den": 1277877
+ },
+ "prolegomena.C": {
+  "v": 51741,
+  "t": "int",
+  "clave": "C",
+  "f": "perfil_parlaibero.json → agregados.totales",
+  "d": "2026-09-07"
+ },
+ "nohabla.C": {
+  "v": 222975,
+  "t": "int",
+  "clave": "C",
+  "f": "perfil_parlaibero.json → agregados.totales",
+  "d": "2026-09-07"
+ },
+ "palabras_habla.C": {
+  "v": 1633738332,
+  "t": "int",
+  "clave": "C",
+  "f": "perfil_parlaibero.json → agregados.totales",
+  "d": "2026-09-07"
+ },
+ "padron.personas": {
+  "v": 37523,
+  "t": "int",
+  "clave": "C",
+  "f": "perfil_parlaibero.json → agregados.totales",
+  "d": "2026-09-07"
+ },
+ "padron.tramos": {
+  "v": 70570,
+  "t": "int",
+  "clave": "C",
+  "f": "perfil_parlaibero.json → agregados.totales",
+  "d": "2026-09-07"
+ },
+ "padron.br.filas": {
+  "v": 5523,
+  "t": "int",
+  "clave": "C",
+  "f": "source/br/standardize/BR_deputies.csv",
+  "d": "2026-09-07"
+ },
+ "padron.br.pares": {
+  "v": 3772,
+  "t": "int",
+  "clave": "C",
+  "f": "source/br/standardize/BR_deputies.csv",
+  "d": "2026-09-07"
+ },
+ "columnas.n": {
+  "v": 16,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → columnas[]",
+  "d": "2026-09-07"
+ },
+ "decada.n_corpus.1970s": {
+  "v": 3,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → decada.n_corpus",
+  "d": "2026-09-07"
+ },
+ "decada.n_corpus.1980s": {
+  "v": 7,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → decada.n_corpus",
+  "d": "2026-09-07"
+ },
+ "decada.n_corpus.1990s": {
+  "v": 11,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → decada.n_corpus",
+  "d": "2026-09-07"
+ },
+ "decada.n_corpus.2000s": {
+  "v": 15,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → decada.n_corpus",
+  "d": "2026-09-07"
+ },
+ "decada.n_corpus.2010s": {
+  "v": 16,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → decada.n_corpus",
+  "d": "2026-09-07"
+ },
+ "decada.n_corpus.2020s": {
+  "v": 16,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → decada.n_corpus",
+  "d": "2026-09-07"
+ },
+ "sexo.exactitud": {
+  "v": 0.9898,
+  "t": "pct",
+  "clave": "M",
+  "f": "monografía, apéndice D.4",
+  "d": "2026-09-07"
+ },
+ "sexo.exactitud_h": {
+  "v": 0.9954000000000001,
+  "t": "pct",
+  "clave": "M",
+  "f": "monografía, apéndice D.4",
+  "d": "2026-09-07"
+ },
+ "sexo.exactitud_m": {
+  "v": 0.9743,
+  "t": "pct",
+  "clave": "M",
+  "f": "monografía, apéndice D.4",
+  "d": "2026-09-07"
+ },
+ "sexo.base_filas": {
+  "v": 38372,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía, apéndice D.4",
+  "d": "2026-09-07"
+ },
+ "sexo.razon_error.n": {
+  "v": 5.6,
+  "t": "ratio",
+  "clave": "CALC",
+  "f": "(1 − exactitud en mujeres) / (1 − exactitud en hombres)",
+  "d": "2026-09-07"
+ },
+ "sexo.padrones_auditados": {
+  "v": 11,
+  "t": "int",
+  "clave": "M",
+  "f": "CO, CR, DO, ES, GT, MX, PA, PT, PY, SV, UY",
+  "d": "2026-09-07"
+ },
+ "sexo.padrones_sin_auditar": {
+  "v": 5,
+  "t": "int",
+  "clave": "CALC",
+  "f": "AR, BR, CL, EC, PE",
+  "d": "2026-09-07"
+ },
+ "turno.mediana_min.n": {
+  "v": 11,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → longitud[].mediana",
+  "d": "2026-09-07"
+ },
+ "turno.mediana_min.pais": {
+  "v": {
+   "es": "Uruguay",
+   "en": "Uruguay",
+   "pt": "Uruguai"
+  },
+  "t": "i18n",
+  "clave": "C",
+  "f": "parlaibero.data.json → longitud[]",
+  "d": "2026-09-07"
+ },
+ "turno.mediana_max.n": {
+  "v": 92,
+  "t": "int",
+  "clave": "C",
+  "f": "parlaibero.data.json → longitud[].mediana",
+  "d": "2026-09-07"
+ },
+ "turno.mediana_max.pais": {
+  "v": {
+   "es": "El Salvador",
+   "en": "El Salvador",
+   "pt": "El Salvador"
+  },
+  "t": "i18n",
+  "clave": "C",
+  "f": "parlaibero.data.json → longitud[]",
+  "d": "2026-09-07"
+ },
+ "voz.n_sube": {
+  "v": 15,
+  "t": "int",
+  "clave": "CALC",
+  "f": "cámaras cuya última década supera a la primera, en palabras",
+  "d": "2026-09-07"
+ },
+ "eventos.n_presentes": {
+  "v": 6,
+  "t": "int",
+  "clave": "CALC",
+  "f": "parlaibero.data.json → historicas.eventos[presente]",
+  "d": "2026-09-07"
+ },
+ "dois.n": {
+  "v": 16,
+  "t": "int",
+  "clave": "D",
+  "f": "dataverse/dois.json",
+  "d": "2026-09-07"
+ },
+ "dois.n_v2": {
+  "v": 15,
+  "t": "int",
+  "clave": "D",
+  "f": "dataverse/dois.json",
+  "d": "2026-09-07"
+ },
+ "dois.version_mayoritaria": {
+  "v": "v2.0",
+  "t": "text",
+  "clave": "D",
+  "f": "dataverse/dois.json",
+  "d": "2026-09-07"
+ },
+ "dois.rezagados": {
+  "v": {
+   "es": "Perú (v1.0)",
+   "en": "Peru (v1.0)",
+   "pt": "Peru (v1.0)"
+  },
+  "t": "i18n",
+  "clave": "D",
+  "f": "dataverse/dois.json → versiones",
+  "d": "2026-09-07"
+ },
+ "csv.min": {
+  "v": 103092395,
+  "t": "bytes",
+  "clave": "D",
+  "f": "fuentes_parlaibero.json → archivo.bytes",
+  "d": "2026-09-07"
+ },
+ "csv.max": {
+  "v": 1649696869,
+  "t": "bytes",
+  "clave": "D",
+  "f": "fuentes_parlaibero.json → archivo.bytes",
+  "d": "2026-09-07"
+ },
+ "csv.total": {
+  "v": 13163208991,
+  "t": "bytes",
+  "clave": "D",
+  "f": "Σ fuentes_parlaibero.json → archivo.bytes",
+  "d": "2026-09-07"
+ },
+ "cita.sv.fecha": {
+  "v": "2018-08-10",
+  "t": "date",
+  "clave": "C",
+  "f": "parlaibero.data.json → citas[sv].date",
+  "d": "2026-09-07"
+ },
+ "coleccion.url": {
+  "v": "https://dataverse.harvard.edu/dataverse/parlaibero",
+  "t": "text",
+  "clave": "D",
+  "f": "fuentes_parlaibero.json → coleccion",
+  "d": "2026-09-07"
+ },
+ "medido_el": {
+  "v": "2026-09-07",
+  "t": "date",
+  "clave": "C",
+  "f": "parlaibero.data.json → meta.medido_el",
+  "d": "2026-09-07"
+ },
+ "edicion_datos": {
+  "v": "2026-09-07",
+  "t": "date",
+  "clave": "D",
+  "f": "máx. de fuentes[].fecha_version",
+  "d": "2026-09-07"
+ },
+ "desfase_ec.filas": {
+  "v": 150,
+  "t": "int",
+  "clave": "CALC",
+  "f": "parlaibero.data.json → meta.nota_ec",
+  "d": "2026-09-07"
+ },
+ "desfase_ec.sesiones": {
+  "v": 2,
+  "t": "int",
+  "clave": "CALC",
+  "f": "parlaibero.data.json → meta.nota_ec",
+  "d": "2026-09-07"
+ },
+ "ocr.fragmentos_retirados": {
+  "v": 1949,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §6.6 y §9.7",
+  "d": "2026-09-07"
+ },
+ "validacion.fuga.pct": {
+  "v": 0.005,
+  "t": "pct",
+  "clave": "M",
+  "f": "monografía §7.4",
+  "d": "2026-09-07",
+  "dec": 1
+ },
+ "validacion.fuga.ic": {
+  "v": "0,09–2,78",
+  "t": "text",
+  "clave": "M",
+  "f": "monografía §7.4",
+  "d": "2026-09-07"
+ },
+ "validacion.fuga.n": {
+  "v": 1,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §7.4",
+  "d": "2026-09-07"
+ },
+ "validacion.fuga.den": {
+  "v": 200,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §7.4 (cada ronda revisa 200 filas PASS)",
+  "d": "2026-09-07"
+ },
+ "validacion.filas_pais": {
+  "v": 300,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §7.4",
+  "d": "2026-09-07"
+ },
+ "validacion.paises": {
+  "v": 15,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §7.4 (4.500 filas = 300 × 15 países; Ecuador no entró)",
+  "d": "2026-09-07"
+ },
+ "validacion.fecha": {
+  "v": "2026-07-31",
+  "t": "date",
+  "clave": "M",
+  "f": "monografía §7.4 (la semilla es la fecha de ejecución)",
+  "d": "2026-09-07"
+ },
+ "genero.br.pct_turnos": {
+  "v": 0.087,
+  "t": "pct",
+  "clave": "M",
+  "f": "monografía §8.3",
+  "d": "2026-09-07",
+  "dec": 1
+ },
+ "genero.br.pct_recuperados": {
+  "v": 0.478,
+  "t": "pct",
+  "clave": "M",
+  "f": "monografía §8.3",
+  "d": "2026-09-07",
+  "dec": 1
+ },
+ "paquete.ficheros": {
+  "v": 17,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §10.2",
+  "d": "2026-09-07"
+ },
+ "ocr.do.sesiones": {
+  "v": 7,
+  "t": "int",
+  "clave": "M",
+  "f": "monografía §6.1 y §9.7",
+  "d": "2026-09-07"
+ },
+ "explorador.navegadores": {
+  "v": "Chrome/Edge 112+, Firefox 116+, Safari 17+",
+  "t": "text",
+  "clave": "EXT",
+  "f": "diaries_explorer/explorer_src/README.md",
+  "d": "2026-09-07"
+ },
+ "explorador.construccion.sv": {
+  "v": 3.7,
+  "t": "seg",
+  "clave": "EXT",
+  "f": "diaries_explorer/explorer_src/README.md",
+  "d": "2026-09-07"
+ },
+ "explorador.construccion.br": {
+  "v": 82,
+  "t": "seg",
+  "clave": "EXT",
+  "f": "diaries_explorer/explorer_src/README.md",
+  "d": "2026-09-07"
+ },
+ "explorador.menciones.precision.pct": {
+  "v": 0.8748137108792846,
+  "t": "pct",
+  "clave": "EXT",
+  "f": "diaries_explorer/explorer_src/README.md",
+  "d": "2026-09-07",
+  "dec": 1,
+  "n": 587,
+  "den": 671
+ },
+ "explorador.hitos.n": {
+  "v": 751,
+  "t": "int",
+  "clave": "EXT",
+  "f": "diaries_explorer/explorer_src/datos/hitos_parlaibero.json",
+  "d": "2026-09-07"
+ }
+}

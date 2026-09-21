@@ -1,0 +1,429 @@
+---
+/**
+ * LA REJILLA DE COBERTURA · una fila por cámara, una columna por año (de `rejilla.desde` a `rejilla.hasta`).
+ *
+ *  · Tres estados de celda: con sesión (tono = clase de sus turnos de habla) · hueco declarado (papel con contorno y
+ *    el rango rotulado encima) · fuera de la serie (nada). LA AUSENCIA NUNCA ES UN COLOR.
+ *  · El tono son cinco clases por CUANTILES sobre las celdas con sesión, calculados en el build; los cortes van
+ *    impresos junto a la escala (`rejilla.umbrales`).
+ *  · El orden de las filas es el de `paises.json` (década de entrada y año de inicio): nunca por valor.
+ *  · Cada fila es UN enlace a su ficha: una parada de tabulación por cámara. La isla añade la nota emergente y el
+ *    recorrido de los años con las flechas; sin script, la fila sigue siendo un enlace y los valores están en «Tabla».
+ *  · Cada fila es una tira SVG de `años × 1` que se estira al ancho que haya (en el móvil, celdas de ~5 px y
+ *    etiqueta ISO); todo el texto va en HTML, fuera del SVG, para que no encoja y cada cifra lleve su `<data>`.
+ *
+ * QUÉ TEXTO PINTA. Siempre: la escala con sus cortes, los cinco Estados sin corpus (`comun.ausentes.*`), la tabla con
+ * su pie y la descarga. La leyenda LARGA (`paises.leyenda.*`) y la descarga a la vista (`paises.descarga.boton`) son de
+ * la página de Países, que no las repite: por eso `completa` vale `true` por defecto SOLO en `/[lang]/paises/`. En
+ * Inicio la figura va con la leyenda breve, y la frase del tono la escribe `inicio/Cobertura.astro` (`tono` la añade
+ * aquí si algún día la figura va sola).
+ *
+ * EL DOI DE LA TABLA. Todo enlace a Harvard Dataverse lleva ENCIMA el aviso del formulario. En la página de Países
+ * (`completa`) la tabla lo trae consigo; en Inicio el DOI va como texto, sin enlace: la fila ya lleva a la ficha,
+ * que tiene su aviso y su botón, y así Inicio no gana dieciséis salidas a Dataverse sin avisar.
+ */
+import Pestanas from './Pestanas.astro';
+import anualJson from '../data/anual.json';
+import ausentesJson from '../data/ausentes.json';
+import cifrasJson from '../data/cifras.json';
+import { t, plano, rotulo, existe } from '../lib/i18n';
+import { fmt, resuelve, PAISES, type Contexto } from '../lib/cifras';
+import { url, recurso, PAGINAS } from '../lib/rutas';
+import { ENLACES } from '../config/enlaces';
+import { FIGURAS } from '../lib/figuras';
+import type { Lang } from '../lib/idiomas';
+import { rejilla, tramo, type AnualEntrada } from '../viz/geom/rejilla';
+
+interface Props {
+  lang: Lang;
+  /** Prefijo de los id de la figura; cámbiese solo si hay dos en la misma página. */
+  id?: string;
+  /** Leyenda larga y descarga a la vista. Por defecto, solo en el índice de países (ver arriba). */
+  completa?: boolean;
+  /** Añade «El tono dice cuánto material hay…» a la leyenda breve. */
+  tono?: boolean;
+  /** Pinta los Estados sin corpus bajo la rejilla y en la tabla (por defecto, sí). */
+  ausentes?: boolean;
+}
+const enIndiceDePaises = new RegExp(`/${PAGINAS.paises}/?$`).test(Astro.url.pathname);
+const { lang, id = FIGURAS.cobertura.ancla, completa = enIndiceDePaises, tono = false, ausentes = true } = Astro.props;
+// El motivo del formulario es un texto pendiente del investigador: mientras lo sea, se pinta como pendiente.
+const MOTIVO = 'comun.fija.formulario.motivo';
+
+// ── datos → geometría ─────────────────────────────────────────────────────────────────────
+const CIFRAS = cifrasJson as unknown as Record<string, { v: number }>;
+const GEO = rejilla(PAISES, anualJson as unknown as AnualEntrada[], CIFRAS['rejilla.desde'].v, CIFRAS['rejilla.hasta'].v);
+
+// La figura y el copy cuentan lo mismo, o no se publica: «527 de 800» está escrito en tres páginas.
+const desajustes = [
+  GEO.llenas !== CIFRAS['rejilla.llenas'].v && `la rejilla dibuja ${GEO.llenas} celdas con sesión y cifras.json dice ${CIFRAS['rejilla.llenas'].v}`,
+  GEO.total !== CIFRAS['rejilla.total'].v && `la rejilla tiene ${GEO.total} celdas y cifras.json dice ${CIFRAS['rejilla.total'].v}`,
+  ...GEO.filas.filter((f) => f.sinDeclarar.length).map((f) => `${f.iso}: años dentro de la serie sin sesión y sin hueco declarado (${f.sinDeclarar.join(', ')})`),
+].filter(Boolean);
+if (desajustes.length) {
+  const aviso = `FigRejilla · los datos no cuadran: ${desajustes.join('; ')}.`;
+  if (process.env.STRICT === '1') throw new Error(aviso);
+  console.warn(aviso);
+}
+
+/**
+ * ⚠ Rodeo de un defecto de los cimientos (declarado en el informe): `t()` escapa el texto ANTES de resolver los
+ * marcadores, así que `{{pais.<iso>.x}}` llega a `resuelve()` como `pais.&lt;iso&gt;.x`, el `replace('<iso>')` no casa
+ * y la clave queda sin resolver. Mientras no se corrija, los campos por país se entregan ya resueltos en `vars`, con
+ * la clave escrita de las dos formas: cuando los cimientos se arreglen, `vars` deja de casar y esto sobra sin romper nada.
+ */
+const dePais = (iso: string, campos: string[]): Contexto => ({
+  iso,
+  vars: Object.fromEntries(campos.flatMap((c) => [`pais.&lt;iso&gt;.${c}`, `pais.<iso>.${c}`].map((k) => [k, resuelve(`pais.${iso}.${c}`, lang)]))),
+});
+const CAMPOS_ALT = ['nombre', 'camara', 'inicio', 'fin', 'huecos_rangos'];
+
+const rango = (a: number, b: number) => fmt.rangos([[a, b]]);
+const filas = GEO.filas.map((f, i) => {
+  const p = PAISES[i];
+  const nombre = p.nombre[lang];
+  return {
+    p, f, nombre,
+    href: url(lang, `${PAGINAS.paises}/${p.iso}`),
+    alt: plano(lang, p.huecos.length ? 'comun.alt.rejilla.largo.fila.hueco' : 'comun.alt.rejilla.largo.fila', dePais(p.iso, CAMPOS_ALT)),
+    celdas: f.celdas.filter((c) => c.estado === 'sesion'),
+    huecos: f.huecos.map((h) => ({
+      ...h, pos: tramo(h.x, h.ancho, GEO.columnas),
+      rotulo: fmt.dato(h.desde, rango(h.desde, h.hasta), `pais.${p.iso}.huecos_rangos`),
+      aviso: plano(lang, 'comun.fig.rejilla.hover.hueco', { vars: { pais: nombre, huecos_rangos: rango(h.desde, h.hasta) } }),
+    })),
+    carril: f.carril && { ...f.carril, rotulo: fmt.dato(f.carril.rangos[0][0], fmt.rangos(f.carril.rangos), `pais.${p.iso}.huecos_rangos`) },
+  };
+});
+
+// La isla compone la nota de cada celda con esta plantilla y los `data-*` ya formateados: 527 frases menos en el HTML.
+const plantilla = plano(lang, 'comun.fig.rejilla.hover', { vars: { pais: '{pais}', 'año': '{a}', ses: '{s}', hab: '{h}' } });
+
+// ── escala del tono ───────────────────────────────────────────────────────────────────────
+const corte = (v: number) => fmt.dato(v, fmt.entero(v, lang), 'rejilla.umbrales');
+const CLASES = GEO.cortes.length + 1;
+// Los cortes van BAJO la escala, cada uno en su frontera; los dos extremos, ENCIMA y en las esquinas, para que el
+// último corte y el máximo no se pisen cuando la escala es estrecha.
+const cortes = GEO.cortes.map((v, k) => ({ html: corte(v), pos: (100 * (k + 1)) / CLASES }));
+const extremos = GEO.extremos.map(corte);
+
+// ── Estados sin corpus ────────────────────────────────────────────────────────────────────
+// Las tres frases son redacción FIJA y ya nombran a los países; `ausentes.json` aporta el ISO de cada uno, que se
+// casa con su frase por el nombre (en cualquiera de las tres lenguas: la frase puede venir prestada del español).
+interface Ausente { iso: string; nombre_es: string; nombre_en: string; nombre_pt: string }
+const AUSENTES = ausentesJson as unknown as Ausente[];
+const sinCorpus = ['comun.ausentes.regimen', 'comun.ausentes.bolivia', 'comun.ausentes.honduras'].map((clave) => {
+  const html = t(lang, clave);
+  const texto = plano(lang, clave);
+  const donde = (a: Ausente) => Math.max(...[a.nombre_es, a.nombre_en, a.nombre_pt].map((n) => texto.indexOf(n)));
+  const isos = AUSENTES.filter((a) => donde(a) >= 0).sort((a, b) => donde(a) - donde(b)).map((a) => a.iso.toUpperCase());
+  // Para la tabla: el nombre (en negrita en el copy) es la cabecera de la fila; el resto, el motivo.
+  const partes = html.match(/^<strong>(.+?)<\/strong>\s*([\s\S]*)$/);
+  return { clave, html, isos, nombres: partes?.[1] ?? '', motivo: partes?.[2] ?? html };
+});
+
+const COLUMNAS = ['pais', 'camara', 'diario', 'periodo', 'anos', 'huecos', 'sesiones', 'filas', 'habla', 'doi'] as const;
+const NUMERICAS = new Set<string>(['anos', 'sesiones', 'filas', 'habla']);
+// El LÉAME lo genera el build por figura y lengua (src/pages/datos/leame-[fig]-[lang].txt.ts).
+const ARCHIVOS = ['cobertura.csv', 'cobertura.xlsx', 'cobertura_por_ano.csv', 'cobertura_por_ano.xlsx', `leame-cobertura-${lang}.txt`];
+const ids = { titulo: `${id}-titulo`, largo: `${id}-largo`, teclado: `${id}-teclado`, tabla: `${id}-tabla-titulo` };
+---
+<figure class="figrej" id={id} data-figura="rejilla" aria-labelledby={ids.titulo}>
+  <figcaption id={ids.titulo} class="sr-only" set:html={t(lang, 'fig.cobertura.titulo')} />
+
+  <Pestanas lang={lang} id={id} etiquetadoPor={ids.titulo}>
+    <div slot="grafico">
+      {completa && (
+        <div class="rj-leyenda">
+          <p class="rj-leyenda-titulo" set:html={t(lang, 'paises.leyenda.titulo')} />
+          <ul class="rj-claves" role="list">
+            <li><span class="rj-glifo rj-g-sesion" aria-hidden="true"></span><span set:html={t(lang, 'paises.leyenda.con_sesion')} /></li>
+            <li><span class="rj-glifo rj-g-hueco" aria-hidden="true"></span><span set:html={t(lang, 'paises.leyenda.hueco')} /></li>
+            <li><span class="rj-glifo rj-g-fuera" aria-hidden="true"></span><span set:html={t(lang, 'paises.leyenda.anterior')} /></li>
+          </ul>
+          <p class="nota" set:html={t(lang, 'paises.leyenda.tono')} />
+        </div>
+      )}
+
+      <div class="rj-escala">
+        <p class="rj-escala-rotulo" set:html={t(lang, 'paises.tabla.col.habla')} />
+        <div class="rj-escala-tira">
+          <div class="rj-extremos"><span set:html={extremos[0]} /><span set:html={extremos[1]} /></div>
+          <div class="rj-muestras" aria-hidden="true">
+            {Array.from({ length: CLASES }, (_, k) => <span class={`rj-m${k}`}></span>)}
+          </div>
+          <div class="rj-cortes">
+            {cortes.map((c) => <span style={`left:${c.pos}%`} set:html={c.html} />)}
+          </div>
+        </div>
+        {completa && <p class="nota rj-escala-nota" set:html={t(lang, 'paises.leyenda.no_significa')} />}
+        {!completa && tono && <p class="nota rj-escala-nota" set:html={t(lang, 'comun.fija.tono')} />}
+      </div>
+
+      <div class="rj entra" role="group" aria-label={plano(lang, 'comun.alt.rejilla.corto')} aria-describedby={ids.largo} data-rejilla data-plantilla={plantilla}>
+        <div class="rj-cabeza" aria-hidden="true">
+          <span></span>
+          <span class="rj-anos">
+            {GEO.marcas.map((m) => <span style={`left:${m.pos}%`} set:html={fmt.dato(m.ano, String(m.ano), 'eje.ano')} />)}
+          </span>
+          <span class="rj-num rj-col" set:html={t(lang, 'paises.tabla.col.sesiones')} />
+          <span class="rj-num rj-col" set:html={t(lang, 'paises.tabla.col.habla')} />
+        </div>
+
+        <ol class="rj-filas" role="list">
+          {filas.map(({ p, f, nombre, href, alt, celdas, huecos, carril }) => (
+            <li>
+              <a class="rj-fila" href={href} aria-label={alt} data-pais={nombre}>
+                <span class="rj-nombre"><span class="rj-largo">{nombre}</span><span class="rj-iso">{p.iso.toUpperCase()}</span></span>
+                <span class="rj-tira">
+                  <svg class="rj-svg" viewBox={`0 0 ${GEO.columnas} 1`} preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                    <path class="rj-guia" d={GEO.guias} />
+                    {celdas.map((c) => <rect class={`rj-c${c.clase}`} x={c.x} y="0" width="1" height="1" data-celda data-x={c.x} data-a={c.ano} data-s={fmt.entero(c.ses, lang)} data-h={fmt.entero(c.hab, lang)} />)}
+                    {f.separadores && <path class="rj-sep" d={f.separadores} />}
+                    {huecos.map((h) => <rect class="rj-hueco" x={h.x + 0.08} y="0.06" width={h.ancho - 0.16} height="0.88" data-celda data-x={h.x} data-ancho={h.ancho} data-tip={h.aviso} />)}
+                    <rect class="rj-cursor rj-cursor-halo" x="0" y="0" width="1" height="1" />
+                    <rect class="rj-cursor" x="0" y="0" width="1" height="1" />
+                  </svg>
+                  {huecos.filter((h) => h.rotuloDentro).map((h) => <span class="rj-hueco-rotulo" style={`left:${h.pos.izq}%;width:${h.pos.ancho}%`}><span set:html={h.rotulo} /></span>)}
+                  {carril && <span class="rj-carril"><span class={`rj-${carril.ancla}`} style={`left:${carril.pos}%`} set:html={carril.rotulo} /></span>}
+                </span>
+                <span class="rj-num" set:html={resuelve(`pais.${p.iso}.sesiones.P`, lang)} />
+                <span class="rj-num" set:html={resuelve(`pais.${p.iso}.habla.L`, lang)} />
+              </a>
+            </li>
+          ))}
+        </ol>
+        {/* Solo es verdad con la isla en marcha: nace oculta y la isla la enseña (y la añade a la descripción). */}
+        <p id={ids.teclado} class="nota rj-teclado" data-solo-isla hidden set:html={t(lang, 'comun.alt.rejilla.teclado')} />
+      </div>
+
+      <div id={ids.largo} class="sr-only">
+        <p set:html={t(lang, 'comun.alt.rejilla.largo.intro')} />
+        {ausentes && <p set:html={t(lang, 'comun.alt.rejilla.largo.ausentes')} />}
+      </div>
+
+      {ausentes && (
+        <div class="rj-ausentes">
+          <p class="rj-aus-entrada" set:html={t(lang, 'comun.ausentes.entrada')} />
+          <ul class="rj-aus-filas" role="list">
+            {sinCorpus.map((a) => (
+              <li>
+                <span class="rj-aus-iso" aria-hidden="true">{a.isos.map((iso) => <span>{iso}</span>)}</span>
+                <p class="rj-aus-texto" set:html={a.html} />
+              </li>
+            ))}
+          </ul>
+          <p class="nota rj-aus-cierre" set:html={t(lang, 'comun.ausentes.cierre')} />
+        </div>
+      )}
+
+      {completa && (
+        <p class="rj-descarga">
+          <a class="boton secundario" href={recurso(`datos/${ARCHIVOS[0]}`)} download set:html={rotulo(lang, 'paises.descarga.boton')} />
+          <span class="nota" set:html={t(lang, 'comun.fija.sin_formulario')} />
+        </p>
+      )}
+    </div>
+
+    <div slot="tabla">
+      {completa && (
+        <div class="rj-aviso">
+          <p set:html={t(lang, 'comun.fija.formulario')} />
+          {existe(MOTIVO) && <p class="nota" set:html={t(lang, MOTIVO)} />}
+          <p class="nota" set:html={t(lang, 'comun.enlace.dataverse')} />
+        </div>
+      )}
+      <div class="fig-desliza" role="region" tabindex="0" aria-labelledby={ids.tabla}>
+        <table class="fig-tabla rj-tabla">
+          <caption id={ids.tabla}><span class="fig-rotulo-tabla" set:html={t(lang, 'fig.cobertura.titulo')} /></caption>
+          <thead>
+            <tr>{COLUMNAS.map((c) => <th scope="col" class={NUMERICAS.has(c) ? 'num' : undefined} set:html={t(lang, `paises.tabla.col.${c}`)} />)}</tr>
+          </thead>
+          <tbody>
+            {filas.map(({ p, nombre, href }) => (
+              <tr>
+                <th scope="row"><a href={href}>{nombre}</a></th>
+                <td>{p.camara}</td>
+                <td>{p.diario}</td>
+                <td class="rj-t-mono"><Fragment set:html={resuelve(`pais.${p.iso}.inicio`, lang)} />–<Fragment set:html={resuelve(`pais.${p.iso}.fin`, lang)} /></td>
+                <td class="num" set:html={resuelve(`pais.${p.iso}.anos_con_sesion`, lang)} />
+                <td class="rj-t-mono rj-t-huecos" set:html={p.huecos.length ? fmt.dato(p.huecos[0][0], fmt.rangos(p.huecos), `pais.${p.iso}.huecos_rangos`) : ''} />
+                <td class="num" set:html={resuelve(`pais.${p.iso}.sesiones.P`, lang)} />
+                <td class="num" set:html={resuelve(`pais.${p.iso}.filas.P`, lang)} />
+                <td class="num" set:html={resuelve(`pais.${p.iso}.habla.L`, lang)} />
+                <td class="rj-t-mono">{completa ? <a href={ENLACES.doi(p.doi)} rel="noopener external">{p.doi}</a> : p.doi}</td>
+              </tr>
+            ))}
+          </tbody>
+          {ausentes && (
+            <tbody class="rj-t-ausentes">
+              {sinCorpus.map((a) => (
+                <tr>
+                  <th scope="row" set:html={a.nombres} />
+                  <td colspan={COLUMNAS.length - 1} set:html={a.motivo} />
+                </tr>
+              ))}
+            </tbody>
+          )}
+        </table>
+      </div>
+      <p class="nota fig-pie-tabla" set:html={t(lang, 'paises.tabla.pie')} />
+    </div>
+
+    <div slot="datos" class="fig-datos">
+      <div class="fig-descarga">
+        <a class="boton" href={recurso(`datos/${ARCHIVOS[0]}`)} download>
+          <span set:html={rotulo(lang, 'comun.fig.datos')} />
+          <span class="fig-archivo">{ARCHIVOS[0]}</span>
+        </a>
+        <ul class="fig-archivos">
+          {ARCHIVOS.slice(1).map((a) => <li><a href={recurso(`datos/${a}`)} download>{a}</a></li>)}
+        </ul>
+        <p class="nota" set:html={t(lang, 'comun.fig.datos.nota')} />
+      </div>
+      <dl class="fig-leame">
+        <div><dt set:html={t(lang, 'comun.leame.que_mide.titulo')} /><dd set:html={t(lang, 'fig.cobertura.que_mide')} /></div>
+        <div><dt set:html={t(lang, 'comun.leame.denominador.titulo')} /><dd set:html={t(lang, 'fig.cobertura.denominador')} /></div>
+        <div><dt set:html={t(lang, 'comun.leame.salvedad.titulo')} /><dd set:html={t(lang, 'fig.cobertura.salvedad')} /></div>
+      </dl>
+    </div>
+  </Pestanas>
+</figure>
+
+<script>
+  import '../scripts/figuras';
+</script>
+
+<style is:global>
+  /* Estilos globales con prefijo `rj-`: las cifras llegan por `set:html` y el marcado viaja por `slot`. */
+  .figrej { margin: 0; }
+  .rj {
+    /* En el móvil cada fila es un enlace que se toca con el dedo: 1,5 + 2 × 0,625 rem = 44 px. La tira crece con él. */
+    --rj-nombre: 2.1rem; --rj-alto: 1.5rem; --rj-aire: .625rem;
+    --rj-cols: var(--rj-nombre) minmax(0, 1fr);
+  }
+  @media (min-width: 40rem) { .rj { --rj-nombre: 8.5rem; --rj-alto: 1.2rem; --rj-aire: .3rem; --rj-cols: var(--rj-nombre) minmax(0, 1fr) 4.4rem 6.4rem; } }
+  @media (min-width: 64rem) { .rj { --rj-nombre: 11rem; --rj-alto: 1.4rem; --rj-cols: var(--rj-nombre) minmax(0, 1fr) 5rem 7.2rem; } }
+
+  .rj-cabeza, .rj-fila { display: grid; grid-template-columns: var(--rj-cols); column-gap: .6rem; align-items: start; }
+  @media (min-width: 40rem) { .rj-cabeza, .rj-fila { column-gap: 1rem; } }
+
+  /* Eje de años: cada rótulo arranca en su guía de década, que sube hasta él. */
+  .rj-cabeza { align-items: end; border-bottom: 1px solid var(--ink); padding-bottom: .3rem; margin-bottom: .3rem; }
+  .rj-anos { position: relative; height: 1.15rem; font-size: .68rem; line-height: 1; color: var(--mute); }
+  .rj-anos > span { position: absolute; bottom: 0; padding: 0 0 .05rem .25rem; border-left: 1px solid var(--hair); }
+  .rj-anos data.cifra { font-size: 1em; }
+  .rj-col { font: 700 .7rem/1.15 var(--display); letter-spacing: .01em; color: var(--ink-2); text-align: right; }
+
+  .rj-filas { list-style: none; margin: 0; padding: 0; }
+  .rj-fila { padding-block: var(--rj-aire); color: var(--ink); text-decoration: none; border-radius: var(--radio); }
+  .rj-fila:hover { background: var(--bg-2); }
+  /* El granate, para la fila que se va a abrir: es marca y enlace, nunca dato. */
+  .rj-fila:hover .rj-nombre, .rj-fila:focus-visible .rj-nombre { color: var(--accent); text-decoration: underline; text-decoration-thickness: .08em; text-underline-offset: .18em; }
+  .rj-nombre { font: 650 .95rem/var(--rj-alto) var(--display); letter-spacing: -.008em; font-stretch: 84%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .rj-largo { display: none; }
+  .rj-iso { font: 600 .74rem/var(--rj-alto) var(--mono); letter-spacing: .02em; color: var(--ink-2); }
+  @media (min-width: 40rem) { .rj-largo { display: inline; } .rj-iso { display: none; } }
+  .rj-num { display: none; text-align: right; font-size: .82rem; line-height: var(--rj-alto); color: var(--ink-2); }
+  .rj-num data.cifra { font-size: 1em; }
+  @media (min-width: 40rem) { .rj-num { display: block; } }
+
+  /* La tira: se estira sin guardar proporción; por eso los trazos no escalan y el texto va fuera. */
+  .rj-tira { position: relative; display: block; min-width: 0; }
+  .rj-svg { display: block; width: 100%; height: var(--rj-alto); max-width: none; overflow: visible; }
+  .rj-guia { fill: none; stroke: var(--hair); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .rj-sep { fill: none; stroke: var(--bg); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .rj-fila:hover .rj-sep { stroke: var(--bg-2); }
+  .rj-c0, .rj-m0 { fill: var(--rampa-0); background: var(--rampa-0); }
+  .rj-c1, .rj-m1 { fill: var(--rampa-1); background: var(--rampa-1); }
+  .rj-c2, .rj-m2 { fill: var(--rampa-2); background: var(--rampa-2); }
+  .rj-c3, .rj-m3 { fill: var(--rampa-3); background: var(--rampa-3); }
+  .rj-c4, .rj-m4 { fill: var(--rampa-4); background: var(--rampa-4); }
+  /* Hueco declarado: papel con contorno. `pointer-events: all` porque no tiene relleno que recoja el puntero. */
+  .rj-hueco { fill: none; stroke: var(--ausencia); stroke-width: 1.25px; vector-effect: non-scaling-stroke; pointer-events: all; }
+  /* Cursor de la celda activa: tinta con halo de papel, para que se vea igual sobre la celda más clara y la más oscura. */
+  .rj-cursor { fill: none; stroke: var(--ink); stroke-width: 2px; vector-effect: non-scaling-stroke; pointer-events: none; visibility: hidden; }
+  .rj-cursor-halo { stroke: var(--bg); stroke-width: 5px; }
+  .rj-cursor[data-visible] { visibility: visible; }
+
+  .rj-hueco-rotulo { position: absolute; top: 0; height: var(--rj-alto); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+  .rj-hueco-rotulo > span, .rj-carril > span { font-size: .62rem; line-height: 1; color: var(--ink-2); white-space: nowrap; background: var(--bg); padding: .1em .15em; }
+  .rj-fila:hover .rj-hueco-rotulo > span, .rj-fila:hover .rj-carril > span { background: var(--bg-2); }
+  .rj-hueco-rotulo data.cifra, .rj-carril data.cifra { font-size: 1em; }
+  /* Huecos demasiado estrechos para su rótulo: un carril bajo la tira, con los rangos juntos. */
+  .rj-carril { position: relative; display: block; height: .95rem; margin-top: .15rem; }
+  .rj-carril > span { position: absolute; top: 0; }
+  .rj-carril > .rj-centro { transform: translateX(-50%); }
+  .rj-carril > .rj-fin { transform: translateX(-100%); }
+  @media (min-width: 40rem) { .rj-hueco-rotulo > span, .rj-carril > span { font-size: .68rem; } }
+
+  .rj-teclado { display: none; margin: .8rem 0 0; color: var(--mute); }
+  .rj:focus-within .rj-teclado:not([hidden]) { display: block; }
+
+  /* ── escala del tono ─────────────────────────────────────────────────────────────────── */
+  .rj-escala { display: grid; grid-template-columns: minmax(0, 1fr); gap: .45rem 2rem; margin-bottom: clamp(1.25rem, 3vw, 2rem); }
+  .rj-escala p { margin: 0; }
+  .rj-escala-rotulo { font: 600 .72rem/1.2 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--mute); }
+  .rj-escala-tira { width: min(100%, 23rem); }
+  .rj-muestras { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 1px; height: .7rem; }
+  .rj-extremos { display: flex; justify-content: space-between; margin-bottom: .25rem; font-size: .66rem; line-height: 1; color: var(--mute); }
+  .rj-cortes { position: relative; height: 1.05rem; margin-top: .3rem; font-size: .66rem; line-height: 1; color: var(--ink-2); }
+  .rj-cortes > span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+  /* Cada corte cuelga de su frontera con una marca, para que se lea como umbral y no como etiqueta de la clase. */
+  .rj-cortes > span::before { content: ''; position: absolute; left: 50%; top: -.3rem; height: .22rem; border-left: 1px solid var(--ink-2); }
+  .rj-cortes data.cifra, .rj-extremos data.cifra { font-size: 1em; }
+  .rj-escala-nota { max-width: var(--measure); }
+  @media (min-width: 56rem) { .rj-escala { grid-template-columns: 23rem minmax(0, 1fr); align-items: end; } .rj-escala-rotulo { grid-column: 1 / -1; } }
+
+  /* ── leyenda larga (página de Países) ────────────────────────────────────────────────── */
+  .rj-leyenda { margin-bottom: clamp(1.5rem, 3.5vw, 2.5rem); }
+  .rj-leyenda-titulo { margin: 0 0 1rem; font: 800 var(--fs-h3)/1.1 var(--display); letter-spacing: -.012em; font-stretch: 92%; }
+  .rj-claves { list-style: none; margin: 0 0 1.1rem; padding: 0; display: grid; gap: .9rem clamp(1.5rem, 3vw, 3rem); grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); font-size: var(--fs-small); line-height: 1.45; color: var(--ink-2); }
+  .rj-claves li { display: grid; grid-template-columns: 1.7rem minmax(0, 1fr); gap: .7rem; align-items: start; }
+  .rj-glifo { display: block; width: 1.7rem; height: 1rem; margin-top: .2em; box-sizing: border-box; }
+  .rj-g-sesion { background: var(--rampa-2); }
+  .rj-g-hueco { border: 1.25px solid var(--ausencia); }
+  .rj-g-fuera { border-bottom: 1px solid var(--hair); }
+  .rj-leyenda .nota { margin: 0; max-width: var(--measure); }
+
+  /* ── Estados sin corpus: filas de la rejilla SIN celdas, bajo un filete ──────────────── */
+  .rj-ausentes { margin-top: clamp(1.5rem, 3.5vw, 2.5rem); padding-top: clamp(1rem, 2.5vw, 1.6rem); border-top: 1px solid var(--ink); }
+  .rj-ausentes p { margin: 0; max-width: none; }
+  .rj-aus-entrada { font: 800 var(--fs-h3)/1.12 var(--display); letter-spacing: -.012em; font-stretch: 92%; text-wrap: balance; }
+  .rj-aus-entrada data.cifra { font: inherit; letter-spacing: inherit; }
+  .rj-aus-filas { list-style: none; margin: clamp(.9rem, 2vw, 1.4rem) 0; padding: 0; }
+  .rj-aus-filas li { display: grid; grid-template-columns: 2.1rem minmax(0, 1fr); column-gap: .6rem; padding-block: .55rem; border-top: 1px solid var(--hair); }
+  .rj-aus-iso { display: flex; flex-direction: column; gap: .15rem; font: 600 .74rem/1.45 var(--mono); letter-spacing: .02em; color: var(--mute); }
+  .rj-aus-texto { font-size: var(--fs-small); line-height: 1.45; color: var(--ink-2); }
+  .rj-aus-texto strong { font: 650 1.06em/1.3 var(--display); font-stretch: 88%; color: var(--ink); }
+  .rj-ausentes .rj-aus-cierre { max-width: var(--measure); }
+  @media (min-width: 40rem) {
+    /* En ancho, el nombre ocupa la columna de los nombres y el motivo corre por donde irían las celdas. */
+    .rj-aus-filas li { display: block; }
+    .rj-aus-iso { display: none; }
+    .rj-aus-texto { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); column-gap: 1rem; align-items: baseline; }
+  }
+  @media (min-width: 64rem) { .rj-aus-texto { grid-template-columns: 11rem minmax(0, 1fr); } }
+  /* Una frase prestada del español llega envuelta en un solo `span`: que no se quede encajada en la columna del nombre. */
+  .rj-aus-texto > [data-sin-traducir] { grid-column: 1 / -1; }
+
+  .rj-descarga { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem 1.25rem; margin: clamp(1.5rem, 3.5vw, 2.5rem) 0 0; max-width: none; }
+
+  /* ── tabla ───────────────────────────────────────────────────────────────────────────── */
+  /* El aviso del formulario, encima de los dieciséis DOI: mismo filete que en el resto del sitio. */
+  .rj-aviso { border-left: 3px solid var(--ink); padding: .15rem 0 .15rem 1.1rem; margin-bottom: 1.5rem; max-width: 46rem; }
+  .rj-aviso p { margin: 0; max-width: none; }
+  .rj-aviso p + p { margin-top: .4em; }
+  /* Diez columnas no caben en un móvil: la tabla se desliza dentro de su caja y la del país se queda a la vista. */
+  .rj-tabla { min-width: 74rem; }
+  .rj-tabla tbody th { white-space: nowrap; }
+  .rj-tabla tbody th, .rj-tabla thead th:first-child { position: sticky; left: 0; background: var(--bg); padding-right: 1.1rem; }
+  .rj-tabla td:nth-child(2), .rj-tabla td:nth-child(3) { min-width: 13rem; }
+  .rj-tabla .rj-t-huecos, .rj-tabla .rj-t-huecos data.cifra { white-space: normal; }
+  .rj-tabla .rj-t-huecos { min-width: 6.5rem; }
+  .rj-tabla .rj-t-mono { font-family: var(--mono); font-size: .92em; white-space: nowrap; }
+  .rj-tabla .rj-t-mono data.cifra { font-size: 1em; }
+  .rj-t-ausentes tr:first-child > * { border-top: 1px solid var(--ink); }
+  .rj-tabla .rj-t-ausentes th { white-space: normal; max-width: 11rem; }
+  .rj-t-ausentes td { color: var(--ink-2); }
+</style>

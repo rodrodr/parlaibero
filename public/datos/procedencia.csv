@@ -1,0 +1,80 @@
+cifra,valor,tipo,clave,fuente,fecha
+corpus.n,16,int,CALC,parlaibero.data.json → paises[],2026-09-07
+universo.n,21,int,M,monografía §2.2,2026-09-07
+ausentes.n,5,int,M,monografía §2.2,2026-09-07
+rejilla.desde,1976,year,C,parlaibero.data.json → meta.ano_rejilla,2026-09-07
+rejilla.hasta,2025,year,C,parlaibero.data.json → meta.ano_rejilla,2026-09-07
+rejilla.llenas,527,int,CALC,parlaibero.data.json → anual[].ses > 0 dentro de la rejilla,2026-09-07
+rejilla.total,800,int,CALC,cámaras × años de la rejilla,2026-09-07
+filas.P,10091060,int,P,cobertura_temporal.md,2026-09-07
+sesiones.P,52718,int,P,cobertura_temporal.md,2026-09-07
+primera.P,1976-06-03,date,P,cobertura_temporal.md,2026-09-07
+ultima.P,2026-01-14,date,P,cobertura_temporal.md,2026-09-07
+habla.L,9868087,int,L,Σ corpus_info.linkage.speech_rows,2026-09-07
+vinculados.L,8590210,int,L,Σ corpus_info.linkage.linked,2026-09-07
+vinc.bruta,0.8705040804767935,pct,CALC,vinculados / turnos de habla,2026-09-07
+vinc.efectiva,0.981234211682113,pct,CALC,vinculados / (habla − sin escaño − voz colectiva),2026-09-07
+novinc.n,1277877,int,CALC,turnos de habla − vinculados,2026-09-07
+novinc.noescano.n,962878,int,L,Σ corpus_info.linkage,2026-09-07
+novinc.noescano.pct,0.7534981848800785,pct,CALC,sobre los turnos de habla sin diputado,2026-09-07
+novinc.colectiva.n,150714,int,L,Σ corpus_info.linkage,2026-09-07
+novinc.colectiva.pct,0.11794092858702364,pct,CALC,sobre los turnos de habla sin diputado,2026-09-07
+novinc.laguna.n,164285,int,L,Σ corpus_info.linkage,2026-09-07
+novinc.laguna.pct,0.12856088653289793,pct,CALC,sobre los turnos de habla sin diputado,2026-09-07
+prolegomena.C,51741,int,C,perfil_parlaibero.json → agregados.totales,2026-09-07
+nohabla.C,222975,int,C,perfil_parlaibero.json → agregados.totales,2026-09-07
+palabras_habla.C,1633738332,int,C,perfil_parlaibero.json → agregados.totales,2026-09-07
+padron.personas,37523,int,C,perfil_parlaibero.json → agregados.totales,2026-09-07
+padron.tramos,70570,int,C,perfil_parlaibero.json → agregados.totales,2026-09-07
+padron.br.filas,5523,int,C,source/br/standardize/BR_deputies.csv,2026-09-07
+padron.br.pares,3772,int,C,source/br/standardize/BR_deputies.csv,2026-09-07
+columnas.n,16,int,C,parlaibero.data.json → columnas[],2026-09-07
+decada.n_corpus.1970s,3,int,C,parlaibero.data.json → decada.n_corpus,2026-09-07
+decada.n_corpus.1980s,7,int,C,parlaibero.data.json → decada.n_corpus,2026-09-07
+decada.n_corpus.1990s,11,int,C,parlaibero.data.json → decada.n_corpus,2026-09-07
+decada.n_corpus.2000s,15,int,C,parlaibero.data.json → decada.n_corpus,2026-09-07
+decada.n_corpus.2010s,16,int,C,parlaibero.data.json → decada.n_corpus,2026-09-07
+decada.n_corpus.2020s,16,int,C,parlaibero.data.json → decada.n_corpus,2026-09-07
+sexo.exactitud,0.9898,pct,M,"monografía, apéndice D.4",2026-09-07
+sexo.exactitud_h,0.9954000000000001,pct,M,"monografía, apéndice D.4",2026-09-07
+sexo.exactitud_m,0.9743,pct,M,"monografía, apéndice D.4",2026-09-07
+sexo.base_filas,38372,int,M,"monografía, apéndice D.4",2026-09-07
+sexo.razon_error.n,5.6,ratio,CALC,(1 − exactitud en mujeres) / (1 − exactitud en hombres),2026-09-07
+sexo.padrones_auditados,11,int,M,"CO, CR, DO, ES, GT, MX, PA, PT, PY, SV, UY",2026-09-07
+sexo.padrones_sin_auditar,5,int,CALC,"AR, BR, CL, EC, PE",2026-09-07
+turno.mediana_min.n,11,int,C,parlaibero.data.json → longitud[].mediana,2026-09-07
+turno.mediana_min.pais,"{""es"": ""Uruguay"", ""en"": ""Uruguay"", ""pt"": ""Uruguai""}",i18n,C,parlaibero.data.json → longitud[],2026-09-07
+turno.mediana_max.n,92,int,C,parlaibero.data.json → longitud[].mediana,2026-09-07
+turno.mediana_max.pais,"{""es"": ""El Salvador"", ""en"": ""El Salvador"", ""pt"": ""El Salvador""}",i18n,C,parlaibero.data.json → longitud[],2026-09-07
+voz.n_sube,15,int,CALC,"cámaras cuya última década supera a la primera, en palabras",2026-09-07
+eventos.n_presentes,6,int,CALC,parlaibero.data.json → historicas.eventos[presente],2026-09-07
+dois.n,16,int,D,dataverse/dois.json,2026-09-07
+dois.n_v2,15,int,D,dataverse/dois.json,2026-09-07
+dois.version_mayoritaria,v2.0,text,D,dataverse/dois.json,2026-09-07
+dois.rezagados,"{""es"": ""Perú (v1.0)"", ""en"": ""Peru (v1.0)"", ""pt"": ""Peru (v1.0)""}",i18n,D,dataverse/dois.json → versiones,2026-09-07
+csv.min,103092395,bytes,D,fuentes_parlaibero.json → archivo.bytes,2026-09-07
+csv.max,1649696869,bytes,D,fuentes_parlaibero.json → archivo.bytes,2026-09-07
+csv.total,13163208991,bytes,D,Σ fuentes_parlaibero.json → archivo.bytes,2026-09-07
+cita.sv.fecha,2018-08-10,date,C,parlaibero.data.json → citas[sv].date,2026-09-07
+coleccion.url,https://dataverse.harvard.edu/dataverse/parlaibero,text,D,fuentes_parlaibero.json → coleccion,2026-09-07
+medido_el,2026-09-07,date,C,parlaibero.data.json → meta.medido_el,2026-09-07
+edicion_datos,2026-09-07,date,D,máx. de fuentes[].fecha_version,2026-09-07
+desfase_ec.filas,150,int,CALC,parlaibero.data.json → meta.nota_ec,2026-09-07
+desfase_ec.sesiones,2,int,CALC,parlaibero.data.json → meta.nota_ec,2026-09-07
+ocr.fragmentos_retirados,1949,int,M,monografía §6.6 y §9.7,2026-09-07
+validacion.fuga.pct,0.005,pct,M,monografía §7.4,2026-09-07
+validacion.fuga.ic,"0,09–2,78",text,M,monografía §7.4,2026-09-07
+validacion.fuga.n,1,int,M,monografía §7.4,2026-09-07
+validacion.fuga.den,200,int,M,monografía §7.4 (cada ronda revisa 200 filas PASS),2026-09-07
+validacion.filas_pais,300,int,M,monografía §7.4,2026-09-07
+validacion.paises,15,int,M,monografía §7.4 (4.500 filas = 300 × 15 países; Ecuador no entró),2026-09-07
+validacion.fecha,2026-07-31,date,M,monografía §7.4 (la semilla es la fecha de ejecución),2026-09-07
+genero.br.pct_turnos,0.087,pct,M,monografía §8.3,2026-09-07
+genero.br.pct_recuperados,0.478,pct,M,monografía §8.3,2026-09-07
+paquete.ficheros,17,int,M,monografía §10.2,2026-09-07
+ocr.do.sesiones,7,int,M,monografía §6.1 y §9.7,2026-09-07
+explorador.navegadores,"Chrome/Edge 112+, Firefox 116+, Safari 17+",text,EXT,diaries_explorer/explorer_src/README.md,2026-09-07
+explorador.construccion.sv,3.7,seg,EXT,diaries_explorer/explorer_src/README.md,2026-09-07
+explorador.construccion.br,82,seg,EXT,diaries_explorer/explorer_src/README.md,2026-09-07
+explorador.menciones.precision.pct,0.8748137108792846,pct,EXT,diaries_explorer/explorer_src/README.md,2026-09-07
+explorador.hitos.n,751,int,EXT,diaries_explorer/explorer_src/datos/hitos_parlaibero.json,2026-09-07

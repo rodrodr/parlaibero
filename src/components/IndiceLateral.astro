@@ -1,0 +1,72 @@
+---
+/**
+ * Índice de una lectura larga. En escritorio va pegajoso, al lado del texto; en móvil es un desplegable nativo
+ * (`<details>`), de modo que todo funciona sin JavaScript.
+ *  · Los rótulos llegan ya resueltos desde el copy: aquí no se escribe ningún texto.
+ *  · La numeración la pone un contador de CSS, no el HTML: ningún número se teclea.
+ *  · «Dónde estoy» se marca sin JS con una línea de tiempo de vista por apartado (`view-timeline`), solo donde
+ *    el navegador la admite. CONTRATO con la página: cada apartado declara `view-timeline-name: --<id>` y un
+ *    antepasado común del índice y de los apartados declara `timeline-scope` con esos mismos nombres.
+ */
+import type { Lang } from '../lib/idiomas';
+
+interface Entrada { id: string; rotulo: string }
+interface Props { lang: Lang; titulo: string; entradas: Entrada[] }
+const { titulo, entradas } = Astro.props;
+const tituloPlano = titulo.replace(/<[^>]+>/g, '').trim();
+---
+<nav class="indice no-imprimir" aria-label={tituloPlano}>
+  <details class="plegado">
+    <summary set:html={titulo} />
+    {/* `role="list"`: sin viñetas, Safari con VoiceOver deja de anunciar la lista, y aquí el orden importa. */}
+    <ol role="list">
+      {entradas.map((e) => <li><a href={`#${e.id}`} set:html={e.rotulo} /></li>)}
+    </ol>
+  </details>
+  <div class="fijo">
+    <p class="kicker" aria-hidden="true" set:html={titulo} />
+    <ol role="list">
+      {entradas.map((e) => <li><a href={`#${e.id}`} style={`animation-timeline: --${e.id}`} set:html={e.rotulo} /></li>)}
+    </ol>
+  </div>
+</nav>
+
+<style>
+  ol { list-style: none; margin: 0; padding: 0; counter-reset: apartado; }
+  li { counter-increment: apartado; }
+  .indice a {
+    display: grid; grid-template-columns: 2.1em 1fr; align-items: baseline;
+    padding: .42rem 0 .42rem .7rem; border-left: 2px solid var(--hair);
+    font: 600 var(--fs-small)/1.25 var(--display); color: var(--ink-2); text-decoration: none;
+    transition: color .12s var(--ease), border-color .12s var(--ease);
+  }
+  .indice a::before { content: counter(apartado, decimal-leading-zero); font: 500 .8em var(--mono); color: var(--mute); font-variant-numeric: tabular-nums; }
+  .indice a:hover { color: var(--ink); border-left-color: var(--accent); }
+
+  .fijo { display: none; }
+  .plegado { border-block: 1px solid var(--hair); }
+  summary {
+    cursor: pointer; padding: .85rem 0; list-style: none; display: flex; justify-content: space-between; align-items: center;
+    font: 600 var(--fs-small)/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--mute);
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: '+'; font: 400 1.35rem/1 var(--mono); color: var(--ink); }
+  .plegado[open] summary::after { content: '–'; }
+  .plegado ol { padding-bottom: 1rem; }
+
+  @media (min-width: 64rem) {
+    .plegado { display: none; }
+    .fijo { display: block; }
+    /* El alto descuenta la banda fija de abajo: el último rótulo nunca queda debajo de ella. */
+    .indice { position: sticky; top: 1.5rem; align-self: start; max-height: calc(100vh - 9rem); max-height: calc(100dvh - 9rem); overflow-y: auto; }
+    .kicker { margin: 0 0 .9rem; }
+  }
+
+  /* «Dónde estoy», sin JS. Sin relleno (`fill-mode: none`): el estilo solo vale mientras el apartado cruza la franja. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) and (timeline-scope: --x) {
+      .fijo a { animation: indice-aqui linear; }
+      @keyframes indice-aqui { from, to { color: var(--ink); border-left-color: var(--accent); } }
+    }
+  }
+</style>

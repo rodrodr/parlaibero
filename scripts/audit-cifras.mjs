@@ -150,7 +150,9 @@ export function paginasHtml(dist) {
     for (const f of readdirSync(dir)) {
       const ruta = join(dir, f);
       if (statSync(ruta).isDirectory()) anda(ruta);
-      else if (f.endsWith('.html')) out.push({ ruta, rel: relative(dist, ruta).split(sep).join('/') });
+      // El archivo de verificación de Google Search Console (`google<código>.html`) no es una página del sitio: es una línea de
+      // texto que Google exige en la raíz. No se audita ni cuenta como página (check-funding usa esta misma lista).
+      else if (f.endsWith('.html') && !/^google[0-9a-f]+\.html$/.test(f)) out.push({ ruta, rel: relative(dist, ruta).split(sep).join('/') });
     }
   };
   anda(dist);

@@ -129,7 +129,7 @@ const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
           {MARCAS.map((m, k) => (
             <span
               class={k === 0 ? 'tm-ini' : k === MARCAS.length - 1 ? 'tm-fin' : 'tm-medio'}
-              style={k === 0 || k === MARCAS.length - 1 ? undefined : `left:${enPorcentaje({ x: m.x, y: 0 }).izq}%`}
+              style={`left:${enPorcentaje({ x: m.x, y: 0 }).izq}%`}
               set:html={ano(m.ano)}
             />
           ))}
@@ -214,9 +214,11 @@ const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
   .tm-eje { position: relative; height: 1.1rem; margin-top: .2rem; font-size: .68rem; line-height: 1; color: var(--mute); }
   .tm-eje span { position: absolute; top: 0; white-space: nowrap; }
   .tm-eje :global(data.cifra) { font-size: 1em; }
-  .tm-eje .tm-ini { left: 0; }
-  .tm-eje .tm-fin { right: 0; }
-  .tm-eje .tm-medio { transform: translateX(-50%); display: none; }
+  /* Cada rótulo se centra en SU marca. Clavar los extremos al borde del panel los desplazaba: en la serie anual,
+     la primera década cae al doce por ciento del ancho y la última al ochenta y seis. Las clases solo deciden
+     cuáles se ven cuando el panel es estrecho. */
+  .tm-eje span { transform: translateX(-50%); }
+  .tm-eje .tm-medio { display: none; }
   @container (min-width: 15.5rem) { .tm-eje .tm-medio { display: block; } }
 
   /* Dos columnas FIJAS: la leyenda a la izquierda y la salvedad a la derecha, siempre. Con una fila flexible, que

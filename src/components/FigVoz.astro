@@ -180,7 +180,7 @@ const faltan = [
               {MARCAS.map((mx, k) => (
                 <span
                   class={k === 0 ? 'vz-ini' : k === MARCAS.length - 1 ? 'vz-fin' : 'vz-medio'}
-                  style={k === 0 || k === MARCAS.length - 1 ? undefined : `left:${enPorcentaje({ x: mx.x, y: 0 }).izq}%`}
+                  style={`left:${enPorcentaje({ x: mx.x, y: 0 }).izq}%`}
                   set:html={fmt.dato(mx.ano, String(mx.ano), `decada.${mx.decada}`)}
                 />
               ))}
@@ -379,9 +379,11 @@ const faltan = [
   .vz-eje { position: relative; height: 1.1rem; margin-top: .2rem; font-size: .68rem; line-height: 1; color: var(--mute); }
   .vz-eje span { position: absolute; top: 0; white-space: nowrap; }
   .vz-eje data.cifra { font-size: 1em; }
-  .vz-eje .vz-ini { left: 0; }
-  .vz-eje .vz-fin { right: 0; }
-  .vz-eje .vz-medio { transform: translateX(-50%); display: none; }
+  /* Cada rótulo se centra en SU marca. Clavar los extremos al borde del panel los desplazaba: la primera década
+     cae al cinco por ciento del ancho y la última al noventa y cinco, no en los bordes. Las clases solo deciden
+     cuáles se ven cuando el panel es estrecho. */
+  .vz-eje span { transform: translateX(-50%); }
+  .vz-eje .vz-medio { display: none; }
   @container (min-width: 15.5rem) { .vz-eje .vz-medio { display: block; } }
 
   /* ── leyenda de los dos trazos ───────────────────────────────────────────────────────── */

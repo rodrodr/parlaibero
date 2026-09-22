@@ -40,7 +40,7 @@ const familias = Object.keys(T.familias)
   {familias.map(({ f, sep, raices }) => (
     <section class="contenedor cat-bloque" id={`cat-${f}`} data-audit-exento="borrador de triaje">
       <p class="cat-meta mono">{f} · separa {sep.toFixed(1)}× · {raices}</p>
-      <FigTermino lang="es" familia={f} id={`cat-fig-${f}`} leyenda={'Una cámara, año a año. La raya de puntos es la media de las dieciséis: {media} por millón.'}>
+      <FigTermino lang="es" familia={f} id={`cat-fig-${f}`} leyenda={'Una cámara, año a año, todas a la misma escala: de cero a {techo} por millón. La raya de puntos es la media de las dieciséis: {media}.'}>
         <Fragment slot="titulo">{f}</Fragment>
         <Fragment slot="salvedad">Veces por millón de palabras dichas. Un año con poco material no entra.</Fragment>
       </FigTermino>

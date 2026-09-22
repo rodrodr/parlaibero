@@ -219,8 +219,12 @@ const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
   .tm-eje .tm-medio { transform: translateX(-50%); display: none; }
   @container (min-width: 15.5rem) { .tm-eje .tm-medio { display: block; } }
 
-  .tm-leyenda { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .6rem 1.25rem; margin-top: clamp(1.5rem, 3vw, 2.25rem); padding-top: 1rem; border-top: 1px solid var(--hair); }
-  .tm-leyenda p { margin: 0; flex: 1 1 18rem; max-width: var(--measure); }
+  /* Dos columnas FIJAS: la leyenda a la izquierda y la salvedad a la derecha, siempre. Con una fila flexible, que
+     la salvedad cupiera al lado o se cayera abajo dependía de lo larga que fuera la leyenda —y cambia con cada
+     término, porque lleva su escala y su media—: el mismo bloque saltaba de sitio de una pregunta a otra. */
+  .tm-leyenda { display: grid; gap: .7rem 2rem; margin-top: clamp(1.5rem, 3vw, 2.25rem); padding-top: 1rem; border-top: 1px solid var(--hair); }
+  .tm-leyenda p { margin: 0; max-width: var(--measure); }
+  @media (min-width: 60rem) { .tm-leyenda { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
   .tm-muestras { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; padding-top: .15rem; }
   .tm-muestra { width: 2.75rem; height: .75rem; overflow: visible; flex: none; }
   .tm-muestra-rotulo { font: 600 var(--fs-small)/1.2 var(--display); color: var(--ink-2); }

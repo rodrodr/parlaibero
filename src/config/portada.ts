@@ -5,6 +5,10 @@
  * investigador los apruebe; si los aprueba, se mudan al copy con su clave y salen de aquí. Mientras tanto viven
  * separados, para que la versión publicada no dependa de nada sin aprobar.
  *
+ * ⚠ Una salvedad dice qué no mide LA FIGURA, nunca qué no contiene LA BASE. El recuento de una palabra no dice
+ * quién la usó ni para qué; el texto de esas intervenciones sí, y está entero. Confundir las dos cosas infravalora
+ * la base, que es justo lo contrario de lo que el sitio quiere decir (corrección del investigador, 2026-09-21).
+ *
  * Reglas que cumplen (las del sitio): ninguna cifra tecleada —`{corpus}` lo resuelve el marcador `corpus.n|letra`, y
  * las cantidades de la prosa van en letra—, ningún nombre de persona, el denominador en la misma frase que la cifra,
  * la salvedad pegada al hallazgo, y nada que la base no traiga: ni tema, ni tono, ni posición, ni voto.
@@ -71,19 +75,19 @@ export const APERTURAS: Apertura[] = [
         pregunta: '¿Cuándo se habla de democracia en el pleno?',
         titulo: '{corpus} cámaras, año a año, por cada millón de palabras dichas.',
         hallazgo: 'El año más alto de cada cámara casi nunca es uno cualquiera. Donde la serie empieza con el regreso de la democracia, el más alto es el primero; en las demás cae en mitad de la serie. La palabra sube cuando está en disputa.',
-        salvedad: 'Cuenta cuántas veces se dice la palabra y sus derivados, sobre las palabras dichas en esa cámara y ese año. Quién la invoca, y si es para defenderla o para negarla, no está en la base. Junto al año más alto va lo que ocurrió ese año, donde fue un hecho de régimen: coincidir no es explicar.',
+        salvedad: 'Cuenta cuántas veces se dice la palabra y sus derivados, sobre las palabras dichas en esa cámara y ese año. El recuento no dice quién la invoca ni si es para defenderla o para negarla; el texto de esas intervenciones sí, y está entero. Junto al año más alto va lo que ocurrió ese año, donde fue un hecho de régimen: coincidir no es explicar.',
       },
       en: {
         pregunta: 'When is democracy spoken about in the plenary?',
         titulo: '{corpus} chambers, year by year, per million words spoken.',
         hallazgo: 'A chamber\'s highest year is hardly ever an ordinary one. Where the series begins with the return of democracy, the highest year is the first; in the others it falls in the middle of the series. The word rises when it is contested.',
-        salvedad: 'It counts how often the word and its derivatives are said, over the words spoken in that chamber and that year. Who invokes it, and whether to defend it or to deny it, is not in the database. Next to the highest year is what happened that year, where it was a regime event: coinciding is not explaining.',
+        salvedad: 'It counts how often the word and its derivatives are said, over the words spoken in that chamber and that year. The count does not say who invokes it, or whether to defend it or to deny it; the text of those interventions does, and it is all here. Next to the highest year is what happened that year, where it was a regime event: coinciding is not explaining.',
       },
       pt: {
         pregunta: 'Quando se fala de democracia no plenário?',
         titulo: '{corpus} câmaras, ano a ano, por milhão de palavras ditas.',
         hallazgo: 'O ano mais alto de cada câmara quase nunca é um ano qualquer. Onde a série começa com a volta da democracia, o mais alto é o primeiro; nas demais, cai no meio da série. A palavra sobe quando está em disputa.',
-        salvedad: 'Conta quantas vezes a palavra e seus derivados são ditos, sobre as palavras ditas naquela câmara e naquele ano. Quem a invoca, e se é para defendê-la ou para negá-la, não está na base. Junto ao ano mais alto vai o que ocorreu naquele ano, onde foi um fato de regime: coincidir não é explicar.',
+        salvedad: 'Conta quantas vezes a palavra e seus derivados são ditos, sobre as palavras ditas naquela câmara e naquele ano. A contagem não diz quem a invoca nem se é para defendê-la ou negá-la; o texto dessas intervenções diz, e está inteiro. Junto ao ano mais alto vai o que ocorreu naquele ano, onde foi um fato de regime: coincidir não é explicar.',
       },
     },
   },
@@ -183,9 +187,9 @@ export const APERTURAS: Apertura[] = [
     id: 'terrorismo',
     familia: 'terrorismo',
     textos: {
-      es: { pregunta: '¿Quién es un terrorista, y cuándo?', titulo: '{corpus} cámaras, año a año, por cada millón de palabras dichas.', hallazgo: 'La palabra no significa lo mismo en cada cámara ni en cada década: en unas nombra una guerra interna, en otras un atentado, en otras al adversario político. El recuento no distingue entre los tres usos.', salvedad: 'Cuenta terrorismo y terrorista, sobre las palabras dichas en esa cámara y ese año. A quién se llama así, y con qué intención, no está en la base. No ordena cámaras.' },
-      en: { pregunta: 'Who is a terrorist, and when?', titulo: '{corpus} chambers, year by year, per million words spoken.', hallazgo: 'The word does not mean the same in every chamber or every decade: in some it names an internal war, in others an attack, in others the political opponent. The count does not tell the three apart.', salvedad: 'It counts terrorism and terrorist, over the words spoken in that chamber and that year. Who is called that, and with what intent, is not in the database. It does not rank chambers.' },
-      pt: { pregunta: 'Quem é um terrorista, e quando?', titulo: '{corpus} câmaras, ano a ano, por milhão de palavras ditas.', hallazgo: 'A palavra não significa o mesmo em cada câmara nem em cada década: numas nomeia uma guerra interna, noutras um atentado, noutras o adversário político. A contagem não distingue os três usos.', salvedad: 'Conta terrorismo e terrorista, sobre as palavras ditas naquela câmara e naquele ano. A quem se chama assim, e com que intenção, não está na base. Não ordena câmaras.' },
+      es: { pregunta: '¿Quién es un terrorista, y cuándo?', titulo: '{corpus} cámaras, año a año, por cada millón de palabras dichas.', hallazgo: 'La palabra no significa lo mismo en cada cámara ni en cada década: en unas nombra una guerra interna, en otras un atentado, en otras al adversario político. El recuento no distingue entre los tres usos.', salvedad: 'Cuenta terrorismo y terrorista, sobre las palabras dichas en esa cámara y ese año. El recuento no dice a quién se llama así ni con qué intención; para saberlo hay que leer esas intervenciones, y están todas aquí. No ordena cámaras.' },
+      en: { pregunta: 'Who is a terrorist, and when?', titulo: '{corpus} chambers, year by year, per million words spoken.', hallazgo: 'The word does not mean the same in every chamber or every decade: in some it names an internal war, in others an attack, in others the political opponent. The count does not tell the three apart.', salvedad: 'It counts terrorism and terrorist, over the words spoken in that chamber and that year. The count does not say who is called that, or with what intent; to find out you read those interventions, and they are all here. It does not rank chambers.' },
+      pt: { pregunta: 'Quem é um terrorista, e quando?', titulo: '{corpus} câmaras, ano a ano, por milhão de palavras ditas.', hallazgo: 'A palavra não significa o mesmo em cada câmara nem em cada década: numas nomeia uma guerra interna, noutras um atentado, noutras o adversário político. A contagem não distingue os três usos.', salvedad: 'Conta terrorismo e terrorista, sobre as palavras ditas naquela câmara e naquele ano. A contagem não diz a quem se chama assim nem com que intenção; para saber é preciso ler essas intervenções, e estão todas aqui. Não ordena câmaras.' },
     },
   },
   // 8 · El contraste ibérico
@@ -253,9 +257,9 @@ export const APERTURAS: Apertura[] = [
     id: 'corrupcion',
     familia: 'corrupcion',
     textos: {
-      es: { pregunta: '¿Cuándo se habla de corrupción en el pleno?', titulo: '{corpus} cámaras, año a año, por cada millón de palabras dichas.', hallazgo: 'Sube a golpes, no poco a poco: cada cámara tiene su año, y casi siempre es el de un caso que llegó a los tribunales. Es una palabra de escándalo, no de programa.', salvedad: 'Cuenta corrupción y corrupto, sobre las palabras dichas en esa cámara y ese año. Quién acusa a quién, y si la acusación prosperó, no está en la base. No ordena cámaras.' },
-      en: { pregunta: 'When is corruption spoken about in the plenary?', titulo: '{corpus} chambers, year by year, per million words spoken.', hallazgo: 'It rises in jolts, not gradually: each chamber has its year, and it is almost always the year of a case that reached the courts. It is a word of scandal, not of programme.', salvedad: 'It counts corruption and corrupt, over the words spoken in that chamber and that year. Who accuses whom, and whether the accusation prospered, is not in the database. It does not rank chambers.' },
-      pt: { pregunta: 'Quando se fala de corrupção no plenário?', titulo: '{corpus} câmaras, ano a ano, por milhão de palavras ditas.', hallazgo: 'Sobe aos solavancos, não aos poucos: cada câmara tem o seu ano, e quase sempre é o de um caso que chegou aos tribunais. É uma palavra de escândalo, não de programa.', salvedad: 'Conta corrupção e corrupto, sobre as palavras ditas naquela câmara e naquele ano. Quem acusa quem, e se a acusação prosperou, não está na base. Não ordena câmaras.' },
+      es: { pregunta: '¿Cuándo se habla de corrupción en el pleno?', titulo: '{corpus} cámaras, año a año, por cada millón de palabras dichas.', hallazgo: 'Sube a golpes, no poco a poco: cada cámara tiene su año, y casi siempre es el de un caso que llegó a los tribunales. Es una palabra de escándalo, no de programa.', salvedad: 'Cuenta corrupción y corrupto, sobre las palabras dichas en esa cámara y ese año. El recuento no dice quién acusa a quién; las intervenciones sí. Si la acusación prosperó, eso ya está fuera de la base. No ordena cámaras.' },
+      en: { pregunta: 'When is corruption spoken about in the plenary?', titulo: '{corpus} chambers, year by year, per million words spoken.', hallazgo: 'It rises in jolts, not gradually: each chamber has its year, and it is almost always the year of a case that reached the courts. It is a word of scandal, not of programme.', salvedad: 'It counts corruption and corrupt, over the words spoken in that chamber and that year. The count does not say who accuses whom; the interventions do. Whether the accusation prospered is outside the database. It does not rank chambers.' },
+      pt: { pregunta: 'Quando se fala de corrupção no plenário?', titulo: '{corpus} câmaras, ano a ano, por milhão de palavras ditas.', hallazgo: 'Sobe aos solavancos, não aos poucos: cada câmara tem o seu ano, e quase sempre é o de um caso que chegou aos tribunais. É uma palavra de escândalo, não de programa.', salvedad: 'Conta corrupção e corrupto, sobre as palavras ditas naquela câmara e naquele ano. A contagem não diz quem acusa quem; as intervenções dizem. Se a acusação prosperou, isso já está fora da base. Não ordena câmaras.' },
     },
   },
   // 13 · La palabra que no retrata al país

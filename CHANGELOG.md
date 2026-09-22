@@ -31,6 +31,18 @@ Primera edición.
 - **EN y pt-BR completos** (496 claves × 3): las 85 claves nuevas pasaron por traductor, revisor independiente y
   retrotraducción ciega. La revisión destapó un error del ESPAÑOL, ya corregido: el copy citaba entre comillas un
   rótulo, «Quién habla de cada tema», que el explorador no enseña en pantalla (solo está en su README).
+- **La apertura de Inicio ROTA entre trece preguntas** (decisión del investigador, 2026-09-21). La primera visita
+  abre con «¿Cuándo se habla de democracia en el pleno?»; a partir de la segunda cambia. Sin JavaScript se ve
+  siempre la primera. Solo cambia ese bloque: el resto de Inicio es el aprobado.
+  · Doce figuras nuevas, hermanas de la de la voz: una serie por cámara, año a año, en veces por millón de
+    palabras dichas, todas a la misma escala, que se declara entera en la leyenda.
+  · Quince hitos históricos sobre la serie de democracia, todos en el mismo sitio del panel y reescritos por el
+    cargo, sin un solo nombre. Trece salen del fichero de hitos del explorador; cuatro los señaló él.
+  · Dos mediciones nuevas sobre los 12,3 GB: `diaries/scripts/medir_terminos.py` (41 familias) y
+    `medir_estructura.py` (reparto de la palabra, duración del turno, voces por sesión, habla sin diputado).
+  · Deuda declarada: los textos de las doce aperturas viven en `src/config/portada.ts`, no en el copy congelado.
+    Él los aceptó así; cuando se muden a `docs/02_COPY_es.md` con su clave, ese archivo desaparece.
+  · Inicio pasa de 46 a 98 KB comprimidos, porque las trece viajan en la página. Aceptado.
 - **«Infraestructura de datos», subrayada** (pedido del investigador, 2026-09-21). Inicio: la analogía del laboratorio
   y la familia (PELA-USAL · Latinobarómetro · ParlaMint · Manifesto Project, en su orden) entre la tesis y su remate.
   Metodología: la familia en la cabecera, cada proyecto con su verbo, y el apartado de ediciones abierto por la pregunta

@@ -2,10 +2,14 @@
 /**
  * INICIO — la cara del proyecto. Seis movimientos, en el orden exacto del copy aprobado (§2):
  * la pregunta y su figura · la tesis · qué hay · quién ocupa el pleno · aquel día · lo que falta · por dónde empezar.
- * La página no lleva JavaScript propio: lo que se mueve o se copia vive en las figuras y en <Cita>.
+ * La apertura ROTA entre trece preguntas (decisión del investigador, 2026-09-21): la primera visita abre con
+ * «democracia» y a partir de ahí cambia. Solo cambia ese primer bloque; el resto de Inicio es el aprobado.
+ * ⚠ Deuda declarada: los textos de las doce aperturas nuevas viven en `src/config/portada.ts`, no en el copy
+ * congelado. Él los aceptó así (2026-09-21); cuando se muevan a `docs/02_COPY_es.md` con su clave, ese archivo muere.
+ * El único JavaScript propio de la página es el que elige la apertura; lo demás vive en las figuras y en <Cita>.
  */
 import Base from '../../layouts/Base.astro';
-import Apertura from '../../components/inicio/Apertura.astro';
+import AperturaRotativa from '../../components/inicio/AperturaRotativa.astro';
 import Tesis from '../../components/inicio/Tesis.astro';
 import Cobertura from '../../components/inicio/Cobertura.astro';
 import Pleno from '../../components/inicio/Pleno.astro';
@@ -76,7 +80,7 @@ const jsonld = {
 ---
 <Base lang={lang} ruta={PAGINAS.inicio} titulo={titulo} descripcion={descripcion} franjaAEI jsonld={jsonld}>
   <div class="inicio">
-    <Apertura lang={lang} />
+    <AperturaRotativa lang={lang} />
     <Tesis lang={lang} />
     <Cobertura lang={lang} />
     <Pleno lang={lang} />

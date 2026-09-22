@@ -12,10 +12,10 @@
  *  · El botón «Otra pregunta» permite recorrerlas a mano, que es lo que hace falta para compararlas.
  */
 import Apertura from './Apertura.astro';
-import FigSerie from '../FigSerie.astro';
+import FigTermino from '../FigTermino.astro';
 import { resuelve } from '../../lib/cifras';
 import { recurso } from '../../lib/rutas';
-import { APERTURAS, OTRA, type Lang3 } from '../../config/portada';
+import { APERTURAS, OTRA, LEYENDA, type Lang3 } from '../../config/portada';
 import type { Lang } from '../../lib/idiomas';
 
 interface Props { lang: Lang }
@@ -31,29 +31,48 @@ const conCifras = (s: string) => {
   const inicial = s.startsWith('{corpus}') ? html.replace(/(>|^)(\p{L})/u, (_x, a, b) => a + b.toUpperCase()) : html;
   return s.replace('{corpus}', inicial);
 };
-const alternativas = APERTURAS.map((a, i) => ({ ...a, i })).filter((a) => a.tipo === 'serie');
+const hitosDe = (a: (typeof APERTURAS)[number]) =>
+  Object.fromEntries(Object.entries(a.hitos ?? {}).map(([iso, h]) => [iso, { ano: h.ano, texto: h[L] }]));
+const primera = APERTURAS[0];
+// Las demás viajan en un `<template>`: la de la voz también, porque ya no es siempre la primera.
+const alternativas = APERTURAS.map((a, i) => ({ ...a, i })).filter((_, i) => i > 0);
 ---
 <div class="rotativa" data-rotativa>
+  {/* La PRIMERA de la lista abre la página: es lo que ve quien llega sin JavaScript y quien llega por primera vez. */}
   <div data-actual>
-    <Apertura lang={lang} />
+    {primera.tipo === 'voz' ? <Apertura lang={lang} /> : <Fragment set:html={''} />}
+    {primera.tipo === 'termino' && (
+      <section class="apertura" aria-labelledby="pregunta-0">
+        <div class="contenedor"><h1 id="pregunta-0" class="pregunta">{primera.textos![L].pregunta}</h1></div>
+        <div class="contenedor figura">
+          <FigTermino lang={lang} familia={primera.familia!} id={`termino-${primera.familia}`} leyenda={conCifras(LEYENDA[L])} hitos={hitosDe(primera)}>
+            <Fragment slot="titulo" set:html={conCifras(primera.textos![L].titulo)} />
+            <Fragment slot="salvedad">{primera.textos![L].salvedad}</Fragment>
+          </FigTermino>
+        </div>
+        <div class="contenedor reja lectura"><p class="lede ejemplos">{primera.textos![L].hallazgo}</p></div>
+      </section>
+    )}
   </div>
 
   {alternativas.map((a) => (
     <template data-giro={a.i}>
+      {a.tipo === 'voz' ? <Apertura lang={lang} /> : (
       <section class="apertura" aria-labelledby={`pregunta-${a.i}`}>
         <div class="contenedor">
           <h1 id={`pregunta-${a.i}`} class="pregunta">{a.textos![L].pregunta}</h1>
         </div>
         <div class="contenedor figura">
-          <FigSerie lang={lang} spec={a.spec!} id={`serie-${a.id}`}>
+          <FigTermino lang={lang} familia={a.familia!} id={`termino-${a.familia}`} leyenda={conCifras(LEYENDA[L])} hitos={hitosDe(a)}>
             <Fragment slot="titulo" set:html={conCifras(a.textos![L].titulo)} />
             <Fragment slot="salvedad">{a.textos![L].salvedad}</Fragment>
-          </FigSerie>
+          </FigTermino>
         </div>
         <div class="contenedor reja lectura">
           <p class="lede ejemplos">{a.textos![L].hallazgo}</p>
         </div>
       </section>
+      )}
     </template>
   ))}
 
@@ -82,7 +101,11 @@ const alternativas = APERTURAS.map((a, i) => ({ ...a, i })).filter((a) => a.tipo
       hueco.replaceChildren(nodo);
       actual = i;
     }
-    pon(Math.floor(Math.random() * total));
+    // La primera visita se abre con la primera de la lista; a partir de ahí, rota al azar. Si el navegador no
+    // deja recordarlo (ventana privada, permisos), se queda en la primera: nunca falla hacia algo peor.
+    var repite = false;
+    try { repite = localStorage.getItem('parlaibero.portada') === '1'; localStorage.setItem('parlaibero.portada', '1'); } catch (e) {}
+    if (repite) pon(Math.floor(Math.random() * total));
 
     var boton = caja.querySelector('[data-otra]');
     if (boton) boton.addEventListener('click', function () {

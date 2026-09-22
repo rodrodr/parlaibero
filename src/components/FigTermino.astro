@@ -1,0 +1,227 @@
+---
+/**
+ * BORRADOR (rama `portada-rotativa`). La huella de un término en el pleno: una serie por cámara, año a año,
+ * en veces por millón de palabras dichas.
+ *
+ * Es la HERMANA de la figura de la voz, y lo es a propósito: misma geometría (`viz/geom/voz.ts`), misma rejilla de
+ * paneles, mismos trazos, mismos rótulos de papel, mismo eje y misma raya de referencia. Rotar de pregunta no
+ * puede parecer cambiar de sitio.
+ *  · Eje X de posiciones —los años de la unión de las dieciséis cámaras—: un año sin sesión se queda vacío y NO se
+ *    une con una línea. Eje Y COMPARTIDO por los dieciséis paneles, para que una cámara se pueda leer contra otra.
+ *  · La raya de referencia es la media de las dieciséis cámaras, como la raya de la mitad en la figura de la voz:
+ *    da al ojo un punto fijo y deja leer cada panel contra el conjunto.
+ *  · Se rotula el año MÁS ALTO de cada cámara, que es donde está el relato. No se dibuja un punto por año: a
+ *    cincuenta años por panel, cincuenta puntos son una trama, no un dato.
+ *  · El hito va en el MISMO sitio en los dieciséis paneles —arriba, a la izquierda—; si el pico estorba, se aparta
+ *    la cifra del pico, no la anotación. La escala se declara entera en la leyenda, nunca dentro del dibujo.
+ *  · Contar una palabra no es medir el tema, ni el tono, ni la posición: la salvedad lo declara.
+ */
+import TERMINOS from '../data/terminos.json';
+import { PAISES, fmt } from '../lib/cifras';
+import type { Lang } from '../lib/idiomas';
+import { LIENZO, decadas, maximoRedondeado, marcasX, escalaY, serie, enPorcentaje, type SerieEntrada, type PuntoGeom } from '../viz/geom/voz';
+
+interface Props {
+  lang: Lang;
+  /** La familia medida: `democracia`, `infraestructura`… */
+  familia: string;
+  /** Hito por cámara, ya resuelto a esta lengua: se ancla a SU año, coincida o no con el pico. */
+  hitos?: Record<string, { ano: number; texto: string }>;
+  /** Leyenda del trazo. `{media}` y `{techo}` se sustituyen por los valores de la escala, envueltos y auditables. */
+  leyenda: string;
+  id: string;
+}
+const { lang, familia, id, hitos = {}, leyenda } = Astro.props;
+
+const T = TERMINOS as unknown as {
+  min_palabras: number; medido_el: string; familias: Record<string, string>;
+  paises: Record<string, { anual: Record<string, Record<string, number>> }>;
+};
+if (!T.familias[familia]) throw new Error(`terminos.json no trae la familia «${familia}».`);
+const POR = 1_000_000;
+
+const entrada: SerieEntrada[] = PAISES.map((p) => ({
+  iso: p.iso,
+  puntos: Object.entries(T.paises[p.iso]?.anual ?? {}).map(([ano, a]) => ({
+    decada: ano,
+    // Un año con poco material no da una tasa: unas pocas ocurrencias sobre unas pocas palabras serían un pico inventado.
+    v: a.palabras >= T.min_palabras ? (a[familia] * POR) / a.palabras : NaN,
+    n: a[familia], den: a.palabras,
+  })),
+}));
+
+const ANOS = decadas(entrada);
+// El escalón del techo se deduce del propio dato, para que el eje tenga entre cuatro y ocho pasos sea cual sea el
+// término: uno de mil por millón y otro de veinte no pueden compartir una constante escrita a mano.
+const VALORES = entrada.flatMap((s) => s.puntos.map((q) => q.v)).filter((v) => Number.isFinite(v));
+const BRUTO = Math.max(0, ...VALORES);
+const MAG = BRUTO > 0 ? 10 ** Math.floor(Math.log10(BRUTO)) : 1;
+const PASO = (BRUTO / MAG < 2 ? 0.25 : BRUTO / MAG < 5 ? 0.5 : 1) * MAG;
+const TECHO = maximoRedondeado(VALORES, PASO);
+const GEO = entrada.map((s) => serie(s, ANOS, TECHO));
+const L = LIENZO;
+const yBase = escalaY(0, TECHO);
+
+// La media de las dieciséis cámaras: el total de ocurrencias sobre el total de palabras dichas, con los mismos
+// años que entran en los paneles. Es la referencia fija contra la que se lee cada uno.
+const dentro = entrada.flatMap((s) => s.puntos.filter((q) => Number.isFinite(q.v)));
+const MEDIA = (dentro.reduce((a, q) => a + q.n, 0) * POR) / Math.max(1, dentro.reduce((a, q) => a + q.den, 0));
+const referencia = MEDIA > 0 && MEDIA < TECHO ? { y: escalaY(MEDIA, TECHO), arriba: enPorcentaje({ x: 0, y: escalaY(MEDIA, TECHO) }).arriba } : null;
+
+// Eje X: los extremos siempre; las décadas de en medio, solo si el panel da de sí (como en la figura de la voz).
+const MARCAS = marcasX(ANOS).filter((m) => m.ano % 10 === 0);
+const TICS = MARCAS.map((m) => `M${m.x},${yBase}v3`).join('');
+const tasa = (v: number) => fmt.entero(Math.round(v), lang);
+const clave = (iso: string, ano: string) => `termino.${familia}.${iso}.${ano}`;
+const ano = (a: number | string) => fmt.dato(Number(a), String(a), 'eje.ano');
+
+const paneles = PAISES.map((p, i) => {
+  const g = GEO[i];
+  const pico = g.puntos.reduce<PuntoGeom | null>((a, b) => (a && a.v >= b.v ? a : b), null);
+  // El hito se ancla a SU año, coincida o no con el pico: es un ancla histórica sobre la serie, no una explicación.
+  // El rótulo va al lado contrario del pico, que es donde el panel está vacío, y lleva el año cuando no es el del pico.
+  const h = hitos[p.iso];
+  const enSerie = h ? g.puntos.find((q) => q.decada === String(h.ano)) : undefined;
+  const hito = h && pico && enSerie
+    // Si el hito cae en el año del pico, el punto rotulado ya lo señala: un hilo más solo sería ruido.
+    ? { texto: h.texto, x: enSerie.x, y: enSerie.y, ano: String(h.ano) === pico.decada ? null : String(h.ano) }
+    : null;
+  // El hito ocupa SIEMPRE la banda de arriba a la izquierda. Si el pico cae ahí, su cifra baja al otro lado del punto:
+  // se aparta el dato móvil, no la anotación, que es la que tiene que estar igual en los dieciséis paneles.
+  const arribaIzq = pico ? enPorcentaje(pico).arriba < 46 && pico.x < L.ancho * 0.62 : false;
+  return { p, g, pico, hito, picoBajo: !!hito && arribaIzq };
+});
+const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
+---
+<figure class="figtermino" id={id} aria-labelledby={ids.titulo}>
+  <figcaption class="tm-cabeza">
+    <h2 id={ids.titulo} class="tm-titulo"><slot name="titulo" /></h2>
+  </figcaption>
+
+  <div class="tm-rejilla" role="img" aria-describedby={ids.largo}>
+    {paneles.map(({ p, g, pico, hito, picoBajo }) => (
+      <div class="tm-mini" data-iso={p.iso}>
+        <p class="tm-nombre">{p.nombre[lang]}</p>
+        <div class="tm-lienzo">
+          <svg class="tm-svg" viewBox={`0 0 ${L.ancho} ${L.alto}`} aria-hidden="true" focusable="false">
+            {referencia && <line class="tm-ref" x1="0" x2={L.ancho} y1={referencia.y} y2={referencia.y} />}
+            <line class="tm-base" x1="0" x2={L.ancho} y1={yBase} y2={yBase} />
+            <path class="tm-tic" d={TICS} />
+            {g.ruta && <path class="tm-linea" d={g.ruta} />}
+            {hito?.ano && <line class="tm-marca" x1={hito.x} x2={hito.x} y1={hito.y} y2="2" />}
+            {hito?.ano && <circle class="tm-marca-punto" cx={hito.x} cy={hito.y} r="2.2" />}
+            {pico && <circle class="tm-punto" cx={pico.x} cy={pico.y} r="2.8" />}
+          </svg>
+          {pico && (
+            <span
+              class:list={['tm-etq', pico.x > L.ancho * 0.58 ? 'tm-fin' : 'tm-ini', { 'tm-etq-bajo': picoBajo }]}
+              style={`left:${enPorcentaje(pico).izq}%;top:${enPorcentaje(pico).arriba}%`}
+              set:html={`${fmt.dato(pico.v, tasa(pico.v), clave(p.iso, pico.decada))}<span class="tm-ano"> · ${ano(pico.decada)}</span>`}
+            />
+          )}
+          {hito && (
+            <span class="tm-hito">
+              {hito.ano && <span class="tm-hito-ano" set:html={ano(hito.ano) + ' · '} />}{hito.texto}
+            </span>
+          )}
+        </div>
+        <div class="tm-eje">
+          {MARCAS.map((m, k) => (
+            <span
+              class={k === 0 ? 'tm-ini' : k === MARCAS.length - 1 ? 'tm-fin' : 'tm-medio'}
+              style={k === 0 || k === MARCAS.length - 1 ? undefined : `left:${enPorcentaje({ x: m.x, y: 0 }).izq}%`}
+              set:html={ano(m.ano)}
+            />
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {/* Descripción larga: el año más alto de cada cámara. El denominador lo dan el título y la leyenda, que el lector
+      de pantalla ya ha oído; repetirlo dieciséis veces sería ruido. Oculta a la vista, no al lector de pantalla. */}
+  <div id={ids.largo} class="sr-only">
+    <ul>
+      {paneles.map(({ p, pico }) => pico && (
+        <li set:html={`${p.nombre[lang]}: ${fmt.dato(pico.v, tasa(pico.v), clave(p.iso, pico.decada))} · ${ano(pico.decada)}`} />
+      ))}
+    </ul>
+  </div>
+
+  <div class="tm-leyenda">
+    <span class="tm-muestras">
+      <svg class="tm-muestra" viewBox="0 0 44 12" aria-hidden="true" focusable="false"><path class="tm-linea" d="M2,6L42,6" /><circle class="tm-punto" cx="22" cy="6" r="3" /></svg>
+      <span class="tm-muestra-rotulo" set:html={leyenda
+        .replace('{media}', fmt.dato(MEDIA, tasa(MEDIA), `termino.${familia}.media`))
+        .replace('{techo}', fmt.dato(TECHO, tasa(TECHO), `termino.${familia}.techo`))} />
+    </span>
+    <p class="nota"><slot name="salvedad" /></p>
+  </div>
+</figure>
+
+<style>
+  /* Todo lo que sigue es el sistema de la figura de la voz, con su prefijo: si aquella cambia, esta cambia con ella. */
+  .figtermino { margin: 0; }
+  .tm-cabeza { margin-bottom: clamp(1.1rem, 2.4vw, 1.75rem); }
+  .tm-titulo { font-size: clamp(1.15rem, 1rem + .85vw, 1.7rem); max-width: 34rem; }
+
+  .tm-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 4vw, 2.75rem) clamp(.9rem, 2.4vw, 2.25rem); }
+  @media (min-width: 48rem) { .tm-rejilla { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .tm-mini { min-width: 0; container-type: inline-size; }
+  .tm-nombre {
+    margin: 0 0 .15rem; max-width: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: 700 clamp(.95rem, .85rem + .45vw, 1.2rem)/1.15 var(--display); letter-spacing: -.012em; font-stretch: 86%;
+  }
+  .tm-lienzo { position: relative; line-height: 0; }
+  .tm-svg { display: block; width: 100%; height: auto; overflow: visible; }
+
+  .tm-base { stroke: var(--ink); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .tm-tic { fill: none; stroke: var(--ink); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .tm-ref { stroke: var(--mute); stroke-width: 1px; stroke-dasharray: 1 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .tm-linea { fill: none; stroke: var(--dato); stroke-width: 2px; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .tm-punto { fill: var(--dato); stroke: var(--bg); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+
+  /* Rótulo del año más alto: papel bajo la cifra, para separarla de la línea. Es el dato que se lee de cada panel. */
+  .tm-etq {
+    position: absolute; z-index: 1; padding: .1em .22em; background: var(--bg); white-space: nowrap;
+    font-size: .74rem; line-height: 1.05; color: var(--ink); font-weight: 700;
+  }
+  .tm-etq :global(data.cifra) { font-size: 1em; font-weight: 700; }
+  .tm-ano { font-weight: 400; color: var(--mute); }
+  .tm-ano :global(data.cifra) { font-weight: 400; color: var(--mute); }
+  .tm-etq.tm-ini { transform: translate(-.3rem, calc(-100% - .42rem)); }
+  .tm-etq.tm-fin { transform: translate(calc(-100% + .3rem), calc(-100% - .42rem)); }
+  /* Cuando el pico invade la banda del hito, su cifra pasa por debajo del punto. */
+  .tm-etq.tm-ini.tm-etq-bajo { transform: translate(-.3rem, .34rem); }
+  .tm-etq.tm-fin.tm-etq-bajo { transform: translate(calc(-100% + .3rem), .34rem); }
+  @media (min-width: 48rem) {
+    .tm-svg .tm-linea { stroke-width: 2.75px; }
+    .tm-svg .tm-punto { r: 3.4px; }
+    .tm-etq { font-size: clamp(.82rem, .7rem + .45vw, 1.05rem); }
+  }
+
+  /* El hito, arriba, donde el panel respira. Tipografía de rótulo —no de lectura—, para que se lea como anotación. */
+  .tm-hito {
+    position: absolute; top: 0; left: 0; right: 22%; z-index: 0; text-align: left;
+    font: 500 .64rem/1.3 var(--display); font-stretch: 92%; color: var(--mute); text-wrap: pretty;
+  }
+  .tm-hito-ano :global(data.cifra) { font-family: var(--mono); color: var(--mute); }
+  /* Hilo del hito: sube de su punto hasta la banda del rótulo, para que texto y dato sean un solo gesto. */
+  .tm-marca { stroke: var(--mute); stroke-width: 1px; vector-effect: non-scaling-stroke; }
+  .tm-marca-punto { fill: var(--bg); stroke: var(--mute); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
+  @media (min-width: 48rem) { .tm-hito { font-size: clamp(.66rem, .6rem + .22vw, .76rem); max-width: 60%; } }
+
+  .tm-eje { position: relative; height: 1.1rem; margin-top: .2rem; font-size: .68rem; line-height: 1; color: var(--mute); }
+  .tm-eje span { position: absolute; top: 0; white-space: nowrap; }
+  .tm-eje :global(data.cifra) { font-size: 1em; }
+  .tm-eje .tm-ini { left: 0; }
+  .tm-eje .tm-fin { right: 0; }
+  .tm-eje .tm-medio { transform: translateX(-50%); display: none; }
+  @container (min-width: 15.5rem) { .tm-eje .tm-medio { display: block; } }
+
+  .tm-leyenda { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .6rem 1.25rem; margin-top: clamp(1.5rem, 3vw, 2.25rem); padding-top: 1rem; border-top: 1px solid var(--hair); }
+  .tm-leyenda p { margin: 0; flex: 1 1 18rem; max-width: var(--measure); }
+  .tm-muestras { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; padding-top: .15rem; }
+  .tm-muestra { width: 2.75rem; height: .75rem; overflow: visible; flex: none; }
+  .tm-muestra-rotulo { font: 600 var(--fs-small)/1.2 var(--display); color: var(--ink-2); }
+</style>

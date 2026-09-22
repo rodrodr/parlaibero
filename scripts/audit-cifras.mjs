@@ -267,8 +267,7 @@ function esperados() {
   const eventos = Object.fromEntries(leeJson('src/data/eventos.json').map((e) => [`${e.iso}-${e.date}`, e]));
   const columnas = Object.fromEntries(leeJson('src/data/columnas.json').map((c) => [c.nombre, c]));
   // BORRADOR (rama `portada-rotativa`): las series de la apertura rotativa. Si los ficheros no están, la familia no existe.
-  const SERIES = { terminos: existsSync(join(RAIZ, 'src/data/terminos.json')) ? leeJson('src/data/terminos.json') : null,
-                   estructura: existsSync(join(RAIZ, 'src/data/estructura.json')) ? leeJson('src/data/estructura.json') : null };
+  const TERMINOS = existsSync(join(RAIZ, 'src/data/terminos.json')) ? leeJson('src/data/terminos.json') : null;
   const fFila = join(RAIZ, 'src/data/fila_ejemplo.json');
   // `{ iso, texto_truncado, celdas: [{ columna, valor }] }` → columna → valor.
   const fila = existsSync(fFila) ? Object.fromEntries((leeJson('src/data/fila_ejemplo.json').celdas ?? []).map((c) => [c.columna, c.valor])) : null;
@@ -350,26 +349,39 @@ function esperados() {
         },
       };
     }
-    // BORRADOR: `serie.<fuente>.<medida>.<iso>.<periodo>`. Se recalcula aquí desde los datos, con la misma regla que
-    // el componente pero sin compartir su código: un control que importa lo que vigila solo puede darle la razón.
-    if ((m = k.match(/^serie\.(terminos|estructura)\.(\w+)\.([a-z]{2})\.(\d{4}s?)$/))) {
-      const [, fuente, medida, iso, periodo] = m;
-      const raiz = SERIES[fuente];
-      if (!raiz) return null;
+    // BORRADOR (rama `portada-rotativa`): `termino.<familia>.<iso>.<año>` y `termino.<familia>.media`. Se recalcula
+    // aquí desde los datos, con la misma regla que el componente pero sin compartir su código: un control que importa
+    // lo que vigila solo puede darle la razón.
+    if ((m = k.match(/^termino\.(\w+)\.(?:([a-z]{2})\.(\d{4})|media|techo)$/)) && TERMINOS) {
+      const [, fam, iso, ano] = m;
+      const vale = (a) => a && a.palabras >= TERMINOS.min_palabras;
       let v = null;
-      if (fuente === 'terminos') {
-        const a = raiz.paises[iso]?.anual?.[periodo];
-        if (a && a.palabras >= raiz.min_palabras) v = (a[medida] * 1e6) / a.palabras;
+      if (iso) {
+        const a = TERMINOS.paises[iso]?.anual?.[ano];
+        if (vale(a)) v = (a[fam] * 1e6) / a.palabras;
+      } else if (/\.techo$/.test(k)) {
+        // El techo del eje: el máximo observado subido al siguiente escalón «bonito». Misma regla que el componente,
+        // escrita aparte a propósito.
+        let bruto = 0;
+        for (const p of Object.values(TERMINOS.paises)) {
+          for (const a of Object.values(p.anual)) if (vale(a)) bruto = Math.max(bruto, (a[fam] * 1e6) / a.palabras);
+        }
+        if (bruto > 0) {
+          const mag = 10 ** Math.floor(Math.log10(bruto));
+          const paso = (bruto / mag < 2 ? 0.25 : bruto / mag < 5 ? 0.5 : 1) * mag;
+          v = Math.round((Math.max(1, Math.ceil(bruto / paso - 1e-9)) * paso) * 100) / 100;
+        }
       } else {
-        const a = raiz.paises[iso]?.[/s$/.test(periodo) ? 'decada' : 'anual']?.[periodo];
-        if (a && typeof a[medida] === 'number') v = a[medida];
+        let n = 0, den = 0;
+        for (const p of Object.values(TERMINOS.paises)) {
+          for (const a of Object.values(p.anual)) if (vale(a)) { n += a[fam]; den += a.palabras; }
+        }
+        if (den > 0) v = (n * 1e6) / den;
       }
       if (v === null) return null;
       return { valida(value, texto) {
         if (Math.abs(Number(value) - v) > 1e-9) return `lleva value="${value}" y el dato es ${v}`;
-        // El texto es el valor redondeado: un entero, o un porcentaje sin decimales.
-        const esperado = v <= 1 && /%/.test(texto) ? String(Math.round(v * 100)) : String(Math.round(v));
-        return digitos(texto) === digitos(esperado) ? null : `el texto «${texto}» no dice ${esperado}`;
+        return digitos(texto) === digitos(String(Math.round(v))) ? null : `el texto «${texto}» no dice ${Math.round(v)}`;
       } };
     }
     // La fecha de la búsqueda de corpus equivalentes la da el investigador: su procedencia es `src/config/enlaces.ts`.
@@ -596,7 +608,7 @@ function main() {
       nDatos++;
       const k = d.attrs['data-k'];
       if (!k) { falla(rel, `<data> sin data-k: «${textoDe(d)}»`); continue; }
-      const familia = k in cifras ? 'cifras.json' : /^pais\./.test(k) ? 'paises.json' : /^anual\./.test(k) ? 'anual.json' : /^evento\./.test(k) ? 'eventos.json' : /^columna\./.test(k) ? 'columnas.json' : /^serie\./.test(k) ? 'series (borrador)' : 'de componente';
+      const familia = k in cifras ? 'cifras.json' : /^pais\./.test(k) ? 'paises.json' : /^anual\./.test(k) ? 'anual.json' : /^evento\./.test(k) ? 'eventos.json' : /^columna\./.test(k) ? 'columnas.json' : /^termino\./.test(k) ? 'terminos.json (borrador)' : 'de componente';
       familias.set(familia, (familias.get(familia) ?? 0) + 1);
       const e = esperado(k), visto = d.attrs.value ?? '', texto = textoDe(d);
       if (!e) { falla(rel, `<data data-k="${k}">: clave sin procedencia conocida («${texto}»)`); continue; }

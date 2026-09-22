@@ -211,7 +211,10 @@ const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
   .tm-marca-punto { fill: var(--bg); stroke: var(--mute); stroke-width: 1.5px; vector-effect: non-scaling-stroke; }
   @media (min-width: 48rem) { .tm-hito { font-size: clamp(.66rem, .6rem + .22vw, .76rem); max-width: 60%; } }
 
-  .tm-eje { position: relative; height: 1.1rem; margin-top: .2rem; font-size: .68rem; line-height: 1; color: var(--mute); }
+  /* El lienzo reserva veinte unidades bajo la línea base para los rótulos que caen ahí, y el eje empezaba
+     después de todas: los años quedaban lejos de su marca. El margen negativo va en PORCENTAJE, que se resuelve
+     contra el ancho, así que sube siempre lo mismo en unidades del dibujo, mida el panel lo que mida. */
+  .tm-eje { position: relative; height: 1.1rem; margin-top: -7.5%; font-size: .68rem; line-height: 1; color: var(--mute); }
   .tm-eje span { position: absolute; top: 0; white-space: nowrap; }
   .tm-eje :global(data.cifra) { font-size: 1em; }
   /* Cada rótulo se centra en SU marca. Clavar los extremos al borde del panel los desplazaba: en la serie anual,
@@ -227,7 +230,9 @@ const ids = { titulo: `${id}-titulo`, largo: `${id}-largo` };
   .tm-leyenda { display: grid; gap: .7rem 2rem; margin-top: clamp(1.5rem, 3vw, 2.25rem); padding-top: 1rem; border-top: 1px solid var(--hair); }
   .tm-leyenda p { margin: 0; max-width: var(--measure); }
   @media (min-width: 60rem) { .tm-leyenda { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-items: start; } }
-  .tm-muestras { display: inline-flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; padding-top: .15rem; }
-  .tm-muestra { width: 2.75rem; height: .75rem; overflow: visible; flex: none; }
+  /* La muestra, al lado del texto y no encima: con `wrap` la leyenda se caía a la línea de abajo y el trazo quedaba
+     suelto. El trazo no encoge; el texto ocupa lo que queda y envuelve dentro de su bloque. */
+  .tm-muestras { display: flex; align-items: flex-start; gap: .55rem; }
+  .tm-muestra { width: 2.75rem; height: .75rem; overflow: visible; flex: none; margin-top: .3rem; }
   .tm-muestra-rotulo { font: 600 var(--fs-small)/1.2 var(--display); color: var(--ink-2); }
 </style>

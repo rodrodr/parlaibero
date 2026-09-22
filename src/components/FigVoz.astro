@@ -376,6 +376,8 @@ const faltan = [
   }
 
   /* Eje X: los extremos siempre; las cuatro décadas de en medio, solo si el panel da de sí. */
+  /* El aire bajo la línea base NO sobra aquí: lo ocupan los valores que van debajo de su punto («4,40 %»).
+     Subir el eje, como en la figura de términos, los pisaba. */
   .vz-eje { position: relative; height: 1.1rem; margin-top: .2rem; font-size: .68rem; line-height: 1; color: var(--mute); }
   .vz-eje span { position: absolute; top: 0; white-space: nowrap; }
   .vz-eje data.cifra { font-size: 1em; }
